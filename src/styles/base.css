@@ -1,0 +1,144 @@
+/* Base da página: documento, raiz (.page), resets, foco e utilitários de tipografia. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+  scrollbar-color: var(--royal) var(--scrollbar-track);
+  scrollbar-width: thin;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+}
+
+/* Raiz da página; também guarda os estados globais (data-motion, is-menu-open). */
+.page {
+  position: relative;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: #fff;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+.page ::selection {
+  background: var(--royal);
+  color: #fff;
+}
+
+.page .is-royal ::selection {
+  background: #fff;
+  color: var(--royal);
+}
+
+:where(.page) a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(.page) svg {
+  display: block;
+  flex: none;
+}
+
+:where(.page) :where(h1, h2, h3, p, ul, ol, dl, dd, figure, fieldset, legend) {
+  margin: 0;
+  padding: 0;
+}
+
+:where(.page) :where(ul, ol) {
+  list-style: none;
+}
+
+:where(.page) fieldset {
+  border: 0;
+  min-width: 0;
+}
+
+:where(.page) :where(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+/* Foco: azul sobre fundos claros, branco sobre os fundos royal, o header transparente e o menu. */
+.page :focus-visible {
+  outline: 2px solid var(--royal-bright);
+  outline-offset: 3px;
+}
+
+.page .is-royal :focus-visible,
+.page .site-header:not(.is-scrolled) :focus-visible,
+.page .menu :focus-visible,
+.page .footer :focus-visible,
+.page.is-menu-open .site-header :focus-visible {
+  outline-color: #fff;
+}
+
+.page .contact-form :focus-visible {
+  outline-color: var(--royal-bright);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.section {
+  padding-block: clamp(96px, 6.4vw + 44px, 152px);
+}
+
+.is-royal {
+  background: var(--royal);
+  color: #fff;
+}
+
+.h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(38px, 2.3vw + 24px, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.018em;
+  color: var(--royal);
+  text-wrap: balance;
+  font-variation-settings: 'opsz' 30;
+}
+
+.is-royal .h2 {
+  color: #fff;
+}
+
+.lede {
+  font-size: clamp(17px, 0.3vw + 15px, 19px);
+  line-height: 1.65;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.is-royal .lede {
+  color: var(--sky);
+}

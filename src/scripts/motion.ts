@@ -176,7 +176,7 @@ export function initLanding(root: HTMLElement): void {
   const setMenu = (open: boolean) => {
     if (!menuEl || !toggleEl) return;
     menuOpen = open;
-    root.classList.toggle('menu-open', open);
+    root.classList.toggle('is-menu-open', open);
     toggleEl.setAttribute('aria-expanded', String(open));
     toggleEl.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
     setText($('[data-menu-text]'), open ? 'Fechar' : 'Menu');
@@ -230,7 +230,8 @@ export function initLanding(root: HTMLElement): void {
   const formStatus = (form: HTMLFormElement, text: string, isError: boolean) => {
     const status = form.querySelector('[data-form-status]');
     if (!status) return;
-    status.className = `form-status${isError ? ' is-error' : ''}`;
+    // classList (e não className): a classe de escopo do Astro precisa continuar no elemento.
+    status.classList.toggle('is-error', isError);
     setText(status, text);
   };
   const setError = (el: Field, on: boolean) => {

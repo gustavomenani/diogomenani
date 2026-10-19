@@ -16,7 +16,7 @@
     "pretest:e2e": "npm run build",
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
-    "lint:css": "stylelint \"src/**/*.{css,astro}\" --allow-empty-input",
+    "lint:css": "stylelint \"src/**/*.{css,astro}\"",
     "validate:html": "html-validate dist",
     "verify": "npm run format:check && npm run lint && npm run check && npm run test && npm run build && npm run validate:html && npm run test:e2e"
   },

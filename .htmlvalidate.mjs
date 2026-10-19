@@ -7,5 +7,7 @@ export default defineConfig({
     'hidden-focusable': 'off',
     // O h1 do hero usa aria-label; corrigido por I6 — remover na Task 9.
     'aria-label-misuse': 'off',
+    // Só índices de animação em linha (custom properties); estilo de verdade fica no CSS.
+    'no-inline-style': ['error', { allowedProperties: ['--i', '--line', '--word'] }],
   },
 });

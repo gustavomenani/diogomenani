@@ -28,3 +28,85 @@ const words = manifesto.split(' ');
     </dl>
   </div>
 </section>
+
+<style>
+  .statement {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .statement-glow {
+    position: absolute;
+    left: -20%;
+    bottom: -60%;
+    width: min(1100px, 110vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(96 122 255 / 32%), rgb(0 22 123 / 0%));
+    pointer-events: none;
+  }
+
+  .statement .wrap {
+    position: relative;
+  }
+
+  .statement-text {
+    max-width: 21em;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(30px, 2.6vw + 14px, 56px);
+    line-height: 1.18;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+    font-variation-settings: 'opsz' 30;
+  }
+
+  .sw {
+    transition: opacity 0.7s var(--ease);
+  }
+
+  /* Com movimento, as palavras acendem (.lit) conforme a frase passa pela tela. */
+  :global(.page[data-motion='on']) .sw:not(.lit) {
+    opacity: 0.2;
+  }
+
+  .commitments {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr));
+    column-gap: clamp(40px, 5vw, 80px);
+    margin-top: clamp(64px, 6vw, 96px);
+    border-top: 1px solid var(--line-royal);
+  }
+
+  .commitment {
+    display: grid;
+    gap: 10px;
+    padding: 28px 0 30px;
+    border-bottom: 1px solid var(--line-royal);
+  }
+
+  .commitment dt {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(24px, 0.8vw + 17px, 30px);
+    line-height: 1.2;
+    color: #fff;
+    font-variation-settings: 'opsz' 22;
+  }
+
+  .commitment dd {
+    max-width: 30em;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--sky);
+  }
+
+  @media print {
+    .sw {
+      opacity: 1 !important;
+      transform: none !important;
+      clip-path: none !important;
+      transition: none !important;
+    }
+  }
+</style>

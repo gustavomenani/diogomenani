@@ -6,7 +6,7 @@ import { contact, whatsapp } from '../data/contact';
 import { areas } from '../data/content';
 import type { IconName } from '../data/icons';
 import { sectionIds } from '../data/navigation';
-import { EXTERNAL_LINK } from '../lib/links';
+import { externalLink } from '../lib/links';
 import { waLink } from '../lib/whatsapp';
 
 interface ContactItem {
@@ -49,7 +49,7 @@ const items: readonly ContactItem[] = [
             <span>
               <span class="cl-label">{item.label}</span>
               {item.href ? (
-                <a class="cl-value" href={item.href} {...(item.external ? EXTERNAL_LINK : {})}>
+                <a class="cl-value" href={item.href} {...(item.external ? externalLink() : {})}>
                   {item.value}
                 </a>
               ) : (
@@ -136,10 +136,162 @@ const items: readonly ContactItem[] = [
           <span class="btn-label">Enviar pelo WhatsApp</span>
         </button>
         <p class="form-status" role="status" aria-live="polite" data-form-status></p>
-        <a class="form-fallback" href={waLink()} {...EXTERNAL_LINK} data-form-fallback>
+        <a class="form-fallback" href={waLink()} {...externalLink()} data-form-fallback>
           Se o WhatsApp não abriu, toque aqui para enviar a mensagem.
         </a>
       </div>
     </form>
   </div>
 </section>
+
+<style>
+  .contact {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-glow {
+    position: absolute;
+    right: -18%;
+    top: -40%;
+    width: min(1000px, 100vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(96 122 255 / 36%), rgb(0 22 123 / 0%));
+    pointer-events: none;
+  }
+
+  .contact-grid {
+    position: relative;
+    display: grid;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .contact-copy .lede {
+    margin-top: 22px;
+    max-width: 30em;
+  }
+
+  .contact-cta {
+    margin-top: 36px;
+  }
+
+  .contact-list {
+    display: grid;
+    gap: 22px;
+    margin-top: 48px;
+    padding-top: 36px;
+    border-top: 1px solid var(--line-royal);
+  }
+
+  .contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .cl-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 28%);
+  }
+
+  .cl-icon :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .cl-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sky-dim);
+  }
+
+  .cl-value {
+    display: block;
+    font-size: 17px;
+    line-height: 1.45;
+    color: #fff;
+  }
+
+  a.cl-value {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    text-decoration-color: rgb(255 255 255 / 35%);
+    transition: text-decoration-color 0.3s;
+  }
+
+  a.cl-value:hover {
+    text-decoration-color: #fff;
+  }
+
+  .contact-form {
+    position: relative;
+    padding: clamp(28px, 3vw, 44px);
+    border-radius: 28px;
+    background: #fff;
+    color: var(--ink);
+    box-shadow: 0 48px 90px -44px rgb(0 4 36 / 85%);
+  }
+
+  .form-title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(26px, 0.8vw + 20px, 32px);
+    line-height: 1.15;
+    color: var(--royal);
+    font-variation-settings: 'opsz' 22;
+  }
+
+  .form-sub {
+    margin-top: 8px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+
+  .fields {
+    display: grid;
+    gap: 18px;
+    margin-top: 28px;
+  }
+
+  .form-status {
+    min-height: 1.5em;
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--royal);
+  }
+
+  .form-status.is-error {
+    color: var(--danger);
+  }
+
+  .form-fallback {
+    display: none;
+    justify-self: start;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--royal-bright);
+    text-decoration: underline;
+    text-underline-offset: 0.24em;
+  }
+
+  .form-fallback.is-shown {
+    display: inline-block;
+  }
+
+  @media (width >= 1024px) {
+    .contact-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(56px, 6vw, 112px);
+    }
+  }
+</style>

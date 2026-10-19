@@ -1,0 +1,28 @@
+/* Tokens da marca: azul royal e branco, Bodoni Moda nos títulos e Hanken Grotesk no texto. */
+:root {
+  --royal: #00167b;
+  --royal-deep: #000e52;
+  --royal-bright: #2440e6;
+  --ink: #0b1236;
+  --ink-soft: #4a5375;
+  --sky: #b9c3f0;
+  --sky-dim: #8c9be6;
+  --mist: #f2f4fb;
+  --line: #dde2f2;
+  --line-royal: rgb(255 255 255 / 16%);
+  --line-on-mist: #d2d8ec;
+  --danger: #b42318;
+  --field-border: #8690b6;
+  --field-border-hover: #5f6a96;
+  --field-placeholder: #646d92;
+  --field-bg: #fbfcff;
+  --scrollbar-track: #eceff9;
+  --serif: 'Bodoni Moda', 'Bodoni 72', Didot, 'Bodoni MT', Georgia, serif;
+  --sans: 'Hanken Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --gutter: clamp(20px, 4.4vw, 64px);
+
+  /* Altura do header no topo; também é a folga das âncoras ao rolar. */
+  --header-h: 84px;
+}

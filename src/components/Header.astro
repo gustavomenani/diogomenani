@@ -3,7 +3,7 @@ import Monogram from './Monogram.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
 import { contact } from '../data/contact';
 import { anchor, nav, sectionIds } from '../data/navigation';
-import { EXTERNAL_LINK } from '../lib/links';
+import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
@@ -22,7 +22,7 @@ import { messages, waLink } from '../lib/whatsapp';
       ))}
       <span class="nav-ind" aria-hidden="true" data-nav-ind></span>
     </nav>
-    <a class="btn btn-header" href={waLink(messages.default)} {...EXTERNAL_LINK}>
+    <a class="btn btn-header" href={waLink(messages.default)} {...externalLink()}>
       Agendar conversa
     </a>
     <button
@@ -43,8 +43,10 @@ import { messages, waLink } from '../lib/whatsapp';
 <div class="menu" id="menu" aria-hidden="true" data-menu>
   <div class="wrap menu-inner">
     <nav class="menu-nav" aria-label="Menu">
-      {nav.map((item) => (
-        <a href={anchor(item.id)}>{item.label}</a>
+      {nav.map((item, i) => (
+        <a href={anchor(item.id)} style={`--i:${i}`}>
+          {item.label}
+        </a>
       ))}
     </nav>
     <div class="menu-foot">
@@ -55,3 +57,389 @@ import { messages, waLink } from '../lib/whatsapp';
     </div>
   </div>
 </div>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    color: #fff;
+    transition:
+      background-color 0.5s var(--ease),
+      color 0.5s var(--ease),
+      box-shadow 0.5s var(--ease),
+      transform 0.7s var(--ease);
+    animation: drop 1s var(--ease) 0.15s backwards;
+  }
+
+  .site-header.is-scrolled {
+    background: rgb(255 255 255 / 97%);
+    color: var(--royal);
+    box-shadow:
+      0 1px 0 var(--line),
+      0 16px 36px -28px rgb(0 22 123 / 45%);
+  }
+
+  .site-header.is-tucked {
+    transform: translate3d(0, -102%, 0);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    height: var(--header-h);
+    transition: height 0.5s var(--ease);
+  }
+
+  .site-header.is-scrolled .header-inner {
+    height: 72px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-right: auto;
+    min-height: 44px;
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: auto;
+    transition: transform 0.7s var(--ease);
+  }
+
+  .brand:hover .brand-mark {
+    transform: translateY(-1px) scale(1.05);
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .brand-name {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    font-variation-settings: 'opsz' 18;
+  }
+
+  .brand-sub {
+    margin-top: 4px;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    opacity: 0.8;
+  }
+
+  .nav {
+    position: relative;
+    display: none;
+    align-items: center;
+    gap: 30px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    opacity: 0.82;
+    transition: opacity 0.3s;
+  }
+
+  .nav a:hover,
+  .nav a.is-active {
+    opacity: 1;
+  }
+
+  /* Indicador do link ativo: 1px de largura, esticado pelo script até a largura do link. */
+  .nav-ind {
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    width: 1px;
+    height: 1.5px;
+    background: currentColor;
+    transform-origin: left center;
+    opacity: 0;
+    transition:
+      transform 0.7s var(--ease),
+      opacity 0.4s;
+  }
+
+  .btn-header {
+    display: none;
+    min-height: 44px;
+    padding: 0 20px;
+    font-size: 15px;
+    background: transparent;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 55%);
+  }
+
+  .btn-header::before {
+    background: #fff;
+  }
+
+  .btn-header:hover {
+    color: var(--royal);
+  }
+
+  .site-header.is-scrolled .btn-header {
+    background: var(--royal);
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .site-header.is-scrolled .btn-header::before {
+    background: var(--royal-bright);
+  }
+
+  .site-header.is-scrolled .btn-header:hover {
+    color: #fff;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 4px 0 10px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .menu-icon {
+    position: relative;
+    width: 22px;
+    height: 12px;
+  }
+
+  .menu-icon::before,
+  .menu-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .menu-icon::before {
+    top: 0;
+  }
+
+  .menu-icon::after {
+    top: 10.5px;
+  }
+
+  :global(.page.is-menu-open) .menu-icon::before {
+    transform: translateY(5.25px) rotate(45deg);
+  }
+
+  :global(.page.is-menu-open) .menu-icon::after {
+    transform: translateY(-5.25px) rotate(-45deg);
+  }
+
+  :global(.page.is-menu-open) .site-header {
+    color: #fff;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--royal-bright);
+    transform: scaleX(0);
+    transform-origin: left center;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .site-header.is-scrolled .progress {
+    opacity: 1;
+  }
+
+  @media (width >= 1080px) {
+    .nav {
+      display: flex;
+    }
+
+    .btn-header {
+      display: inline-flex;
+    }
+
+    .menu-toggle {
+      display: none;
+    }
+  }
+
+  @media (1080px <= width <= 1199px) {
+    .brand-sub {
+      display: none;
+    }
+
+    .header-inner {
+      gap: 28px;
+    }
+
+    .nav {
+      gap: 24px;
+    }
+  }
+
+  @media (width <= 479px) {
+    .brand-sub {
+      display: none;
+    }
+  }
+
+  /* Menu mobile: tela cheia, revelado de cima para baixo. */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    padding: 112px 0 32px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--royal);
+    color: #fff;
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    transition:
+      clip-path 0.8s var(--ease),
+      visibility 0s linear 0.8s;
+  }
+
+  :global(.page.is-menu-open) .menu {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    transition:
+      clip-path 0.8s var(--ease),
+      visibility 0s;
+  }
+
+  :global(.page.is-menu-open) .progress {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Telas baixas (celular deitado). */
+  @media (height <= 560px) {
+    .menu {
+      padding-top: 84px;
+    }
+
+    .menu-nav a {
+      font-size: 30px;
+      padding: 4px 0;
+    }
+
+    .menu-foot {
+      padding-top: 20px;
+    }
+  }
+
+  .menu-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .menu-nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-nav a {
+    display: block;
+    padding: 8px 0;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(36px, 9vw, 54px);
+    line-height: 1.15;
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    transition:
+      opacity 0.5s ease,
+      transform 0.8s var(--ease);
+    font-variation-settings: 'opsz' 22;
+  }
+
+  /* Ao abrir, os links entram um a um (--i é o índice de cada link). */
+  :global(.page.is-menu-open) .menu-nav a {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.16s + var(--i) * 0.06s);
+  }
+
+  .menu-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--line-royal);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  :global(.page.is-menu-open) .menu-foot {
+    opacity: 1;
+    transition-delay: 0.45s;
+  }
+
+  .menu-foot p {
+    font-size: 14px;
+    color: var(--sky);
+  }
+
+  @media (width >= 1080px) {
+    .menu {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header {
+      animation: fade 0.5s ease-out backwards !important;
+    }
+
+    .menu,
+    .menu-nav a {
+      transition-duration: 0.2s !important;
+    }
+
+    .menu-nav a {
+      transform: none !important;
+    }
+  }
+
+  @media print {
+    .site-header,
+    .menu,
+    .progress {
+      display: none !important;
+    }
+  }
+</style>

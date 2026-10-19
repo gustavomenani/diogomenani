@@ -1,7 +1,7 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 import Icon from './Icon.astro';
-import { EXTERNAL_LINK } from '../lib/links';
+import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 
 type Props = HTMLAttributes<'a'> & {
@@ -14,7 +14,7 @@ type Props = HTMLAttributes<'a'> & {
 const { label, message = messages.default, class: className, ...attrs } = Astro.props;
 ---
 
-<a class:list={['btn btn-light', className]} href={waLink(message)} {...EXTERNAL_LINK} {...attrs}>
+<a class:list={['btn btn-light', className]} href={waLink(message)} {...externalLink()} {...attrs}>
   <Icon name="whatsapp" />
   <span class="btn-label" data-wa-label>
     {label}

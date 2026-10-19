@@ -2,7 +2,7 @@
 import Icon from './Icon.astro';
 import { areas } from '../data/content';
 import { sectionIds } from '../data/navigation';
-import { EXTERNAL_LINK } from '../lib/links';
+import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
@@ -18,7 +18,7 @@ import { messages, waLink } from '../lib/whatsapp';
       </p>
       <p class="areas-note" data-reveal>
         Não encontrou o seu caso?{' '}
-        <a class="link" href={waLink(messages.unlistedCase)} {...EXTERNAL_LINK}>
+        <a class="link" href={waLink(messages.unlistedCase)} {...externalLink()}>
           Envie uma mensagem
         </a>{' '}
         e eu digo se posso ajudar.
@@ -27,7 +27,7 @@ import { messages, waLink } from '../lib/whatsapp';
     <ul class="area-list" data-reveal-list>
       {areas.map((area) => (
         <li class="area">
-          <a class="area-link" href={waLink(messages.area(area.name))} {...EXTERNAL_LINK}>
+          <a class="area-link" href={waLink(messages.area(area.name))} {...externalLink()}>
             <span class="area-body">
               <span class="area-name">{area.name}</span>
               <span class="area-desc">{area.description}</span>
@@ -41,3 +41,154 @@ import { messages, waLink } from '../lib/whatsapp';
     </ul>
   </div>
 </section>
+
+<style>
+  .areas {
+    background: var(--mist);
+  }
+
+  .areas-grid {
+    display: grid;
+    gap: 48px;
+  }
+
+  .areas-head .lede {
+    margin-top: 22px;
+    max-width: 30em;
+  }
+
+  .areas-note {
+    margin-top: 22px;
+    font-size: 16px;
+    color: var(--ink-soft);
+  }
+
+  .area-list {
+    border-top: 1px solid var(--line-on-mist);
+  }
+
+  .area {
+    border-bottom: 1px solid var(--line-on-mist);
+  }
+
+  .area-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 30px 0;
+    isolation: isolate;
+    color: var(--ink);
+  }
+
+  /* Fundo royal que sobe por trás da área no hover e no foco. */
+  .area-link::before {
+    content: '';
+    position: absolute;
+    inset: 0 -28px;
+    z-index: -1;
+    border-radius: 6px;
+    background: var(--royal);
+    transform: scaleY(0);
+    transform-origin: center bottom;
+    transition: transform 0.7s var(--ease);
+  }
+
+  .area-body {
+    display: block;
+    transition: transform 0.7s var(--ease);
+  }
+
+  .area-name {
+    display: block;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(26px, 1.1vw + 17px, 34px);
+    line-height: 1.15;
+    color: var(--royal);
+    transition: color 0.5s var(--ease);
+    font-variation-settings: 'opsz' 22;
+  }
+
+  .area-desc {
+    display: block;
+    margin-top: 8px;
+    max-width: 34em;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    transition: color 0.5s var(--ease);
+  }
+
+  .area-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--royal-bright);
+    transition: color 0.5s var(--ease);
+  }
+
+  .area-go :global(svg) {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.7s var(--ease);
+  }
+
+  .area-link:hover::before,
+  .area-link:focus-visible::before {
+    transform: scaleY(1);
+  }
+
+  .area-link:hover .area-body,
+  .area-link:focus-visible .area-body {
+    transform: translate3d(14px, 0, 0);
+  }
+
+  .area-link:hover .area-name,
+  .area-link:hover .area-desc,
+  .area-link:hover .area-go,
+  .area-link:focus-visible .area-name,
+  .area-link:focus-visible .area-desc,
+  .area-link:focus-visible .area-go {
+    color: #fff;
+  }
+
+  .area-link:hover .area-go :global(svg) {
+    transform: translate3d(3px, -3px, 0);
+  }
+
+  @media (width >= 640px) {
+    .area-link {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 32px;
+    }
+  }
+
+  @media (width >= 960px) {
+    .areas-grid {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      gap: clamp(48px, 6vw, 104px);
+      align-items: start;
+    }
+
+    .areas-head {
+      position: sticky;
+      top: 120px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .area-body,
+    .area-link::before {
+      transition-duration: 0.2s !important;
+    }
+
+    .area-link:hover .area-body,
+    .area-link:focus-visible .area-body {
+      transform: none;
+    }
+  }
+</style>

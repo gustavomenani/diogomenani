@@ -1,16 +1,106 @@
 ---
 import Icon from './Icon.astro';
-import { EXTERNAL_LINK } from '../lib/links';
+import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
 <a
   class="fab"
   href={waLink(messages.default)}
-  {...EXTERNAL_LINK}
+  {...externalLink()}
   aria-label="Conversar pelo WhatsApp"
   data-fab
 >
   <Icon name="whatsapp" />
   <span class="fab-label">WhatsApp</span>
 </a>
+
+<style>
+  /* Botão flutuante (só abaixo de 1080px): aparece depois do hero e some perto do contato. */
+  .fab {
+    position: fixed;
+    right: clamp(16px, 2.2vw, 32px);
+    bottom: clamp(16px, 2.2vw, 32px);
+    z-index: 45;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 56px;
+    padding: 0 22px 0 18px;
+    border-radius: 999px;
+    background: var(--royal);
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow:
+      0 20px 44px -18px rgb(0 22 123 / 75%),
+      inset 0 0 0 1px rgb(255 255 255 / 14%);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, 140%, 0);
+    pointer-events: none;
+    transition:
+      transform 0.8s var(--ease),
+      opacity 0.5s ease,
+      background-color 0.3s,
+      visibility 0s linear 0.8s;
+  }
+
+  .fab.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    transition:
+      transform 0.8s var(--ease),
+      opacity 0.5s ease,
+      background-color 0.3s,
+      visibility 0s;
+  }
+
+  :global(.page.is-menu-open) .fab {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  @media (width >= 1080px) {
+    .fab {
+      display: none;
+    }
+  }
+
+  .fab:hover {
+    background: var(--royal-bright);
+  }
+
+  .fab :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+
+  @media (width <= 639px) {
+    .fab {
+      width: 56px;
+      padding: 0;
+    }
+
+    .fab-label {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab {
+      transition-duration: 0.2s !important;
+      transform: none !important;
+    }
+  }
+
+  @media print {
+    .fab {
+      display: none !important;
+    }
+  }
+</style>

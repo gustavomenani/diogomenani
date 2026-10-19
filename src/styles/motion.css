@@ -1,0 +1,135 @@
+/*
+ * Revelações na rolagem. Os estados escondidos só valem com data-motion="on", que o script define
+ * quando pode animar: sem JavaScript, com movimento reduzido ou numa captura da página inteira,
+ * todo o conteúdo aparece direto.
+ */
+.page[data-motion='on'] [data-reveal] {
+  transition:
+    opacity 1s var(--ease),
+    transform 1.15s var(--ease),
+    clip-path 1.25s var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+
+.page[data-motion='on'] [data-reveal]:not(.is-in) {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+}
+
+.page[data-motion='on'] [data-reveal='rise']:not(.is-in) {
+  opacity: 1;
+  transform: translate3d(0, 0.5em, 0);
+  clip-path: inset(0 0 100% 0);
+}
+
+.page[data-motion='on'] [data-reveal='rise'].is-in {
+  clip-path: inset(-20% -10% -30% -10%);
+}
+
+.page[data-motion='on'] [data-reveal='unveil'] {
+  transition: clip-path 1.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.page[data-motion='on'] [data-reveal='unveil']:not(.is-in) {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(100% 0 0 0);
+}
+
+.page[data-motion='on'] [data-reveal='unveil'].is-in {
+  clip-path: inset(0 0 0 0);
+}
+
+.page[data-motion='on'] [data-reveal='draw'] {
+  transition:
+    transform 1.6s var(--ease),
+    opacity 1s ease;
+}
+
+.page[data-motion='on'] [data-reveal='draw']:not(.is-in) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+@keyframes rise {
+  from {
+    transform: translate3d(0, 112%, 0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -16px, 0);
+  }
+}
+
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes spark {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  78% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes unveil {
+  from {
+    mask-image: linear-gradient(to top, #000 40%, transparent 60%);
+    mask-size: 100% 250%;
+    mask-position: 0 0;
+    transform: translate3d(0, 40px, 0);
+  }
+
+  to {
+    mask-image: linear-gradient(to top, #000 40%, transparent 60%);
+    mask-size: 100% 250%;
+    mask-position: 0 100%;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media print {
+  .page [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+}

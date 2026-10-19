@@ -1,0 +1,136 @@
+/* Botões e links de texto. O preenchimento do hover cresce da esquerda (::before). */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  cursor: pointer;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    transform 0.5s var(--ease),
+    box-shadow 0.5s var(--ease),
+    color 0.4s var(--ease),
+    background-color 0.4s var(--ease);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.7s var(--ease);
+}
+
+.btn:hover::before {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.btn:active {
+  transform: scale(0.975);
+}
+
+.btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.6s var(--ease);
+}
+
+.btn:hover svg {
+  transform: scale(1.08);
+}
+
+.btn-label {
+  display: inline-block;
+}
+
+.btn-light {
+  background: #fff;
+  color: var(--royal);
+  box-shadow: 0 18px 40px -18px rgb(0 6 48 / 70%);
+}
+
+.btn-light::before {
+  background: #dce3ff;
+}
+
+.btn-royal {
+  background: var(--royal);
+  color: #fff;
+  box-shadow: 0 18px 36px -18px rgb(0 22 123 / 75%);
+}
+
+.btn-royal::before {
+  background: var(--royal-bright);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn.is-loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.link {
+  color: var(--royal-bright);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  text-decoration-color: rgb(36 64 230 / 45%);
+  transition:
+    color 0.3s,
+    text-underline-offset 0.4s var(--ease),
+    text-decoration-color 0.3s;
+}
+
+.link:hover {
+  color: var(--royal);
+  text-underline-offset: 0.34em;
+  text-decoration-color: currentColor;
+}
+
+.link-light {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.32em;
+  text-decoration-color: rgb(255 255 255 / 45%);
+  transition:
+    text-underline-offset 0.4s var(--ease),
+    text-decoration-color 0.3s;
+}
+
+.link-light:hover {
+  text-underline-offset: 0.42em;
+  text-decoration-color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn::before,
+  .btn svg {
+    transition-duration: 0.2s !important;
+  }
+}

@@ -1,0 +1,179 @@
+/*
+ * Controles de formulário. Ficam globais porque os controles vêm do slot do Field (escopo do
+ * Contato) e o rótulo, do próprio Field: um único dono para cada controle evita disputa de ordem.
+ */
+.field-row {
+  display: grid;
+  gap: 18px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.field .opt {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field select,
+.field textarea {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.4;
+  caret-color: var(--royal);
+  appearance: none;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.4s var(--ease),
+    background-color 0.3s;
+}
+
+.field textarea {
+  min-height: 124px;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--field-placeholder);
+}
+
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: var(--field-border-hover);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--royal-bright);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgb(36 64 230 / 14%);
+}
+
+.select {
+  position: relative;
+}
+
+.select select {
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.select svg {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  color: var(--royal);
+  pointer-events: none;
+}
+
+.field-error {
+  display: none;
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--danger);
+}
+
+.has-error input,
+.has-error textarea {
+  border-color: var(--danger);
+}
+
+.has-error input:focus,
+.has-error textarea:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgb(180 35 24 / 12%);
+}
+
+.has-error .field-error {
+  display: block;
+  animation: fade-up 0.45s var(--ease) backwards;
+}
+
+/* Checkbox: o input fica invisível por cima da caixa desenhada. */
+.check {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.check-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  margin: 0;
+}
+
+.check-box {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  background: #fff;
+  color: #fff;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.check-box svg {
+  width: 14px;
+  height: 14px;
+  transform: scale(0);
+  transition: transform 0.45s var(--ease);
+}
+
+.check-input:checked + .check-box {
+  background: var(--royal);
+  border-color: var(--royal);
+}
+
+.check-input:checked + .check-box svg {
+  transform: scale(1);
+}
+
+.check-input:focus-visible + .check-box {
+  outline: 2px solid var(--royal-bright);
+  outline-offset: 3px;
+}
+
+.check.has-error .check-box {
+  border-color: var(--danger);
+}
+
+@media (width >= 640px) {
+  .field-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
