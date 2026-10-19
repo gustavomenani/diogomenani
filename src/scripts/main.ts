@@ -103,13 +103,14 @@ function startPage(root: HTMLElement): void {
     applyMode(detectMotionMode());
   });
 
-  // Uma página que nasceu "estática" (sem rolagem) passa a animar se a janela encolher.
+  // Uma página que nasceu "estática" (sem rolagem) passa a animar quando começa a rolar.
   const onResize = () => {
     if (mode === 'static' && !isStaticPage()) applyMode('on');
     scroll?.refresh();
   };
   window.addEventListener('resize', onResize, { passive: true });
-  void document.fonts.ready.then(onResize);
+  // A altura da página também muda com a janela parada: fontes que chegam, resposta do FAQ que abre.
+  new ResizeObserver(onResize).observe(root);
 
   // Rolagem suave só depois da primeira interação (base.css): chegar por âncora ou recarregar no
   // meio da página pousa direto, sem desfilar a página.

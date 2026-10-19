@@ -14,6 +14,15 @@ const PARALLAX_UNTIL_HERO = 1.2;
 const PARALLAX_FIGURE = 0.16;
 const PARALLAX_GLOW = 0.32;
 
+/** Topo de layout em relação ao documento: ignora transforms, como o da entrada animada. */
+function layoutTop(element: Element): number {
+  let top = 0;
+  for (let node: Element | null = element; node instanceof HTMLElement; node = node.offsetParent) {
+    top += node.offsetTop;
+  }
+  return top;
+}
+
 interface ScrollEffectsOptions {
   getMode: () => MotionMode;
   isMenuOpen: () => boolean;
@@ -56,7 +65,11 @@ export function initScrollEffects(
   const words = statement ? [...statement.children] : [];
 
   let heroHeight = hero?.offsetHeight ?? 0;
+  /** Etapas pela posição de layout: durante a entrada animada, cada uma está deslocada. */
+  let stepOffsets = steps.map(layoutTop);
   let lastY = window.scrollY;
+  /** Distância acumulada na direção atual da rolagem (nextTuck). */
+  let travel = 0;
   /** Seção ativa já aplicada; `undefined` força reaplicar no próximo quadro. */
   let activeId: string | null | undefined = null;
   let litWords = -1;
@@ -81,24 +94,24 @@ export function initScrollEffects(
     const linkRect = navRect ? activeLink?.getBoundingClientRect() : undefined;
     const contactRect = fab && contact ? contact.getBoundingClientRect() : null;
     const footerTop = fab && footer ? footer.getBoundingClientRect().top : null;
-    const stepTops = motionOn ? steps.map((step) => step.getBoundingClientRect().top) : [];
+    const stepTops = motionOn ? stepOffsets.map((top) => top - y) : [];
     const statementRect = motionOn && statement ? statement.getBoundingClientRect() : null;
 
     // Escrita.
     if (header) {
       header.classList.toggle('is-scrolled', isScrolled(y));
-      header.classList.toggle(
-        'is-tucked',
-        nextTuck({
-          y,
-          lastY,
-          heroHeight,
-          motionOn,
-          menuOpen: isMenuOpen(),
-          headerHasVisibleFocus: header.querySelector(':focus-visible') !== null,
-          tucked: header.classList.contains('is-tucked'),
-        }),
-      );
+      const tuck = nextTuck({
+        y,
+        lastY,
+        travel,
+        heroHeight,
+        mode,
+        menuOpen: isMenuOpen(),
+        headerHasVisibleFocus: header.querySelector(':focus-visible') !== null,
+        tucked: header.classList.contains('is-tucked'),
+      });
+      travel = tuck.travel;
+      header.classList.toggle('is-tucked', tuck.tucked);
     }
     lastY = y;
 
@@ -172,6 +185,7 @@ export function initScrollEffects(
   return {
     refresh() {
       heroHeight = hero?.offsetHeight ?? 0;
+      stepOffsets = steps.map(layoutTop);
       activeId = undefined;
       schedule();
     },

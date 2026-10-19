@@ -52,6 +52,28 @@ test.describe('com movimento', () => {
     await expect(title).toHaveClass(/is-in/);
   });
 
+  test('as etapas acendem pela posição de layout, também durante a entrada animada', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const counts = await page.evaluate(async () => {
+      const list = document.querySelector('[data-step]')?.parentElement;
+      if (!list) throw new Error('lista das etapas não existe');
+      // O bloco das etapas a 65% da tela: em linha (desktop), duas acesas.
+      const offset = list.getBoundingClientRect().top - window.innerHeight * 0.65;
+      window.scrollBy({ top: offset, behavior: 'instant' });
+      // Rola 1 px por quadro enquanto as etapas entram, cada uma deslocada pela própria transição.
+      const seen: number[] = [];
+      for (let i = 0; i < 30; i++) {
+        await new Promise(requestAnimationFrame);
+        window.scrollBy({ top: 1, behavior: 'instant' });
+        seen.push(document.querySelectorAll('[data-step].is-active').length);
+      }
+      return seen;
+    });
+    expect(new Set(counts.slice(2))).toEqual(new Set([2]));
+  });
+
   test('a balança termina nivelada', async ({ page }) => {
     // Relógio do Playwright: a física avança em tempo simulado, sem depender da taxa de quadros.
     await page.clock.install();

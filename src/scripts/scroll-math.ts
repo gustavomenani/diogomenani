@@ -3,7 +3,7 @@ import type { MotionMode } from './motion-mode';
 
 /** Rolagem (px) a partir da qual o header ganha fundo. */
 const SCROLLED_AFTER = 24;
-/** Mudança mínima de rolagem (px) que conta como intenção de subir ou descer. */
+/** Distância (px) acumulada numa direção que conta como intenção de subir ou descer. */
 const SCROLL_INTENT = 4;
 /** Frações da altura do hero. */
 const TUCK_AFTER_HERO = 0.85;
@@ -67,25 +67,33 @@ export function litWordCount(input: {
 }
 
 /**
- * Se o header fica recolhido: recolhe ao descer depois do hero e reaparece ao subir. Com o foco
- * visível (do teclado) dentro dele, nunca recolhe: o item focado não pode sumir da tela. O foco
- * que um clique ou toque deixa num botão não conta.
+ * Se o header fica recolhido: recolhe ao descer depois do hero e reaparece ao subir, pela
+ * distância acumulada na direção atual (que zera quando a direção muda), não pela de cada
+ * quadro. Com o foco visível (do teclado) dentro dele, nunca recolhe: o item focado não pode
+ * sumir da tela. O foco que um clique ou toque deixa num botão não conta. Numa página estática
+ * nunca recolhe; com movimento reduzido recolhe, sem deslizar (Header.astro).
  */
 export function nextTuck(input: {
   y: number;
   lastY: number;
+  /** Distância acumulada na direção atual até a leitura anterior (positiva ao descer). */
+  travel: number;
   heroHeight: number;
-  motionOn: boolean;
+  mode: MotionMode;
   menuOpen: boolean;
   headerHasVisibleFocus: boolean;
   tucked: boolean;
-}): boolean {
-  const { y, lastY, heroHeight, motionOn, menuOpen, headerHasVisibleFocus, tucked } = input;
-  if (headerHasVisibleFocus) return false;
-  const pastHero = y > heroHeight * TUCK_AFTER_HERO;
-  if (motionOn && !menuOpen && pastHero && y > lastY + SCROLL_INTENT) return true;
-  if (y < lastY - SCROLL_INTENT || !pastHero) return false;
-  return tucked;
+}): { tucked: boolean; travel: number } {
+  const { y, lastY, heroHeight, mode, menuOpen, headerHasVisibleFocus, tucked } = input;
+  const delta = y - lastY;
+  const travel =
+    delta === 0 || Math.sign(delta) === Math.sign(input.travel) ? input.travel + delta : delta;
+  if (headerHasVisibleFocus || mode === 'static' || y <= heroHeight * TUCK_AFTER_HERO) {
+    return { tucked: false, travel };
+  }
+  if (travel > SCROLL_INTENT && !menuOpen) return { tucked: true, travel };
+  if (travel < -SCROLL_INTENT) return { tucked: false, travel };
+  return { tucked, travel };
 }
 
 /** O botão flutuante aparece depois do hero e some perto do contato e do rodapé. */

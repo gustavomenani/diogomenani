@@ -423,8 +423,10 @@ import { messages, waLink } from '../lib/whatsapp';
   }
 
   @media (prefers-reduced-motion: reduce) {
+    /* Recolhe e volta sem deslizar. */
     .site-header {
       animation: fade 0.5s ease-out backwards !important;
+      transition-property: background-color, color, box-shadow;
     }
 
     .menu,

@@ -7,6 +7,7 @@ import {
   litWordCount,
   nextTuck,
 } from './scroll-math';
+import type { MotionMode } from './motion-mode';
 
 describe('isScrolled', () => {
   test('o header ganha fundo só depois de 24 px', () => {
@@ -87,37 +88,81 @@ describe('litWordCount', () => {
 });
 
 describe('nextTuck', () => {
-  const base = { heroHeight: 900, motionOn: true, menuOpen: false, headerHasVisibleFocus: false };
+  const base = {
+    heroHeight: 900,
+    mode: 'on' as MotionMode,
+    menuOpen: false,
+    headerHasVisibleFocus: false,
+  };
 
-  test('com o foco visível dentro do header, ele não recolhe', () => {
-    expect(
-      nextTuck({ ...base, headerHasVisibleFocus: true, y: 1000, lastY: 900, tucked: false }),
-    ).toBe(false);
-    expect(
-      nextTuck({ ...base, headerHasVisibleFocus: true, y: 1000, lastY: 1000, tucked: true }),
-    ).toBe(false);
-  });
+  /** Rola pelas posições dadas, quadro a quadro, e diz se o header termina recolhido. */
+  function tuckedAfter(
+    positions: readonly number[],
+    { tucked = false, ...overrides }: Partial<typeof base> & { tucked?: boolean } = {},
+  ): boolean {
+    let state = { tucked, travel: 0 };
+    let lastY = positions[0] ?? 0;
+    for (const y of positions.slice(1)) {
+      state = nextTuck({ ...base, ...overrides, ...state, y, lastY });
+      lastY = y;
+    }
+    return state.tucked;
+  }
 
   test('recolhe ao descer depois de 85% do hero', () => {
-    expect(nextTuck({ ...base, y: 1000, lastY: 900, tucked: false })).toBe(true);
+    expect(tuckedAfter([900, 1000])).toBe(true);
+  });
+
+  test('conta a distância acumulada: 3 px duas vezes recolhem', () => {
+    expect(tuckedAfter([1000, 1003])).toBe(false);
+    expect(tuckedAfter([1000, 1003, 1006])).toBe(true);
+  });
+
+  test('volta com −3 px duas vezes', () => {
+    expect(tuckedAfter([1006, 1003], { tucked: true })).toBe(true);
+    expect(tuckedAfter([1006, 1003, 1000], { tucked: true })).toBe(false);
+  });
+
+  test('ir e voltar 3 px não muda o estado', () => {
+    const zigzag = [1000, 1003, 1000, 1003, 1000, 1003, 1000];
+    expect(tuckedAfter(zigzag)).toBe(false);
+    expect(tuckedAfter(zigzag, { tucked: true })).toBe(true);
   });
 
   test('movimentos de até 4 px mantêm o estado atual', () => {
-    expect(nextTuck({ ...base, y: 1004, lastY: 1000, tucked: false })).toBe(false);
-    expect(nextTuck({ ...base, y: 996, lastY: 1000, tucked: true })).toBe(true);
+    expect(tuckedAfter([1000, 1004])).toBe(false);
+    expect(tuckedAfter([1000, 996], { tucked: true })).toBe(true);
+  });
+
+  test('trocar de direção zera a distância acumulada', () => {
+    // Desceu 3, subiu 1 e desceu 3 de novo: só 3 px na direção atual.
+    expect(tuckedAfter([1000, 1003, 1002, 1005])).toBe(false);
   });
 
   test('reaparece ao subir', () => {
-    expect(nextTuck({ ...base, y: 900, lastY: 950, tucked: true })).toBe(false);
+    expect(tuckedAfter([950, 900], { tucked: true })).toBe(false);
   });
 
   test('reaparece de volta ao hero', () => {
-    expect(nextTuck({ ...base, y: 765, lastY: 700, tucked: true })).toBe(false);
+    expect(tuckedAfter([700, 765], { tucked: true })).toBe(false);
   });
 
-  test('não recolhe com o menu aberto nem sem movimento', () => {
-    expect(nextTuck({ ...base, menuOpen: true, y: 1000, lastY: 900, tucked: false })).toBe(false);
-    expect(nextTuck({ ...base, motionOn: false, y: 1000, lastY: 900, tucked: false })).toBe(false);
+  test('com movimento reduzido também recolhe', () => {
+    expect(tuckedAfter([900, 1000], { mode: 'reduced' })).toBe(true);
+  });
+
+  test('numa página estática nunca recolhe', () => {
+    expect(tuckedAfter([900, 1000], { mode: 'static' })).toBe(false);
+    expect(tuckedAfter([1000, 1000], { mode: 'static', tucked: true })).toBe(false);
+  });
+
+  test('não recolhe com o menu aberto', () => {
+    expect(tuckedAfter([900, 1000], { menuOpen: true })).toBe(false);
+  });
+
+  test('com o foco visível dentro do header, ele não recolhe', () => {
+    expect(tuckedAfter([900, 1000], { headerHasVisibleFocus: true })).toBe(false);
+    expect(tuckedAfter([1000, 1000], { headerHasVisibleFocus: true, tucked: true })).toBe(false);
   });
 });
 
