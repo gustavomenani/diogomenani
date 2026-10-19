@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
-import { areas, waLink } from '../data/site';
+import { areas } from '../data/content';
+import { messages, waLink } from '../lib/whatsapp';
 ---
 
 <section class="section areas" id="atuacao" aria-labelledby="atuacao-title">
@@ -15,12 +16,7 @@ import { areas, waLink } from '../data/site';
       </p>
       <p class="areas-note" data-reveal>
         Não encontrou o seu caso?{' '}
-        <a
-          class="link"
-          href={waLink('Olá, Dr. Diogo! Gostaria de saber se você pode me ajudar com um caso.')}
-          target="_blank"
-          rel="noopener"
-        >
+        <a class="link" href={waLink(messages.unlistedCase)} target="_blank" rel="noopener">
           Envie uma mensagem
         </a>{' '}
         e eu digo se posso ajudar.
@@ -31,13 +27,13 @@ import { areas, waLink } from '../data/site';
         <li class="area">
           <a
             class="area-link"
-            href={waLink(`Olá, Dr. Diogo! Gostaria de conversar sobre ${area.name}.`)}
+            href={waLink(messages.area(area.name))}
             target="_blank"
             rel="noopener"
           >
             <span class="area-body">
               <span class="area-name">{area.name}</span>
-              <span class="area-desc">{area.desc}</span>
+              <span class="area-desc">{area.description}</span>
             </span>
             <span class="area-go">
               Conversar <Icon name="arrow-up-right" />

@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import { whatsapp } from '../data/site';
 
 interface Props {
   title: string;
@@ -27,7 +26,7 @@ const { title, description } = Astro.props;
     />
   </head>
   <body>
-    <div class="dm" data-dm-page data-motion="pending" data-whatsapp={whatsapp.number}>
+    <div class="dm" data-dm-page data-motion="pending">
       <slot />
     </div>
     <script>

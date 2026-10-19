@@ -2,7 +2,9 @@
 import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
 import { wordmark } from '../data/brand';
-import { contact, footerNav, social, waLink, whatsapp } from '../data/site';
+import { contact, social, whatsapp } from '../data/contact';
+import { anchor, footerNav } from '../data/navigation';
+import { waLink } from '../lib/whatsapp';
 
 const year = new Date().getFullYear();
 ---
@@ -40,7 +42,7 @@ const year = new Date().getFullYear();
         <ul>
           {footerNav.map((link) => (
             <li>
-              <a href={link.href}>{link.label}</a>
+              <a href={anchor(link.id)}>{link.label}</a>
             </li>
           ))}
         </ul>

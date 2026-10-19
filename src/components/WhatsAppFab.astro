@@ -1,11 +1,11 @@
 ---
 import Icon from './Icon.astro';
-import { defaultMessage, waLink } from '../data/site';
+import { messages, waLink } from '../lib/whatsapp';
 ---
 
 <a
   class="fab"
-  href={waLink(defaultMessage)}
+  href={waLink(messages.default)}
   target="_blank"
   rel="noopener"
   aria-label="Conversar pelo WhatsApp"

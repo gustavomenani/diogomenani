@@ -6,6 +6,8 @@
  * sem JavaScript, ou com "reduzir movimento", todo o conteúdo aparece direto.
  */
 
+import { buildContactMessage, waLink } from '../lib/whatsapp';
+
 type Mode = 'on' | 'static' | 'reduced';
 type Field = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -18,8 +20,6 @@ export function initLanding(root: HTMLElement): void {
   const $$ = <T extends Element = HTMLElement>(sel: string) =>
     Array.from(root.querySelectorAll<T>(sel));
   const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-  const whatsapp = root.dataset.whatsapp ?? '';
-  const wa = (text: string) => `https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`;
   const setText = (el: Element | null, text: string) => {
     if (!el) return;
     const node = el.firstChild && el.firstChild.nodeType === Node.TEXT_NODE ? el.firstChild : null;
@@ -284,12 +284,15 @@ export function initLanding(root: HTMLElement): void {
       fallback?.classList.remove('is-shown');
       return;
     }
-    const text =
-      `Olá, Dr. Diogo! Meu nome é ${nome.value.trim()}.` +
-      (assunto.value ? ` Assunto: ${assunto.value}.` : '') +
-      ` ${mensagem.value.trim()}` +
-      ` (WhatsApp: ${telefone.value}${email.value.trim() ? `, e-mail: ${email.value.trim()}` : ''})`;
-    const url = wa(text);
+    const url = waLink(
+      buildContactMessage({
+        name: nome.value,
+        phone: telefone.value,
+        email: email.value,
+        subject: assunto.value,
+        message: mensagem.value,
+      }),
+    );
     const btn = form.querySelector<HTMLButtonElement>('[type="submit"]');
     if (btn) {
       btn.classList.add('is-loading');

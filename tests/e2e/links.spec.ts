@@ -1,4 +1,4 @@
-import { test, WA, wa, MESSAGES, expectExternalLink } from './fixtures';
+import { test, expect, WA, wa, MESSAGES, expectExternalLink } from './fixtures';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -39,6 +39,18 @@ test('cada área abre o WhatsApp com o nome da área', async ({ page }) => {
 test('o caso não listado tem mensagem própria', async ({ page }) => {
   const link = page.getByRole('link', { name: 'Envie uma mensagem', exact: true });
   await expectExternalLink(link, wa(MESSAGES.unlistedCase));
+});
+
+test('todo link interno aponta para uma seção que existe', async ({ page }) => {
+  const targets = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')].map((a) => a.hash.slice(1)),
+  );
+  expect(targets.length).toBeGreaterThan(10);
+  const missing = await page.evaluate(
+    (ids) => ids.filter((id) => !document.getElementById(id)),
+    targets,
+  );
+  expect(missing).toEqual([]);
 });
 
 test('contato e rodapé usam o link sem texto', async ({ page }) => {

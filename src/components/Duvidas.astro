@@ -1,5 +1,5 @@
 ---
-import { faq } from '../data/site';
+import { faq } from '../data/content';
 ---
 
 <section class="section faq" id="duvidas" aria-labelledby="faq-title">
@@ -27,13 +27,13 @@ import { faq } from '../data/site';
                 aria-controls={`faq-p${n}`}
                 data-faq-btn
               >
-                <span>{item.q}</span>
+                <span>{item.question}</span>
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
             <section class="faq-panel" id={`faq-p${n}`} aria-labelledby={`faq-b${n}`}>
               <div class="faq-panel-inner">
-                <p>{item.a}</p>
+                <p>{item.answer}</p>
               </div>
             </section>
           </div>

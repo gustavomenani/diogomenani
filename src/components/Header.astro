@@ -1,9 +1,11 @@
 ---
 import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
-import { contact, defaultMessage, nav, waLink } from '../data/site';
+import { contact } from '../data/contact';
+import { anchor, nav } from '../data/navigation';
+import { messages, waLink } from '../lib/whatsapp';
 
-const cta = waLink(defaultMessage);
+const cta = waLink(messages.default);
 ---
 
 <header class="site-header" data-header>
@@ -17,7 +19,7 @@ const cta = waLink(defaultMessage);
     </a>
     <nav class="nav" aria-label="Principal" data-nav>
       {nav.map((item) => (
-        <a href={item.href}>{item.label}</a>
+        <a href={anchor(item.id)}>{item.label}</a>
       ))}
       <span class="nav-ind" aria-hidden="true" data-nav-ind></span>
     </nav>
@@ -43,7 +45,7 @@ const cta = waLink(defaultMessage);
   <div class="wrap menu-inner">
     <nav class="menu-nav" aria-label="Menu">
       {nav.map((item) => (
-        <a href={item.href}>{item.label}</a>
+        <a href={anchor(item.id)}>{item.label}</a>
       ))}
     </nav>
     <div class="menu-foot">

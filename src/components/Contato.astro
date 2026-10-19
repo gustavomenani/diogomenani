@@ -1,7 +1,9 @@
 ---
 import Icon from './Icon.astro';
 import type { IconName } from '../data/icons';
-import { areas, contact, defaultMessage, waLink, whatsapp } from '../data/site';
+import { contact, whatsapp } from '../data/contact';
+import { areas } from '../data/content';
+import { messages, waLink } from '../lib/whatsapp';
 
 const items: { icon: IconName; label: string; value: string; href?: string; external?: boolean }[] =
   [
@@ -30,7 +32,7 @@ const items: { icon: IconName; label: string; value: string; href?: string; exte
         que você preferir.
       </p>
       <div class="contact-cta" data-reveal>
-        <a class="btn btn-light" href={waLink(defaultMessage)} target="_blank" rel="noopener">
+        <a class="btn btn-light" href={waLink(messages.default)} target="_blank" rel="noopener">
           <Icon name="whatsapp" />
           <span class="btn-label">Conversar pelo WhatsApp</span>
         </a>

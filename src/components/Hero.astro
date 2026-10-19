@@ -1,7 +1,9 @@
 ---
 import Icon from './Icon.astro';
 import Themis from './Themis.astro';
-import { contact, defaultMessage, topics, waLink } from '../data/site';
+import { contact } from '../data/contact';
+import { areas } from '../data/content';
+import { messages, waLink } from '../lib/whatsapp';
 ---
 
 <section class="hero is-royal" id="inicio" aria-labelledby="hero-title" data-hero>
@@ -46,21 +48,19 @@ import { contact, defaultMessage, topics, waLink } from '../data/site';
       <fieldset class="topic" data-topic>
         <legend class="topic-label">Sobre o que você quer conversar?</legend>
         <div class="chips">
-          {topics.map((topic) => (
+          {areas.map((area) => (
             <Fragment>
               <input
                 class="chip-input"
                 type="radio"
                 name="tema"
-                id={`tema-${topic.id}`}
-                value={topic.id}
-                data-cta={topic.cta}
-                data-href={waLink(
-                  `Olá, Dr. Diogo! Gostaria de agendar uma conversa sobre ${topic.area}.`,
-                )}
+                id={`tema-${area.id}`}
+                value={area.id}
+                data-cta={area.topic.cta}
+                data-href={waLink(messages.topic(area.name))}
               />
-              <label class="chip" for={`tema-${topic.id}`}>
-                {topic.label}
+              <label class="chip" for={`tema-${area.id}`}>
+                {area.topic.label}
               </label>
             </Fragment>
           ))}
@@ -69,7 +69,7 @@ import { contact, defaultMessage, topics, waLink } from '../data/site';
       <div class="hero-actions">
         <a
           class="btn btn-light"
-          href={waLink(defaultMessage)}
+          href={waLink(messages.default)}
           target="_blank"
           rel="noopener"
           data-wa-cta
