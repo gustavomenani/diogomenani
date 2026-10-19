@@ -12,6 +12,22 @@ const balancePose = (page: Page) =>
     ),
   );
 
+/** Espera `count` quadros de animação: se a física ainda rodasse, a pose mudaria nesse intervalo. */
+const waitFrames = (page: Page, count: number) =>
+  page.evaluate(
+    (frames) =>
+      new Promise<void>((resolve) => {
+        let left = frames;
+        const tick = () => {
+          left -= 1;
+          if (left <= 0) resolve();
+          else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+    count,
+  );
+
 test.describe('com movimento reduzido', () => {
   test.use({ reducedMotion: 'reduce' });
 
@@ -43,7 +59,7 @@ test.describe('com movimento', () => {
     await page.goto('/');
     await expect.poll(() => balancePose(page), { timeout: 15_000 }).toEqual(LEVEL_POSE);
     // Continua igual depois: a animação parou de fato, não só passou pela pose.
-    await page.waitForTimeout(1000);
+    await waitFrames(page, 60);
     expect(await balancePose(page)).toEqual(LEVEL_POSE);
   });
 });

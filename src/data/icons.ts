@@ -1,0 +1,34 @@
+/** Ícones Tabler (licença MIT, tabler.io/icons), todos no mesmo traço. */
+export const iconPaths = {
+  whatsapp: [
+    'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9',
+    'M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1',
+  ],
+  'arrow-up-right': ['M17 7l-10 10', 'M8 7l9 0l0 9'],
+  mail: [
+    'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z',
+    'M3 7l9 6l9 -6',
+  ],
+  'map-pin': [
+    'M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0',
+    'M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z',
+  ],
+  clock: ['M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0', 'M12 7v5l3 3'],
+  instagram: [
+    'M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z',
+    'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0',
+    'M16.5 7.5v.01',
+  ],
+  linkedin: [
+    'M8 11v5',
+    'M8 8v.01',
+    'M12 16v-5',
+    'M16 16v-3a2 2 0 1 0 -4 0',
+    'M3 7a4 4 0 0 1 4 -4h10a4 4 0 0 1 4 4v10a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4z',
+  ],
+  'chevron-down': ['M6 9l6 6l6 -6'],
+  check: ['M5 12l5 5l10 -10'],
+  'arrow-up': ['M12 5l0 14', 'M18 11l-6 -6', 'M6 11l6 -6'],
+} as const satisfies Record<string, readonly string[]>;
+
+export type IconName = keyof typeof iconPaths;

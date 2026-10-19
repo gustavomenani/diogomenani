@@ -66,8 +66,12 @@ export function initLanding(root: HTMLElement): void {
   const panL = $<SVGGElement>('[data-pan-l]');
   const panR = $<SVGGElement>('[data-pan-r]');
   const pivotOf = (el: Element | null) => el?.getAttribute('data-pivot') ?? '0 0';
-  const [lx, ly] = pivotOf(panL).split(' ').map(Number);
-  const [rx, ry] = pivotOf(panR).split(' ').map(Number);
+  const pointOf = (el: Element | null): [number, number] => {
+    const [x = 0, y = 0] = pivotOf(el).split(' ').map(Number);
+    return [x, y];
+  };
+  const [lx, ly] = pointOf(panL);
+  const [rx, ry] = pointOf(panR);
   // Ângulo que deixa os dois pratos na mesma altura (o desenho original vem inclinado).
   const LEVEL = (-Math.atan2(ry - ly, rx - lx) * 180) / Math.PI;
   let angle = 0;
@@ -275,7 +279,7 @@ export function initLanding(root: HTMLElement): void {
     [nome, telefone, email, mensagem, lgpd].forEach((el) => setError(el, invalid.includes(el)));
     const fallback = form.querySelector<HTMLAnchorElement>('[data-form-fallback]');
     if (invalid.length) {
-      invalid[0].focus();
+      invalid[0]?.focus();
       formStatus(form, 'Revise os campos destacados para continuar.', true);
       fallback?.classList.remove('is-shown');
       return;
@@ -377,9 +381,11 @@ export function initLanding(root: HTMLElement): void {
     indicator.style.transform = `translateX(${(lr.left - nr.left).toFixed(1)}px) scaleX(${lr.width.toFixed(1)})`;
   };
   const updateSteps = (vh: number) => {
-    if (mode !== 'on' || !stepEls.length) return;
-    const r0 = stepEls[0].getBoundingClientRect();
-    const inRow = Math.abs(stepEls[stepEls.length - 1].getBoundingClientRect().top - r0.top) < 4;
+    const first = stepEls[0];
+    const last = stepEls[stepEls.length - 1];
+    if (mode !== 'on' || !first || !last) return;
+    const r0 = first.getBoundingClientRect();
+    const inRow = Math.abs(last.getBoundingClientRect().top - r0.top) < 4;
     let n = 0;
     if (inRow) {
       const p = (vh * 0.86 - r0.top) / (vh * 0.42);
