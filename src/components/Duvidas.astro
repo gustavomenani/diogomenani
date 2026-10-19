@@ -31,11 +31,11 @@ import { faq } from '../data/site';
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
-            <div class="faq-panel" id={`faq-p${n}`} role="region" aria-labelledby={`faq-b${n}`}>
+            <section class="faq-panel" id={`faq-p${n}`} aria-labelledby={`faq-b${n}`}>
               <div class="faq-panel-inner">
                 <p>{item.a}</p>
               </div>
-            </div>
+            </section>
           </div>
         );
       })}
