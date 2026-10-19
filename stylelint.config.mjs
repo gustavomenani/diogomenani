@@ -11,9 +11,9 @@ export default {
     ],
     // Palavras-chave herdadas do SVG ficam na grafia original: currentColor, optimizeLegibility.
     'value-keyword-case': ['lower', { camelCaseSvgKeywords: true }],
-    // A regra compara só o último seletor composto e acusa elementos diferentes (`.nav a:hover`
-    // contra `.menu-nav a`); reordenar para agradá-la mexeria na cascata. A ordem dos estilos foi
-    // verificada contra o site original com estilos computados.
+    // Desligada: acusa pares que nunca disputam o mesmo elemento e a mesma propriedade (`.nav
+    // a:hover` contra `.menu-nav a`, as listas de seletores do foco e da seleção). Religada na
+    // revisão final, mostrou sete casos assim e um real, já corrigido (hover num campo com erro).
     'no-descending-specificity': null,
   },
 };
