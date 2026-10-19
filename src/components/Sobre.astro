@@ -6,9 +6,10 @@ import { credentials } from '../data/content';
 import { sectionIds } from '../data/navigation';
 
 // Foto por convenção: salve o retrato (vertical, 4:5) em src/assets/diogo.jpg (ou .jpeg, .png,
-// .webp) e ele entra no lugar do placeholder, otimizado pelo Astro.
+// .webp, em maiúsculas ou minúsculas) e ele entra no lugar do placeholder, otimizado pelo Astro.
 const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/diogo.{jpg,jpeg,png,webp}', {
   eager: true,
+  caseSensitive: false,
 });
 const photo = Object.values(photos)[0]?.default;
 ---
@@ -100,7 +101,7 @@ const photo = Object.values(photos)[0]?.default;
     display: grid;
     place-items: center;
     padding: 28px;
-    transition: transform 2s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 2s var(--ease-soft);
   }
 
   .portrait-glow {
@@ -110,7 +111,11 @@ const photo = Object.values(photos)[0]?.default;
     width: 90%;
     aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(96 122 255 / 50%), rgb(0 22 123 / 0%));
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--glow-rgb) / 50%),
+      rgb(var(--royal-rgb) / 0%)
+    );
   }
 
   .portrait-ph {

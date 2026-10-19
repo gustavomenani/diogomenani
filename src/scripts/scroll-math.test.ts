@@ -57,6 +57,10 @@ describe('activeStepCount', () => {
     expect(activeStepCount([100, 500, 690, 701], 1000)).toBe(3);
   });
 
+  test('empilhadas, a etapa exatamente na linha de 70% ainda não acende', () => {
+    expect(activeStepCount([100, 700], 1000)).toBe(1);
+  });
+
   test('sem etapas, nada acende', () => {
     expect(activeStepCount([], 1000)).toBe(0);
   });
@@ -72,21 +76,26 @@ describe('litWordCount', () => {
     expect(litWordCount({ top: 640, height: 200, viewportHeight: 1000, words: 28 })).toBe(14);
   });
 
+  test('a contagem arredonda para a palavra mais próxima', () => {
+    // p = (900 − 608,8) / 520 = 0,56 → 5,6 palavras → 6
+    expect(litWordCount({ top: 608.8, height: 200, viewportHeight: 1000, words: 10 })).toBe(6);
+  });
+
   test('ao fim do percurso, acende todas e não passa disso', () => {
     expect(litWordCount({ top: -500, height: 200, viewportHeight: 1000, words: 28 })).toBe(28);
   });
 });
 
 describe('nextTuck', () => {
-  const base = { heroHeight: 900, motionOn: true, menuOpen: false, headerHasFocus: false };
+  const base = { heroHeight: 900, motionOn: true, menuOpen: false, headerHasVisibleFocus: false };
 
-  test('com o foco dentro do header, ele não recolhe', () => {
-    expect(nextTuck({ ...base, headerHasFocus: true, y: 1000, lastY: 900, tucked: false })).toBe(
-      false,
-    );
-    expect(nextTuck({ ...base, headerHasFocus: true, y: 1000, lastY: 1000, tucked: true })).toBe(
-      false,
-    );
+  test('com o foco visível dentro do header, ele não recolhe', () => {
+    expect(
+      nextTuck({ ...base, headerHasVisibleFocus: true, y: 1000, lastY: 900, tucked: false }),
+    ).toBe(false);
+    expect(
+      nextTuck({ ...base, headerHasVisibleFocus: true, y: 1000, lastY: 1000, tucked: true }),
+    ).toBe(false);
   });
 
   test('recolhe ao descer depois de 85% do hero', () => {
@@ -94,8 +103,8 @@ describe('nextTuck', () => {
   });
 
   test('movimentos de até 4 px mantêm o estado atual', () => {
-    expect(nextTuck({ ...base, y: 1000, lastY: 997, tucked: false })).toBe(false);
-    expect(nextTuck({ ...base, y: 1000, lastY: 1003, tucked: true })).toBe(true);
+    expect(nextTuck({ ...base, y: 1004, lastY: 1000, tucked: false })).toBe(false);
+    expect(nextTuck({ ...base, y: 996, lastY: 1000, tucked: true })).toBe(true);
   });
 
   test('reaparece ao subir', () => {
@@ -137,6 +146,7 @@ describe('isFabVisible', () => {
 
   test('some quando o rodapé aparece', () => {
     expect(isFabVisible({ ...base, y: 5000, footerTop: 999 })).toBe(false);
+    expect(isFabVisible({ ...base, y: 5000, footerTop: 1000 })).toBe(true);
   });
 
   test('nunca aparece numa página estática', () => {

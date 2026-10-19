@@ -1,5 +1,5 @@
 import { buildContactMessage, waLink } from '../lib/whatsapp';
-import { validateContact, type ContactField } from './contact-validation';
+import { CONTACT_FIELDS, validateContact } from './contact-validation';
 import { maskPhone } from './phone-mask';
 
 type Control = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
@@ -10,8 +10,6 @@ const STATUS = {
   invalid: 'Revise os campos destacados para continuar.',
   sent: 'Mensagem pronta. Abrindo o WhatsApp…',
 } as const;
-/** Campos validados, na ordem do formulário. */
-const VALIDATED: readonly ContactField[] = ['name', 'phone', 'email', 'message', 'consent'];
 
 function controlOf<T extends Control>(
   form: HTMLFormElement,
@@ -32,8 +30,8 @@ const isControl = (target: EventTarget | null): target is Control =>
  * Depende de JavaScript por design; sem ele, o visitante usa os botões do WhatsApp.
  */
 export function initContactForm(root: HTMLElement): void {
-  const form = root.querySelector<HTMLFormElement>('[data-contact-form]');
-  if (!form) return;
+  const form = root.querySelector('[data-contact-form]');
+  if (!(form instanceof HTMLFormElement)) return;
 
   const name = controlOf(form, 'nome', HTMLInputElement);
   const phone = controlOf(form, 'telefone', HTMLInputElement);
@@ -68,16 +66,16 @@ export function initContactForm(root: HTMLElement): void {
     control.setAttribute('aria-invalid', String(invalid));
   };
 
-  // Ao corrigir um campo marcado, o erro dele sai; sem erros restantes, o aviso também.
+  // Ao editar um campo marcado, o erro dele sai (o próximo envio confere de novo); sem erros
+  // restantes, o aviso também.
   const onEdit = (target: EventTarget | null) => {
     if (!isControl(target) || target.getAttribute('aria-invalid') !== 'true') return;
     setError(target, false);
-    if (!form.querySelector('.has-error')) showStatus('', false);
+    if (!form.querySelector('[aria-invalid="true"]')) showStatus('', false);
   };
 
   form.addEventListener('input', (event) => {
-    if (event.target === fields.phone) {
-      const phone = fields.phone;
+    if (event.target === phone) {
       const masked = maskPhone(phone.value, phone.selectionStart ?? phone.value.length);
       if (phone.value !== masked.value) {
         phone.value = masked.value;
@@ -100,7 +98,7 @@ export function initContactForm(root: HTMLElement): void {
       message: fields.message.value,
     };
     const invalid = validateContact({ ...request, consent: fields.consent.checked });
-    for (const field of VALIDATED) setError(fields[field], invalid.includes(field));
+    for (const field of CONTACT_FIELDS) setError(fields[field], invalid.includes(field));
 
     const firstInvalid = invalid[0];
     if (firstInvalid) {

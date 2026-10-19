@@ -1,7 +1,5 @@
 import { test, expect, type Page } from './fixtures';
 
-const GOOGLE_FONTS = /fonts\.(googleapis|gstatic)\.com/;
-
 interface FontDownload {
   url: string;
   ok: boolean;
@@ -22,12 +20,16 @@ async function waitForFonts(page: Page): Promise<void> {
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
 }
 
-test('nenhuma requisição ao Google Fonts', async ({ page }) => {
+test('nenhuma requisição a terceiros (nem ao Google Fonts)', async ({ page }) => {
   const requested: string[] = [];
   page.on('request', (request) => requested.push(request.url()));
   await page.goto('/');
   await waitForFonts(page);
-  expect(requested.filter((url) => GOOGLE_FONTS.test(url))).toEqual([]);
+  const origin = new URL(page.url()).origin;
+  const thirdParty = requested.filter(
+    (url) => !url.startsWith('data:') && new URL(url).origin !== origin,
+  );
+  expect(thirdParty).toEqual([]);
 });
 
 test('títulos e texto usam as fontes do próprio site', async ({ page }) => {

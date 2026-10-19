@@ -37,9 +37,19 @@ body {
   color: #fff;
 }
 
-.page .is-royal ::selection {
+/* Seleção: royal sobre fundos claros, branca sobre os fundos royal (a mesma lista do foco). */
+.page .is-royal ::selection,
+.page .site-header:not(.is-scrolled) ::selection,
+.page .menu ::selection,
+.page .footer ::selection,
+.page.is-menu-open .site-header ::selection {
   background: #fff;
   color: var(--royal);
+}
+
+.page .contact-form ::selection {
+  background: var(--royal);
+  color: #fff;
 }
 
 :where(.page) a {
@@ -71,7 +81,12 @@ body {
   color: inherit;
 }
 
-/* Foco: azul sobre fundos claros, branco sobre os fundos royal, o header transparente e o menu. */
+/*
+ * Foco: azul sobre fundos claros; branco sobre os fundos royal (seções .is-royal, header
+ * transparente, menu e rodapé); azul de novo no cartão branco do formulário. As regras ficam
+ * juntas porque formam uma escada: a do formulário vence a das seções royal só por vir depois,
+ * com a mesma especificidade.
+ */
 .page :focus-visible {
   outline: 2px solid var(--royal-bright);
   outline-offset: 3px;
@@ -150,22 +165,30 @@ body {
   left: 12px;
   z-index: 60;
   padding: 12px 20px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #fff;
   color: var(--royal);
   font-weight: 600;
   font-size: 15px;
   line-height: 1.2;
-  box-shadow: 0 18px 40px -18px rgb(0 6 48 / 70%);
   transform: translateY(calc(-100% - 24px));
   transition: transform 0.3s var(--ease);
 }
 
+/*
+ * A sombra só entra com o foco: com o link escondido acima da tela, o desfoque dela ainda
+ * alcançaria o topo da página.
+ */
 .skip-link:focus {
+  box-shadow: 0 18px 40px -18px var(--shadow-ink);
   transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .skip-link {
     transition: none;
   }

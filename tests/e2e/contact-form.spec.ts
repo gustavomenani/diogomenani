@@ -145,3 +145,11 @@ test('o erro do consentimento fica no contêiner do campo', async ({ page }) => 
   await expect(error).toBeHidden();
   await expect(f.consent).not.toHaveAttribute('aria-describedby');
 });
+
+test('passar o mouse num campo com erro mantém a borda de erro', async ({ page }) => {
+  const f = form(page);
+  await f.submit.click();
+  // O Nome recebe o foco; o WhatsApp fica só com o erro, como quem volta com o mouse.
+  await f.phone.hover();
+  await expect(f.phone).toHaveCSS('border-color', 'rgb(180, 35, 24)');
+});

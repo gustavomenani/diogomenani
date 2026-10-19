@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "engines": {
-    "node": ">=22.22.0"
+    "node": "^22.22.3 || ^24.16.0 || >=26.3.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -19,9 +19,10 @@
     "pretest:e2e": "npm run build",
     "test:visual": "playwright test --project=visual",
     "pretest:visual": "npm run build",
+    "prelint": "astro sync",
     "lint": "npm run lint:js && npm run lint:css",
-    "lint:js": "eslint .",
-    "lint:css": "stylelint \"src/**/*.{css,astro}\"",
+    "lint:js": "eslint . --max-warnings 0",
+    "lint:css": "stylelint \"{src,tests}/**/*.{css,astro}\"",
     "validate:html": "html-validate dist",
     "verify": "npm run format:check && npm run lint && npm run check && npm run test && npm run build && npm run validate:html && npm run test:e2e"
   },

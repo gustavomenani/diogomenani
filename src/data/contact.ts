@@ -2,10 +2,13 @@
 // Itens entre [colchetes] ainda precisam ser confirmados com o Diogo.
 import type { IconName } from './icons';
 
+/** WhatsApp do escritório com DDD, como aparece na página; o link do wa.me sai dele. */
+const phone = '(18) 99701-7249';
+
 export const whatsapp = {
-  display: '(18) 99701-7249',
-  /** 55 + DDD + número, o formato que o wa.me usa. */
-  number: '5518997017249',
+  display: phone,
+  /** 55 + DDD + número, só os dígitos: o formato que o wa.me usa. */
+  number: `55${phone.replace(/\D/g, '')}`,
 } as const;
 
 const oabState = '[UF]';

@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, jumpTo, type Page } from './fixtures';
+import { test, expect, jumpTo, type Locator, type Page } from './fixtures';
 
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 const MOBILE = { width: 390, height: 844 };
@@ -21,6 +21,50 @@ async function axeViolations(page: Page): Promise<string[]> {
   );
 }
 
+/**
+ * Propriedade de acessibilidade que o Chromium expõe para o elemento com o papel e o nome dados
+ * (via CDP): é o que o leitor de tela anuncia, inclusive estados que o axe não confere.
+ */
+async function accessibilityProperty(
+  page: Page,
+  role: string,
+  name: string,
+  property: 'invalid' | 'required',
+): Promise<unknown> {
+  const cdp = await page.context().newCDPSession(page);
+  const { result } = await cdp.send('Runtime.evaluate', { expression: 'document' });
+  if (!result.objectId) throw new Error('documento sem objectId');
+  const { nodes } = await cdp.send('Accessibility.queryAXTree', {
+    objectId: result.objectId,
+    role,
+    accessibleName: name,
+  });
+  await cdp.detach();
+  const value: unknown = nodes[0]?.properties?.find((item) => item.name === property)?.value.value;
+  return value;
+}
+
+test('antes do envio, os campos obrigatórios não são anunciados como inválidos', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const controls = [
+    ['textbox', 'Nome'],
+    ['textbox', 'WhatsApp'],
+    ['textbox', 'Mensagem'],
+    [
+      'checkbox',
+      'Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD.',
+    ],
+  ] as const;
+  for (const [role, name] of controls) {
+    expect(await accessibilityProperty(page, role, name, 'invalid'), name).toBe('false');
+  }
+  for (const name of ['Nome', 'WhatsApp', 'Mensagem']) {
+    expect(await accessibilityProperty(page, 'textbox', name, 'required'), name).toBe(true);
+  }
+});
+
 test.describe('axe', () => {
   test.use({ reducedMotion: 'reduce' });
 
@@ -28,7 +72,7 @@ test.describe('axe', () => {
     for (const viewport of [MOBILE, DESKTOP]) {
       await page.setViewportSize(viewport);
       await page.goto('/');
-      expect(await axeViolations(page), `${String(viewport.width)}px`).toEqual([]);
+      expect(await axeViolations(page), `${viewport.width}px`).toEqual([]);
     }
   });
 
@@ -120,6 +164,53 @@ test('o primeiro Tab mostra o link para pular ao conteúdo', async ({ page }) =>
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
   await expect(page.getByLabel('Família', { exact: true })).toBeFocused();
+});
+
+test('o skip link escondido não projeta sombra sobre a página', async ({ page }) => {
+  await page.setViewportSize(DESKTOP);
+  await page.goto('/');
+  const skip = page.getByRole('link', { name: 'Pular para o conteúdo', exact: true });
+  await expect(skip).toHaveCSS('box-shadow', 'none');
+  await page.keyboard.press('Tab');
+  await expect(skip).toBeFocused();
+  await expect(skip).not.toHaveCSS('box-shadow', 'none');
+});
+
+test('no alto contraste, o campo focado ganha contorno', async ({ page }) => {
+  await page.emulateMedia({ forcedColors: 'active' });
+  await page.goto('/');
+  const name = page.getByLabel('Nome', { exact: true });
+  await name.focus();
+  await expect(name).toHaveCSS('outline-style', 'solid');
+});
+
+test('o texto selecionado aparece em qualquer fundo', async ({ page }) => {
+  await page.goto('/');
+  const selection = (locator: Locator) =>
+    locator.evaluate((element) => {
+      const style = getComputedStyle(element, '::selection');
+      return `${style.backgroundColor} / ${style.color}`;
+    });
+  const royal = 'rgb(0, 22, 123) / rgb(255, 255, 255)';
+  const white = 'rgb(255, 255, 255) / rgb(0, 22, 123)';
+
+  // Fundo claro, inclusive o cartão branco do formulário na seção royal: seleção royal.
+  expect(await selection(page.getByLabel('Nome', { exact: true }))).toBe(royal);
+  expect(
+    await selection(page.getByText('Preencha os campos e a mensagem chega pronta no WhatsApp.')),
+  ).toBe(royal);
+  // Fundo royal (rodapé, menu e header sobre o hero): seleção branca.
+  expect(
+    await selection(page.getByRole('contentinfo').getByText(/^Conteúdo de caráter informativo/)),
+  ).toBe(white);
+  expect(
+    await selection(
+      page.locator('[data-menu]').getByRole('link', { name: 'Sobre', includeHidden: true }),
+    ),
+  ).toBe(white);
+  expect(
+    await selection(page.getByRole('banner').getByRole('link', { name: /^Diogo Menani/ })),
+  ).toBe(white);
 });
 
 test('o título principal tem nome acessível sem aria-label', async ({ page }) => {

@@ -18,7 +18,7 @@ test('cliques rápidos não sobrepõem animações e terminam no último tema', 
   await page.goto('/');
   const cta = page.locator('[data-wa-cta]');
   for (const topic of ['Família', 'Trabalho', 'Empresas']) {
-    await page.getByText(topic, { exact: true }).click({ delay: 0 });
+    await page.getByText(topic, { exact: true }).click();
   }
   const runningOnLabel = await cta
     .locator('[data-wa-label]')

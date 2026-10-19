@@ -28,13 +28,13 @@ import { messages, waLink } from '../lib/whatsapp';
     gap: 10px;
     height: 56px;
     padding: 0 22px 0 18px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--royal);
     color: #fff;
     font-weight: 600;
     font-size: 15px;
     box-shadow:
-      0 20px 44px -18px rgb(0 22 123 / 75%),
+      0 20px 44px -18px rgb(var(--royal-rgb) / 75%),
       inset 0 0 0 1px rgb(255 255 255 / 14%);
     opacity: 0;
     visibility: hidden;
@@ -65,6 +65,7 @@ import { messages, waLink } from '../lib/whatsapp';
     pointer-events: none;
   }
 
+  /* No desktop (DESKTOP_QUERY em src/scripts/menu.ts) o header já mostra o botão de agendar. */
   @media (width >= 1080px) {
     .fab {
       display: none;

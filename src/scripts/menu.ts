@@ -15,8 +15,8 @@ export function initMenu(root: HTMLElement): Menu {
   const header = root.querySelector('[data-header]');
   const menu = root.querySelector<HTMLElement>('[data-menu]');
   const toggle = root.querySelector<HTMLButtonElement>('[data-menu-toggle]');
-  const toggleText = root.querySelector('[data-menu-text]');
   if (!menu || !toggle) return { isOpen: () => false };
+  const toggleText = toggle.querySelector('[data-menu-text]');
   const background = [...root.children].filter(
     (element): element is HTMLElement =>
       element instanceof HTMLElement && element !== header && element !== menu,

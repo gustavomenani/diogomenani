@@ -1,6 +1,7 @@
 /*
  * Controles de formulário. Ficam globais porque os controles vêm do slot do Field (escopo do
- * Contato) e o rótulo, do próprio Field: um único dono para cada controle evita disputa de ordem.
+ * Contato) e o rótulo, do próprio Field: um único dono para cada controle evita disputa de
+ * ordem.
  */
 .field-row {
   display: grid;
@@ -63,7 +64,16 @@
   outline: none;
   border-color: var(--royal-bright);
   background: #fff;
-  box-shadow: 0 0 0 4px rgb(36 64 230 / 14%);
+  box-shadow: 0 0 0 4px rgb(var(--royal-bright-rgb) / 14%);
+}
+
+/* Alto contraste (forced-colors): a sombra do foco some, então um contorno a substitui. */
+@media (forced-colors: active) {
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: 2px solid highlight;
+  }
 }
 
 .select {
@@ -93,20 +103,27 @@
   color: var(--danger);
 }
 
-.has-error input,
-.has-error textarea {
+/* .field.has-error, e não só .has-error: precisa vencer o hover (.field input:hover). */
+.field.has-error input,
+.field.has-error textarea {
   border-color: var(--danger);
 }
 
-.has-error input:focus,
-.has-error textarea:focus {
+.field.has-error input:focus,
+.field.has-error textarea:focus {
   border-color: var(--danger);
-  box-shadow: 0 0 0 4px rgb(180 35 24 / 12%);
+  box-shadow: 0 0 0 4px rgb(var(--danger-rgb) / 12%);
 }
 
 .has-error .field-error {
   display: block;
   animation: fade-up 0.45s var(--ease) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .has-error .field-error {
+    animation-name: fade;
+  }
 }
 
 /* Checkbox: o input fica invisível por cima da caixa desenhada. */

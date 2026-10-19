@@ -36,7 +36,7 @@
 
 **Files:**
 
-- Move: `-af-al----proxylist.txt` → `C:\Users\User\Documents\-af-al----proxylist.txt` (credenciais de proxy; fora do projeto e do git)
+- Move: o arquivo de credenciais de proxy que estava na raiz → uma pasta fora do projeto (fora do git)
 - Create: repositório git (`main`), branch `refactor/qualidade`
 - Create: `$SP/baseline/dist/` (cópia do build original)
 
@@ -44,8 +44,8 @@
 
 - Produces: commit baseline em `main` com o código original; build original servível de `$SP/baseline/dist`.
 
-- [ ] **Step 1:** Mover o arquivo de credenciais com `mv -- ./-af-al----proxylist.txt "C:/Users/User/Documents/"`. Verificar: `ls` da raiz não mostra o arquivo e o destino tem 6 linhas.
-- [ ] **Step 2:** `git init -b main`; adicionar tudo exceto `docs/`; commit `chore: estado original do site (baseline)`. Verificar: `git ls-files` não contém `proxylist`, `dist/`, `node_modules/` nem `.astro/`.
+- [ ] **Step 1:** Mover o arquivo de credenciais de proxy da raiz para fora do projeto. Verificar: `ls` da raiz não mostra o arquivo e o destino tem o mesmo conteúdo.
+- [ ] **Step 2:** `git init -b main`; adicionar tudo exceto `docs/`; commit `chore: estado original do site (baseline)`. Verificar: `git ls-files` não contém o arquivo de credenciais, `dist/`, `node_modules/` nem `.astro/`.
 - [ ] **Step 3:** `git switch -c refactor/qualidade`; commit da spec e deste plano: `docs: especificação e plano da correção de qualidade`.
 - [ ] **Step 4:** `npm run build` e copiar `dist/` para `$SP/baseline/dist`. Verificar: o sha256 de `index.html` e do CSS/JS em `_astro/` é igual nos dois lugares.
 

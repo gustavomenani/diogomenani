@@ -21,6 +21,17 @@ test('recolhe ao descer depois do hero e volta ao subir', async ({ page }) => {
   await expect(header(page)).not.toHaveClass(/is-tucked/);
 });
 
+test('o foco que um toque deixa no botão do menu não impede o header de recolher', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('button', { name: 'Fechar', exact: true }).click();
+  await jumpTo(page, 2000);
+  await expect(header(page)).toHaveClass(/is-tucked/);
+});
+
 test('marca o link da seção visível', async ({ page }) => {
   await page.goto('/');
   await jumpToSection(page, 'duvidas');
@@ -30,7 +41,8 @@ test('marca o link da seção visível', async ({ page }) => {
   }
 });
 
-test('abrir em /#duvidas já marca Dúvidas', async ({ page }) => {
+test('abrir em /#duvidas já marca Dúvidas e revela a seção', async ({ page }) => {
   await page.goto('/#duvidas');
   await expect(navLink(page, 'Dúvidas')).toHaveAttribute('aria-current', 'true');
+  await expect(page.locator('#duvidas [data-reveal]').first()).toHaveClass(/is-in/);
 });

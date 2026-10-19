@@ -1,5 +1,6 @@
-// Física da balança da Têmis: o travessão é uma mola amortecida que busca o nível, e os pratos
-// são pêndulos atrasados, empurrados pela aceleração do travessão. Ângulos em graus, tempo em s.
+// Física da balança da Têmis: o travessão é uma mola amortecida que busca o nível, e os
+// pratos são pêndulos atrasados, empurrados pela aceleração do travessão. Ângulos em graus,
+// tempo em segundos.
 
 export const BALANCE = {
   beamStiffness: 13,

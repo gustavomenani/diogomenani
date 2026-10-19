@@ -60,7 +60,11 @@ const items: readonly ContactItem[] = [
         ))}
       </ul>
     </div>
-    {/* O formulário depende de JavaScript por design: o script valida e monta a mensagem. */}
+    {/*
+      O formulário depende de JavaScript por design: o script valida e monta a mensagem.
+      Obrigatórios com aria-required, não required: o required liga a validação nativa, e o
+      leitor de tela anunciaria o campo como inválido antes de qualquer envio.
+    */}
     <form class="contact-form" method="post" data-contact-form data-reveal novalidate>
       <h3 class="form-title">Prefere escrever?</h3>
       <p class="form-sub">Preencha os campos e a mensagem chega pronta no WhatsApp.</p>
@@ -72,7 +76,7 @@ const items: readonly ContactItem[] = [
             type="text"
             autocomplete="name"
             placeholder="Como posso chamar você?"
-            required
+            aria-required="true"
           />
         </Field>
         <div class="field-row">
@@ -84,7 +88,7 @@ const items: readonly ContactItem[] = [
               inputmode="tel"
               autocomplete="tel"
               placeholder="(00) 00000-0000"
-              required
+              aria-required="true"
             />
           </Field>
           <Field id="f-email" label="E-mail" optional error="Confira o e-mail digitado.">
@@ -116,13 +120,19 @@ const items: readonly ContactItem[] = [
             rows="4"
             maxlength="1200"
             placeholder="Conte em poucas linhas o que está acontecendo."
-            required
+            aria-required="true"
           ></textarea>
         </Field>
-        {/* Contêiner próprio (não .field): as regras de .field label/input pegariam o checkbox. */}
+        {/* Contêiner próprio (não .field): .field label/input pegariam o checkbox. */}
         <div class="check-field" data-field>
           <label class="check">
-            <input class="check-input" id="f-lgpd" type="checkbox" name="lgpd" required />
+            <input
+              class="check-input"
+              id="f-lgpd"
+              type="checkbox"
+              name="lgpd"
+              aria-required="true"
+            />
             <span class="check-box" aria-hidden="true">
               <Icon name="check" strokeWidth={2.6} />
             </span>
@@ -161,7 +171,11 @@ const items: readonly ContactItem[] = [
     width: min(1000px, 100vw);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(96 122 255 / 36%), rgb(0 22 123 / 0%));
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--glow-rgb) / 36%),
+      rgb(var(--royal-rgb) / 0%)
+    );
     pointer-events: none;
   }
 
@@ -186,7 +200,7 @@ const items: readonly ContactItem[] = [
     gap: 22px;
     margin-top: 48px;
     padding-top: 36px;
-    border-top: 1px solid var(--line-royal);
+    border-top: 1px solid var(--line-on-royal);
   }
 
   .contact-list li {

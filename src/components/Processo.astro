@@ -41,8 +41,11 @@ import { sectionIds } from '../data/navigation';
   }
 
   .steps {
+    /* O trilho de cada etapa atravessa este espaço até a seguinte. */
+    --steps-gap: 44px;
+
     display: grid;
-    gap: 44px;
+    gap: var(--steps-gap);
   }
 
   .step {
@@ -58,7 +61,7 @@ import { sectionIds } from '../data/navigation';
     left: 6px;
     top: 20px;
     width: 1px;
-    height: calc(100% + 44px - 14px);
+    height: calc(100% + var(--steps-gap) - 14px);
   }
 
   .step::before {
@@ -84,7 +87,7 @@ import { sectionIds } from '../data/navigation';
     height: 13px;
     border-radius: 50%;
     background: var(--royal);
-    box-shadow: 0 0 0 6px rgb(36 64 230 / 12%);
+    box-shadow: 0 0 0 6px rgb(var(--royal-bright-rgb) / 12%);
     transition:
       background-color 0.6s var(--ease),
       box-shadow 0.6s var(--ease),
@@ -143,8 +146,9 @@ import { sectionIds } from '../data/navigation';
     }
 
     .steps {
+      --steps-gap: 40px;
+
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 40px;
     }
 
     .step {
@@ -156,7 +160,7 @@ import { sectionIds } from '../data/navigation';
     .step::after {
       left: 20px;
       top: 6px;
-      width: calc(100% + 40px - 14px);
+      width: calc(100% + var(--steps-gap) - 14px);
       height: 1px;
     }
 

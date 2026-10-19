@@ -27,7 +27,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
         {titleWords.map((words, lineIndex) => (
           <Fragment>
             {lineIndex > 0 && ' '}
-            <span class="line" aria-hidden="true" style={`--line:${lineIndex}`}>
+            <span class="line" aria-hidden="true" style={`--row:${lineIndex}`}>
               {words.map(({ word, index }, wordIndex) => (
                 <Fragment>
                   {wordIndex > 0 && ' '}
@@ -123,9 +123,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     border-radius: 50%;
     background: radial-gradient(
       closest-side,
-      rgb(96 122 255 / 46%),
+      rgb(var(--glow-rgb) / 46%),
       rgb(58 86 230 / 18%) 48%,
-      rgb(0 22 123 / 0%) 74%
+      rgb(var(--royal-rgb) / 0%) 74%
     );
     animation: fade 2.6s ease-out 0.25s backwards;
   }
@@ -157,6 +157,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     display: block;
   }
 
+  /* A folga de 0,12em guarda as descendentes (g, p) dentro do overflow sem mudar as linhas. */
   .hero-title .w {
     display: inline-block;
     overflow: hidden;
@@ -169,7 +170,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   .hero-title .w > span {
     display: inline-block;
     animation: rise 1.15s var(--ease) backwards;
-    animation-delay: calc(0.18s + (var(--word) + var(--line)) * 0.06s);
+    animation-delay: calc(0.18s + (var(--word) + var(--row)) * 0.06s);
   }
 
   .hero-rule {
@@ -187,12 +188,12 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       #fff 84%,
       rgb(255 255 255 / 0%) 100%
     );
-    filter: drop-shadow(0 0 7px rgb(160 182 255 / 70%));
+    filter: drop-shadow(0 0 7px var(--rule-glow));
     transform-origin: left center;
     animation: draw 1.5s var(--ease) 0.62s backwards;
   }
 
-  /* Brilho que percorre o traço uma vez, logo depois que ele é desenhado. */
+  /* Brilho que percorre o traço uma vez, enquanto ele é desenhado. */
   .hero-rule::after {
     content: '';
     position: absolute;
@@ -225,6 +226,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     animation: fade-up 1s var(--ease) 0.78s backwards;
   }
 
+  /* A legend flutua para sair do encaixe especial do fieldset e virar um bloco comum. */
   .topic-label {
     float: left;
     width: 100%;
@@ -258,7 +260,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     align-items: center;
     min-height: 44px;
     padding: 0 18px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-size: 15px;
     font-weight: 500;
     color: #fff;
@@ -316,7 +318,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     height: 100%;
     will-change: transform;
     mask-repeat: no-repeat;
-    animation: unveil 2.3s cubic-bezier(0.22, 1, 0.36, 1) 0.05s backwards;
+    animation: unveil 2.3s var(--ease-soft) 0.05s backwards;
   }
 
   .hero-facts {
@@ -331,7 +333,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     flex-wrap: wrap;
     gap: 10px 0;
     padding-top: 22px;
-    border-top: 1px solid var(--line-royal);
+    border-top: 1px solid var(--line-on-royal);
     font-size: 14px;
     color: var(--sky);
   }
@@ -339,7 +341,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   .facts li {
     padding-right: 24px;
     margin-right: 24px;
-    border-right: 1px solid var(--line-royal);
+    border-right: 1px solid var(--line-on-royal);
     line-height: 1.3;
   }
 
@@ -367,7 +369,6 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
 
     .hero-figure {
       right: -34%;
-      bottom: 0;
       height: min(68%, 580px);
       opacity: 0.17;
     }

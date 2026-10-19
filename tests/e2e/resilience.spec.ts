@@ -13,6 +13,7 @@ test('um formulário incompleto não derruba o resto da página', async ({ page 
   page.on('pageerror', (error) => errors.push(error.message));
 
   await page.goto('/');
+  await expect(page.locator('input[name="nome"]')).toHaveCount(0);
   await jumpTo(page, 100);
   await expect(page.locator('[data-header]')).toHaveClass(/is-scrolled/);
   expect(errors).toEqual([]);

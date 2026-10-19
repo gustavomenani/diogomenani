@@ -59,3 +59,15 @@ test('na impressão todas as respostas aparecem', async ({ page }) => {
     await expect(page.getByText(answer)).toBeVisible();
   }
 });
+
+test.describe('impressão com movimento', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('na impressão, as respostas fechadas aparecem na hora, sem transição', async ({ page }) => {
+    const answer = page.getByText(SECOND_ANSWER);
+    await page.emulateMedia({ media: 'print' });
+    expect(await answer.evaluate((element) => getComputedStyle(element).visibility)).toBe(
+      'visible',
+    );
+  });
+});

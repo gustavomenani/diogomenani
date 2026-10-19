@@ -44,9 +44,11 @@ export function initScrollEffects(
   const nav = root.querySelector('[data-nav]');
   const indicator = root.querySelector<HTMLElement>('[data-nav-ind]');
   const navLinks = [...root.querySelectorAll<HTMLAnchorElement>('[data-nav] a[href^="#"]')];
-  const sections = navLinks
-    .map((link) => (link.hash ? root.querySelector<HTMLElement>(link.hash) : null))
-    .filter((section) => section !== null);
+  /** Cada link da navegação com a seção que ele aponta, achada pelo id (sem seletor CSS). */
+  const targets = navLinks.flatMap((link) => {
+    const section = document.getElementById(link.getAttribute('href')?.slice(1) ?? '');
+    return section ? [{ link, section }] : [];
+  });
   const steps = [...root.querySelectorAll('[data-step]')];
   const statement = root.querySelector('[data-statement]');
   const words = statement ? [...statement.children] : [];
@@ -68,12 +70,11 @@ export function initScrollEffects(
     const viewportHeight = window.innerHeight;
     const maxScroll = Math.max(1, document.documentElement.scrollHeight - viewportHeight);
     const sectionTops =
-      mode === 'static' ? [] : sections.map((section) => section.getBoundingClientRect().top);
-    const id = sections[activeSectionIndex(sectionTops, viewportHeight)]?.id ?? null;
+      mode === 'static' ? [] : targets.map(({ section }) => section.getBoundingClientRect().top);
+    const active = targets[activeSectionIndex(sectionTops, viewportHeight)];
+    const id = active?.section.id ?? null;
     const activeChanged = id !== activeId;
-    const activeLink = activeChanged
-      ? navLinks.find((link) => link.hash === `#${String(id)}`)
-      : undefined;
+    const activeLink = activeChanged ? active?.link : undefined;
     const navRect = activeLink && nav ? nav.getBoundingClientRect() : null;
     const linkRect = navRect ? activeLink?.getBoundingClientRect() : undefined;
     const contactRect = fab && contact ? contact.getBoundingClientRect() : null;
@@ -92,7 +93,7 @@ export function initScrollEffects(
           heroHeight,
           motionOn,
           menuOpen: isMenuOpen(),
-          headerHasFocus: header.matches(':focus-within'),
+          headerHasVisibleFocus: header.querySelector(':focus-visible') !== null,
           tucked: header.classList.contains('is-tucked'),
         }),
       );
@@ -148,7 +149,7 @@ export function initScrollEffects(
       });
       if (lit !== litWords) {
         litWords = lit;
-        words.forEach((word, index) => word.classList.toggle('lit', index < lit));
+        words.forEach((word, index) => word.classList.toggle('is-lit', index < lit));
       }
     }
   };

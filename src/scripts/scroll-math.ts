@@ -45,7 +45,7 @@ export function activeStepCount(tops: readonly number[], viewportHeight: number)
   if (Math.abs(last - first) < SAME_ROW) {
     const progress = (viewportHeight * STEPS_START - first) / (viewportHeight * STEPS_SPAN);
     if (progress <= 0) return 0;
-    return Math.min(tops.length, 1 + Math.floor(clamp(progress, 0, 1) * (tops.length - 1) + 1e-6));
+    return 1 + Math.floor(clamp(progress, 0, 1) * (tops.length - 1) + 1e-6);
   }
   return tops.filter((top) => top < viewportHeight * STACKED_STEP_LINE).length;
 }
@@ -68,7 +68,8 @@ export function litWordCount(input: {
 
 /**
  * Se o header fica recolhido: recolhe ao descer depois do hero e reaparece ao subir. Com o foco
- * do teclado dentro dele, nunca recolhe (o item focado não pode sumir da tela).
+ * visível (do teclado) dentro dele, nunca recolhe: o item focado não pode sumir da tela. O foco
+ * que um clique ou toque deixa num botão não conta.
  */
 export function nextTuck(input: {
   y: number;
@@ -76,11 +77,11 @@ export function nextTuck(input: {
   heroHeight: number;
   motionOn: boolean;
   menuOpen: boolean;
-  headerHasFocus: boolean;
+  headerHasVisibleFocus: boolean;
   tucked: boolean;
 }): boolean {
-  const { y, lastY, heroHeight, motionOn, menuOpen, headerHasFocus, tucked } = input;
-  if (headerHasFocus) return false;
+  const { y, lastY, heroHeight, motionOn, menuOpen, headerHasVisibleFocus, tucked } = input;
+  if (headerHasVisibleFocus) return false;
   const pastHero = y > heroHeight * TUCK_AFTER_HERO;
   if (motionOn && !menuOpen && pastHero && y > lastY + SCROLL_INTENT) return true;
   if (y < lastY - SCROLL_INTENT || !pastHero) return false;

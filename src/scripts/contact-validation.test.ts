@@ -27,6 +27,16 @@ describe('validateContact', () => {
     expect(validateContact(empty)).toEqual(['name', 'phone', 'message', 'consent']);
   });
 
+  test('com tudo inválido, os campos saem na ordem do formulário (o primeiro recebe o foco)', () => {
+    expect(validateContact({ ...empty, email: 'ana@x' })).toEqual([
+      'name',
+      'phone',
+      'email',
+      'message',
+      'consent',
+    ]);
+  });
+
   test('nome só com espaços não conta', () => {
     expect(validateContact({ ...valid, name: '   ' })).toEqual(['name']);
   });

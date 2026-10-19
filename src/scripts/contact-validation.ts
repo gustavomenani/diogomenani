@@ -1,6 +1,9 @@
 import type { ContactRequest } from '../lib/whatsapp';
 
-export type ContactField = 'name' | 'phone' | 'email' | 'message' | 'consent';
+/** Campos validados, na ordem do formulário: o primeiro inválido recebe o foco. */
+export const CONTACT_FIELDS = ['name', 'phone', 'email', 'message', 'consent'] as const;
+
+export type ContactField = (typeof CONTACT_FIELDS)[number];
 
 export interface ContactValues extends ContactRequest {
   consent: boolean;
@@ -10,14 +13,16 @@ const EMAIL = /^\S+@\S+\.\S+$/;
 /** DDD + número fixo. */
 const MIN_PHONE_DIGITS = 10;
 
-/** Campos inválidos, na ordem em que aparecem no formulário (o primeiro recebe o foco). */
+const isValid: Record<ContactField, (values: ContactValues) => boolean> = {
+  name: ({ name }) => name.trim() !== '',
+  phone: ({ phone }) => phone.replace(/\D/g, '').length >= MIN_PHONE_DIGITS,
+  // Opcional: vazio vale; preenchido, precisa ter cara de e-mail.
+  email: ({ email }) => email.trim() === '' || EMAIL.test(email.trim()),
+  message: ({ message }) => message.trim() !== '',
+  consent: ({ consent }) => consent,
+};
+
+/** Campos inválidos, na ordem do formulário. */
 export function validateContact(values: ContactValues): ContactField[] {
-  const invalid: ContactField[] = [];
-  if (!values.name.trim()) invalid.push('name');
-  if (values.phone.replace(/\D/g, '').length < MIN_PHONE_DIGITS) invalid.push('phone');
-  const email = values.email.trim();
-  if (email && !EMAIL.test(email)) invalid.push('email');
-  if (!values.message.trim()) invalid.push('message');
-  if (!values.consent) invalid.push('consent');
-  return invalid;
+  return CONTACT_FIELDS.filter((field) => !isValid[field](values));
 }

@@ -1,7 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
-import { THEMIS_SHAPE_ID, wordmark } from '../data/brand';
+import { THEMIS_SHAPE_ID, themis, wordmark } from '../data/brand';
 import { contact, social, whatsapp } from '../data/contact';
 import { anchor, footerNav, sectionIds } from '../data/navigation';
 import { externalLink } from '../lib/links';
@@ -13,7 +13,7 @@ const year = new Date().getFullYear();
 <footer class="footer" data-footer>
   <div class="wrap">
     <div class="footer-brand">
-      <svg class="footer-themis" viewBox="0 0 860 1112" aria-hidden="true" focusable="false">
+      <svg class="footer-themis" viewBox={themis.viewBox} aria-hidden="true" focusable="false">
         <use href={`#${THEMIS_SHAPE_ID}`}></use>
       </svg>
       <Monogram class="footer-mark" data-reveal />
@@ -143,7 +143,7 @@ const year = new Date().getFullYear();
       #fff 86%,
       rgb(255 255 255 / 0%) 100%
     );
-    filter: drop-shadow(0 0 7px rgb(160 182 255 / 70%));
+    filter: drop-shadow(0 0 7px var(--rule-glow));
     transform-origin: center;
   }
 
@@ -165,7 +165,7 @@ const year = new Date().getFullYear();
     gap: 40px;
     margin-top: 72px;
     padding-top: 48px;
-    border-top: 1px solid var(--line-royal);
+    border-top: 1px solid var(--line-on-royal);
   }
 
   .footer-col .footer-col-title {
@@ -215,7 +215,7 @@ const year = new Date().getFullYear();
     gap: 16px 40px;
     margin-top: 56px;
     padding-top: 28px;
-    border-top: 1px solid var(--line-royal);
+    border-top: 1px solid var(--line-on-royal);
     font-size: 13.5px;
     line-height: 1.55;
     color: var(--sky);

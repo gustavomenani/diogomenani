@@ -35,7 +35,8 @@ describe('clampDt', () => {
 describe('stepBalance', () => {
   test('um passo a partir do repouso segue a mola amortecida (valores calculados à mão)', () => {
     // acc = −13·(0 − L) ≈ −294,05824432; v = acc·0,016; ângulo = v·0,016
-    // accPratos = −0,55·acc ≈ 161,73203438; vPratos = accPratos·0,016; pratos = vPratos·0,016
+    // accPratos = −0,55·acc ≈ 161,73203438; vPratos = accPratos·0,016;
+    // pratos = vPratos·0,016
     const next = stepBalance(REST, 0.016, LEVEL);
     expect(next.angleVelocity).toBeCloseTo(-4.70493190919, 10);
     expect(next.angle).toBeCloseTo(-0.0752789105471, 10);
@@ -70,13 +71,17 @@ describe('isSettled', () => {
     expect(isSettled({ ...REST, angle: LEVEL, pansVelocity: 0.02 }, LEVEL)).toBe(false);
   });
 
-  test('partindo do desenho inclinado, assenta depois de oscilar e antes de 10 s a 60 fps', () => {
+  test('partindo do desenho inclinado, passa do nível e assenta antes de 10 s a 60 fps', () => {
+    const startSide = Math.sign(REST.angle - LEVEL);
     let state = REST;
     let steps = 0;
+    let crossed = false;
     while (!isSettled(state, LEVEL) && steps < 600) {
       state = stepBalance(state, 1 / 60, LEVEL);
+      crossed ||= Math.sign(state.angle - LEVEL) === -startSide;
       steps++;
     }
+    expect(crossed).toBe(true);
     expect(steps).toBeGreaterThan(60);
     expect(steps).toBeLessThan(600);
   });

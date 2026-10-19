@@ -1,7 +1,8 @@
 /*
- * Revelações na rolagem. Os estados escondidos só valem com data-motion="on", que o script define
- * quando pode animar: sem JavaScript, com movimento reduzido ou numa captura da página inteira,
- * todo o conteúdo aparece direto.
+ * Revelações na rolagem. Os estados escondidos só valem com data-motion="on", que o script
+ * define quando pode animar: sem JavaScript, com movimento reduzido ou numa captura da página
+ * inteira, todo o conteúdo aparece direto. No fim, os keyframes usados pelos componentes (rise,
+ * fade-up, fade, drop, draw, spark, unveil).
  */
 .page[data-motion='on'] [data-reveal] {
   transition:
@@ -27,7 +28,7 @@
 }
 
 .page[data-motion='on'] [data-reveal='unveil'] {
-  transition: clip-path 1.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: clip-path 1.7s var(--ease-soft);
 }
 
 .page[data-motion='on'] [data-reveal='unveil']:not(.is-in) {
@@ -116,12 +117,6 @@
     mask-size: 100% 250%;
     mask-position: 0 100%;
     transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
   }
 }
 

@@ -1,5 +1,6 @@
 import type { MotionMode } from './motion-mode';
 
+/** A mesma curva de --ease (tokens.css): a Web Animations API não lê variáveis CSS. */
 const EASE_OUT_EXPO = 'cubic-bezier(.16,1,.3,1)';
 
 interface TopicPickerOptions {

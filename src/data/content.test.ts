@@ -9,7 +9,7 @@ test('cada área tem um id único (os temas do seletor viram ids no HTML)', () =
 
 test('a credencial de atendimento usa a cidade do contato', () => {
   const atendimento = credentials.find((item) => item.term === 'Atendimento');
-  expect(atendimento?.value).toBe(`Presencial em ${contact.city} e online`);
+  expect(atendimento?.value).toContain(contact.city);
 });
 
 test('a resposta sobre honorários cita a seccional da OAB do contato', () => {

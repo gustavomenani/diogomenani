@@ -4,25 +4,26 @@ Landing page do escritório: uma página estática em [Astro](https://astro.buil
 
 ## Requisitos
 
-Node.js 22.22 ou mais novo (exigência do Astro 7.4). O CI usa o Node 24.
+Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22 ou 26.3+. É a faixa que todas as ferramentas do projeto aceitam (`engines` no `package.json`).
 
 ## Comandos
 
-| Comando                 | O que faz                                                                                                                                 |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm install`           | Instala as dependências (só na primeira vez).                                                                                             |
-| `npm run dev`           | Abre o site em http://localhost:4321 e recarrega a cada edição.                                                                           |
-| `npm run build`         | Gera o site final em `dist/`.                                                                                                             |
-| `npm run preview`       | Serve o `dist/` para conferir o build.                                                                                                    |
-| `npm run verify`        | Roda todas as verificações abaixo, na mesma ordem do CI.                                                                                  |
-| `npm run format`        | Formata o projeto com o Prettier.                                                                                                         |
-| `npm run format:check`  | Confere a formatação sem alterar nada.                                                                                                    |
-| `npm run lint`          | ESLint (TypeScript com checagem de tipos, Astro, acessibilidade e testes) e Stylelint (CSS).                                              |
-| `npm run check`         | Checagem de tipos de componentes e scripts (`astro check`, TypeScript `strictest`).                                                       |
-| `npm test`              | Testes unitários da lógica pura (Vitest). `npm run test:watch` roda em modo de observação.                                                |
-| `npm run test:e2e`      | Gera o build e roda os testes no navegador (Playwright): comportamento, acessibilidade com axe, fontes e (fora do CI) a regressão visual. |
-| `npm run test:visual`   | Gera o build e roda só a regressão visual.                                                                                                |
-| `npm run validate:html` | Valida o HTML gerado em `dist/` (html-validate).                                                                                          |
+| Comando                           | O que faz                                                                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm install`                     | Instala as dependências (só na primeira vez).                                                                                                                      |
+| `npx playwright install chromium` | Baixa o navegador dos testes (só na primeira vez).                                                                                                                 |
+| `npm run dev`                     | Abre o site em http://localhost:4321 e recarrega a cada edição.                                                                                                    |
+| `npm run build`                   | Gera o site final em `dist/`.                                                                                                                                      |
+| `npm run preview`                 | Serve o `dist/` para conferir o build.                                                                                                                             |
+| `npm run verify`                  | Confere tudo, na ordem do CI: formatação, lint, tipos, testes unitários, build, HTML e testes no navegador.                                                        |
+| `npm run format`                  | Formata o projeto com o Prettier.                                                                                                                                  |
+| `npm run format:check`            | Confere a formatação sem alterar nada.                                                                                                                             |
+| `npm run lint`                    | ESLint (TypeScript com checagem de tipos, Astro, acessibilidade e testes) e Stylelint (CSS). Antes, o `astro sync` gera os tipos do Astro. Avisos também reprovam. |
+| `npm run check`                   | Checagem de tipos de componentes e scripts (`astro check`, TypeScript `strictest`).                                                                                |
+| `npm test`                        | Testes unitários da lógica pura (Vitest). `npm run test:watch` roda em modo de observação.                                                                         |
+| `npm run test:e2e`                | Gera o build e roda os testes no navegador (Playwright): comportamento, acessibilidade com axe, fontes e (fora do CI) a regressão visual.                          |
+| `npm run test:visual`             | Gera o build e roda só a regressão visual.                                                                                                                         |
+| `npm run validate:html`           | Valida o HTML gerado em `dist/` (html-validate).                                                                                                                   |
 
 ## Estrutura
 
@@ -72,7 +73,7 @@ Peças usadas pelas seções:
 - `data/contact.ts`: WhatsApp, OAB, cidade, e-mail, endereço, horário, modo de atendimento e redes sociais.
 - `data/content.ts`: áreas de atuação (com o tema do seletor), credenciais, etapas, manifesto, compromissos e perguntas frequentes.
 - `data/navigation.ts`: ids das seções (as âncoras) e os links do menu e do rodapé.
-- `data/icons.ts`: desenhos dos ícones (Tabler Icons).
+- `data/icons.ts`: desenhos dos ícones (Tabler Icons; licença em `data/MIT-tabler-icons.txt`).
 - `data/brand.ts`: vetores do monograma, do nome e da Têmis. Não precisa mexer.
 - `lib/whatsapp.ts`: mensagens prontas, links `wa.me` e a mensagem que o formulário monta.
 - `lib/links.ts`: atributos de link que abre em outra aba.
@@ -81,7 +82,7 @@ Peças usadas pelas seções:
 
 `main.ts` liga tudo na raiz `[data-page]`. Cada recurso tem o seu módulo. A lógica pura fica em arquivos próprios, com testes unitários ao lado (`*.test.ts`).
 
-- `motion-mode.ts`: escolhe o modo de movimento (`on`, `static` ou `reduced`) e o grava em `data-motion`.
+- `motion-mode.ts`: escolhe o modo de movimento (`on`, `static` ou `reduced`); o `main.ts` o grava em `data-motion`.
 - `reveal.ts`: revela o conteúdo ao entrar na tela.
 - `balance.ts` e `balance-physics.ts`: a balança da Têmis e a física dela.
 - `topic-picker.ts`: seletor de tema do hero.
@@ -109,23 +110,25 @@ Peças usadas pelas seções:
 
 ## Onde editar cada conteúdo
 
-| Quero mudar…                                                           | Arquivo                                                         |
-| ---------------------------------------------------------------------- | --------------------------------------------------------------- |
-| WhatsApp, OAB, cidade, e-mail, endereço, horário, redes sociais        | `src/data/contact.ts`                                           |
-| Áreas de atuação e temas do seletor, credenciais, etapas, compromissos | `src/data/content.ts`                                           |
-| Perguntas frequentes                                                   | `src/data/content.ts` (`faq`)                                   |
-| Texto das mensagens do WhatsApp                                        | `src/lib/whatsapp.ts`                                           |
-| Itens do menu e do rodapé                                              | `src/data/navigation.ts`                                        |
-| Títulos e parágrafos de uma seção                                      | o componente da seção em `src/components/`                      |
-| Cores                                                                  | `src/styles/tokens.css`                                         |
-| Fontes                                                                 | `fonts` no `astro.config.mjs` (arquivos em `src/assets/fonts/`) |
-| Título e descrição da página nos buscadores                            | `src/pages/index.astro`                                         |
+| Quero mudar…                                                           | Arquivo                                                                                                                   |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| WhatsApp, OAB, cidade, e-mail, endereço, horário, redes sociais        | `src/data/contact.ts`                                                                                                     |
+| Áreas de atuação e temas do seletor, credenciais, etapas, compromissos | `src/data/content.ts`                                                                                                     |
+| Perguntas frequentes                                                   | `src/data/content.ts` (`faq`)                                                                                             |
+| Texto das mensagens do WhatsApp                                        | `src/lib/whatsapp.ts`                                                                                                     |
+| Itens do menu e do rodapé                                              | `src/data/navigation.ts`                                                                                                  |
+| Títulos e parágrafos de uma seção                                      | o componente da seção em `src/components/`                                                                                |
+| Cores                                                                  | `src/styles/tokens.css` (o azul royal também está no `theme-color` do `src/layouts/Base.astro` e no `public/favicon.svg`) |
+| Fontes                                                                 | `fonts` no `astro.config.mjs` (arquivos em `src/assets/fonts/`)                                                           |
+| Título e descrição da página nos buscadores                            | `src/pages/index.astro`                                                                                                   |
 
 O que aparece em vários pontos da página (telefone, OAB, cidade, nomes das áreas) vem desses arquivos: mude uma vez e vale em todos os lugares.
 
+Os testes conferem o conteúdo atual (textos, mensagens e número do WhatsApp, perguntas, áreas). Ao mudar conteúdo, ajuste os testes que citam o texto antigo (em `tests/` e nos `*.test.ts`) e gere de novo os snapshots da regressão visual.
+
 ### Foto do Diogo
 
-Salve o retrato (vertical, 4:5) como `src/assets/diogo.jpg` (ou `.jpeg`, `.png`, `.webp`). Ele entra no lugar do placeholder, e o Astro gera os tamanhos otimizados. Não é preciso mexer em código.
+Salve o retrato (vertical, 4:5) como `src/assets/diogo.jpg` (ou `.jpeg`, `.png`, `.webp`, com a extensão em maiúsculas ou minúsculas). Ele entra no lugar do placeholder, e o Astro gera os tamanhos otimizados. Não é preciso mexer em código.
 
 ## O que ainda falta preencher
 
@@ -138,13 +141,13 @@ As 6 áreas de atuação são sugestões para o Diogo confirmar. Quando o site t
 
 ## Qualidade e testes
 
-`npm run verify` roda, nesta ordem: formatação (Prettier), lint (ESLint e Stylelint), tipos (`astro check`), testes unitários (Vitest), build, validação do HTML gerado (html-validate) e testes no navegador (Playwright). Os testes no navegador cobrem links e mensagens do WhatsApp, seletor de tema, menu, FAQ, formulário, header, botão flutuante, animações, resiliência do script, fontes e acessibilidade com axe (WCAG 2.2 AA).
+`npm run verify` roda, nesta ordem: formatação (Prettier), lint (ESLint e Stylelint), tipos (`astro check`), testes unitários (Vitest), build, validação do HTML gerado (html-validate) e testes no navegador (Playwright). Os testes no navegador cobrem links e mensagens do WhatsApp, seletor de tema, menu, FAQ, formulário, header, botão flutuante, animações, resiliência do script, fontes, privacidade (nenhuma requisição a terceiros) e acessibilidade: axe (WCAG 2.2 AA) mais o que ele não confere, como o que o leitor de tela anuncia nos campos, o foco no alto contraste e a cor da seleção.
 
-O CI (`.github/workflows/ci.yml`) roda o `npm run verify` em cada push na `main` e em cada pull request.
+O CI (`.github/workflows/ci.yml`) roda o `npm run verify` em cada push na `main`, em cada pull request e sob demanda (Actions → CI → Run workflow). Quando um teste falha, os traces ficam guardados como artefato `test-results`.
 
 ### Regressão visual
 
-`tests/visual/sections.spec.ts` captura cada seção em 390×844 e 1440×900 com movimento reduzido, além do menu aberto, do botão flutuante, dos erros do formulário e do FAQ com a segunda pergunta aberta. Os snapshots ficam em `tests/visual/__screenshots__/win32/` e foram gerados no Windows: como cada sistema renderiza as fontes de um jeito, a suíte roda só localmente (no `test:e2e`, no `verify` e no `test:visual`) e fica fora do CI.
+`tests/visual/sections.spec.ts` captura cada seção em 390×844 e 1440×900 com movimento reduzido, além do header rolado, do menu aberto, do botão flutuante, dos erros do formulário e do FAQ com a segunda pergunta aberta. O ano do copyright fica coberto, para a captura não falhar na virada do ano. Os snapshots ficam em `tests/visual/__screenshots__/win32/` e foram gerados no Windows: como cada sistema renderiza as fontes de um jeito, a suíte roda só localmente (no `test:e2e`, no `verify` e no `test:visual`) e fica fora do CI.
 
 Depois de uma mudança visual intencional, gere os snapshots de novo e revise as imagens antes do commit:
 
@@ -163,7 +166,7 @@ Na Vercel ou na Netlify, importe o projeto com o comando de build `npm run build
 - `brand/originais/logo.jpg` e `brand/originais/themis.jpg`: os arquivos enviados originalmente.
 - `brand/logo-dm.svg` e `brand/themis.svg`: as versões vetorizadas, para uso fora do site. A página desenha a marca a partir de `src/data/brand.ts`.
 - Fontes: Bodoni Moda e Hanken Grotesk, sob a SIL Open Font License 1.1 (licenças em `src/assets/fonts/`). São servidas pelo próprio site, sem nenhuma requisição ao Google.
-- Ícones: Tabler Icons, sob a licença MIT.
+- Ícones: Tabler Icons, sob a licença MIT (texto em `src/data/MIT-tabler-icons.txt`).
 
 ## Design
 

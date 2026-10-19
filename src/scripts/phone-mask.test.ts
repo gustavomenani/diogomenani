@@ -35,12 +35,20 @@ describe('maskPhone', () => {
     expect(atEnd('189970172491234')).toBe('(18) 99701-7249');
   });
 
+  test('DDD 55 com 11 dígitos não é confundido com o código do país', () => {
+    expect(atEnd('55991234567')).toBe('(55) 99123-4567');
+  });
+
   test('número com 12 dígitos que não começa com 55 só é cortado', () => {
     expect(atEnd('189970172499')).toBe('(18) 99701-7249');
   });
 
   test('valor já formatado continua igual, com o cursor no mesmo lugar', () => {
     expect(maskPhone('(18) 99701-7249', 15)).toEqual({ value: '(18) 99701-7249', caret: 15 });
+  });
+
+  test('apagar o parêntese inicial deixa o cursor no começo', () => {
+    expect(maskPhone('18) 99701-7249', 0)).toEqual({ value: '(18) 99701-7249', caret: 0 });
   });
 
   test('apagar o hífen só move o cursor para antes dele', () => {

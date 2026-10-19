@@ -1,4 +1,4 @@
-/** Ícones Tabler (licença MIT, tabler.io/icons), todos no mesmo traço. */
+/** Ícones Tabler (tabler.io/icons, licença MIT em MIT-tabler-icons.txt), no mesmo traço. */
 export const iconPaths = {
   whatsapp: [
     'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9',

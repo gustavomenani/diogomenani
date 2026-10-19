@@ -31,6 +31,19 @@ const waitFrames = (page: Page, count: number) =>
 test.describe('com movimento reduzido', () => {
   test.use({ reducedMotion: 'reduce' });
 
+  test('o erro de um campo aparece sem deslocamento', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Enviar pelo WhatsApp', exact: true }).click();
+    const error = page.getByText('Informe seu nome.', { exact: true });
+    await expect(error).toBeVisible();
+    await expect(error).toHaveCSS('animation-name', 'fade');
+  });
+
+  test('o indicador da navegação troca de link sem deslizar', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-nav-ind]')).not.toHaveCSS('transition-property', /transform/);
+  });
+
   test('com movimento reduzido tudo aparece de cara', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('[data-motion]')).toHaveAttribute('data-motion', 'reduced');

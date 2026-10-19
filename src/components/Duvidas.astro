@@ -20,6 +20,7 @@ import { sectionIds } from '../data/navigation';
         return (
           <div class:list={['faq-item', { 'is-open': open }]} data-faq-item>
             <h3>
+              {/* Sem JavaScript, todas abertas; o faq.ts acerta o aria-expanded ao iniciar. */}
               <button
                 class="faq-btn"
                 type="button"
@@ -155,6 +156,7 @@ import { sectionIds } from '../data/navigation';
     overflow: hidden;
   }
 
+  /* 62 px à direita: o ícone (38) mais o espaço (24), para o texto não correr sob ele. */
   .faq-panel-inner p {
     padding: 0 62px 28px 0;
     max-width: 40em;
@@ -192,11 +194,13 @@ import { sectionIds } from '../data/navigation';
     .faq-panel {
       grid-template-rows: 1fr !important;
       visibility: visible !important;
+      transition: none !important;
     }
 
     .faq-panel-inner p {
       opacity: 1 !important;
       transform: none !important;
+      transition: none !important;
     }
   }
 </style>

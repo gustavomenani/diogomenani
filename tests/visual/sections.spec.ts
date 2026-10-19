@@ -1,9 +1,10 @@
 import { fileURLToPath } from 'node:url';
 import { test, expect, jumpTo, type Locator, type Page } from '../e2e/fixtures';
 
-// Regressão visual com movimento reduzido: tudo já aparece revelado e, fora do header e do botão
-// flutuante, nada depende da rolagem. Os snapshots são do Windows; depois de uma mudança visual
-// intencional, gere de novo com `npm run test:visual -- --update-snapshots`.
+// Regressão visual com movimento reduzido: tudo já aparece revelado. Da rolagem só dependem o
+// header e o botão flutuante (escondidos nas seções, com capturas próprias) e o título grudado
+// de Atuação, que o Playwright sempre rola até o mesmo ponto. Os snapshots são do Windows; depois
+// de uma mudança visual intencional, gere de novo com `npm run test:visual -- --update-snapshots`.
 
 const MOBILE = { width: 390, height: 844 };
 const DESKTOP = { width: 1440, height: 900 };
@@ -11,7 +12,14 @@ const DESKTOP = { width: 1440, height: 900 };
 /** Nas capturas de seção, os elementos fixos (header, botão flutuante, skip link) somem. */
 const HIDE_FIXED = { stylePath: fileURLToPath(new URL('hide-fixed.css', import.meta.url)) };
 
-const SECTIONS: { name: string; locate: (page: Page) => Locator }[] = [
+interface Section {
+  name: string;
+  locate: (page: Page) => Locator;
+  /** Partes que mudam sem mudança de código e ficam cobertas na captura. */
+  mask?: (page: Page) => Locator[];
+}
+
+const SECTIONS: Section[] = [
   { name: 'inicio', locate: (page) => page.locator('#inicio') },
   { name: 'sobre', locate: (page) => page.locator('#sobre') },
   { name: 'atuacao', locate: (page) => page.locator('#atuacao') },
@@ -19,7 +27,12 @@ const SECTIONS: { name: string; locate: (page: Page) => Locator }[] = [
   { name: 'manifesto', locate: (page) => page.getByRole('region', { name: 'Compromissos' }) },
   { name: 'duvidas', locate: (page) => page.locator('#duvidas') },
   { name: 'contato', locate: (page) => page.locator('#contato') },
-  { name: 'footer', locate: (page) => page.getByRole('contentinfo') },
+  {
+    name: 'footer',
+    locate: (page) => page.getByRole('contentinfo'),
+    // O ano do copyright vem do build: sem a máscara, a captura falharia a cada virada de ano.
+    mask: (page) => [page.getByRole('contentinfo').getByText(/^©/)],
+  },
 ];
 
 test.beforeEach(async ({ page }) => {
@@ -27,7 +40,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const viewport of [MOBILE, DESKTOP]) {
-  const size = String(viewport.width);
+  const size = viewport.width;
 
   test.describe(`seções em ${size} px`, { tag: '@visual' }, () => {
     test.use({ viewport, reducedMotion: 'reduce' });
@@ -36,9 +49,19 @@ for (const viewport of [MOBILE, DESKTOP]) {
       await expect(page.getByRole('banner')).toHaveScreenshot(`header-${size}.png`);
     });
 
-    for (const { name, locate } of SECTIONS) {
+    test('header rolado', async ({ page }) => {
+      const header = page.getByRole('banner');
+      await jumpTo(page, 200);
+      await expect(header).toHaveClass(/is-scrolled/);
+      await expect(header).toHaveScreenshot(`header-rolado-${size}.png`);
+    });
+
+    for (const { name, locate, mask } of SECTIONS) {
       test(name, async ({ page }) => {
-        await expect(locate(page)).toHaveScreenshot(`${name}-${size}.png`, HIDE_FIXED);
+        await expect(locate(page)).toHaveScreenshot(`${name}-${size}.png`, {
+          ...HIDE_FIXED,
+          mask: mask?.(page) ?? [],
+        });
       });
     }
   });

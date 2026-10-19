@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4321;
-const baseURL = `http://127.0.0.1:${String(PORT)}`;
+// Porta própria: a 4321 é a do astro dev/preview, e um servidor aberto à mão seria reusado.
+const PORT = 4329;
+const baseURL = `http://127.0.0.1:${PORT}`;
 const isCI = Boolean(process.env.CI);
 
 export default defineConfig({
@@ -35,7 +36,7 @@ export default defineConfig({
   ],
   // O build roda antes, nos scripts pretest:e2e e pretest:visual; aqui só servimos o dist/.
   webServer: {
-    command: `npm run preview -- --host 127.0.0.1 --port ${String(PORT)}`,
+    command: `npm run preview -- --host 127.0.0.1 --port ${PORT}`,
     url: baseURL,
     reuseExistingServer: !isCI,
   },
