@@ -19,12 +19,11 @@
     "pretest:e2e": "npm run build",
     "test:visual": "playwright test --project=visual",
     "pretest:visual": "npm run build",
-    "prelint": "astro sync",
     "lint": "npm run lint:js && npm run lint:css",
-    "lint:js": "eslint . --max-warnings 0",
-    "lint:css": "stylelint \"{src,tests}/**/*.{css,astro}\"",
+    "lint:js": "astro sync && eslint . --max-warnings 0",
+    "lint:css": "stylelint \"{src,tests}/**/*.{css,astro}\" --max-warnings 0",
     "validate:html": "html-validate dist",
-    "verify": "npm run format:check && npm run lint && npm run check && npm run test && npm run build && npm run validate:html && npm run test:e2e"
+    "verify": "npm run format:check && npm run lint && npm run check && npm run test && npm run build && npm run validate:html && playwright test"
   },
   "dependencies": {
     "astro": "^7.4.0"

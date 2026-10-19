@@ -8,22 +8,24 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 
 ## Comandos
 
-| Comando                           | O que faz                                                                                                                                                          |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm install`                     | Instala as dependências (só na primeira vez).                                                                                                                      |
-| `npx playwright install chromium` | Baixa o navegador dos testes (só na primeira vez).                                                                                                                 |
-| `npm run dev`                     | Abre o site em http://localhost:4321 e recarrega a cada edição.                                                                                                    |
-| `npm run build`                   | Gera o site final em `dist/`.                                                                                                                                      |
-| `npm run preview`                 | Serve o `dist/` para conferir o build.                                                                                                                             |
-| `npm run verify`                  | Confere tudo, na ordem do CI: formatação, lint, tipos, testes unitários, build, HTML e testes no navegador.                                                        |
-| `npm run format`                  | Formata o projeto com o Prettier.                                                                                                                                  |
-| `npm run format:check`            | Confere a formatação sem alterar nada.                                                                                                                             |
-| `npm run lint`                    | ESLint (TypeScript com checagem de tipos, Astro, acessibilidade e testes) e Stylelint (CSS). Antes, o `astro sync` gera os tipos do Astro. Avisos também reprovam. |
-| `npm run check`                   | Checagem de tipos de componentes e scripts (`astro check`, TypeScript `strictest`).                                                                                |
-| `npm test`                        | Testes unitários da lógica pura (Vitest). `npm run test:watch` roda em modo de observação.                                                                         |
-| `npm run test:e2e`                | Gera o build e roda os testes no navegador (Playwright): comportamento, acessibilidade com axe, fontes e (fora do CI) a regressão visual.                          |
-| `npm run test:visual`             | Gera o build e roda só a regressão visual.                                                                                                                         |
-| `npm run validate:html`           | Valida o HTML gerado em `dist/` (html-validate).                                                                                                                   |
+| Comando                                          | O que faz                                                                                                                                                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm install`                                    | Instala as dependências (só na primeira vez).                                                                                                                                                     |
+| `npx playwright install chromium firefox webkit` | Baixa os navegadores dos testes: na primeira vez e depois de cada atualização do Playwright (no Linux, com `--with-deps`).                                                                        |
+| `npm run dev`                                    | Abre o site em http://localhost:4321 e recarrega a cada edição.                                                                                                                                   |
+| `npm run build`                                  | Gera o site final em `dist/`.                                                                                                                                                                     |
+| `npm run preview`                                | Serve o `dist/` para conferir o build.                                                                                                                                                            |
+| `npm run verify`                                 | Confere tudo, na ordem do CI: formatação, lint, tipos, testes unitários, build, HTML e testes no navegador.                                                                                       |
+| `npm run format`                                 | Formata o projeto com o Prettier.                                                                                                                                                                 |
+| `npm run format:check`                           | Confere a formatação sem alterar nada.                                                                                                                                                            |
+| `npm run lint`                                   | ESLint (TypeScript com checagem de tipos, Astro, acessibilidade e testes) e Stylelint (CSS). Antes, o `astro sync` gera os tipos do Astro. Avisos também reprovam.                                |
+| `npm run check`                                  | Checagem de tipos de componentes e scripts (`astro check`, TypeScript `strictest`).                                                                                                               |
+| `npm test`                                       | Testes unitários da lógica pura (Vitest). `npm run test:watch` roda em modo de observação.                                                                                                        |
+| `npm run test:e2e`                               | Gera o build e roda os testes no navegador (Playwright) no Chromium, no Firefox e no WebKit (o motor do Safari): comportamento, acessibilidade com axe, fontes e (fora do CI) a regressão visual. |
+| `npm run test:visual`                            | Gera o build e roda só a regressão visual.                                                                                                                                                        |
+| `npm run validate:html`                          | Valida o HTML gerado em `dist/` (html-validate).                                                                                                                                                  |
+
+`npx playwright test` sozinho (ou pela extensão do editor) serve o `dist/` que já existir: rode `npm run build` antes para testar o código atual.
 
 ## Estrutura
 
@@ -62,7 +64,7 @@ Seções, na ordem da página. O CSS de cada uma fica no `<style>` do próprio a
 
 Peças usadas pelas seções:
 
-- `WhatsAppButton.astro`: botão padrão do WhatsApp (rótulo e mensagem por prop).
+- `WhatsAppButton.astro`: botão padrão do WhatsApp (rótulo por prop; sempre com a mensagem de agendamento).
 - `Field.astro`: campo do formulário com rótulo, controle e mensagem de erro.
 - `Icon.astro`: ícone pelo nome.
 - `Monogram.astro`: o monograma DM.
@@ -147,7 +149,7 @@ O CI (`.github/workflows/ci.yml`) roda o `npm run verify` em cada push na `main`
 
 ### Regressão visual
 
-`tests/visual/sections.spec.ts` captura cada seção em 390×844 e 1440×900 com movimento reduzido, além do header rolado, do menu aberto, do botão flutuante, dos erros do formulário e do FAQ com a segunda pergunta aberta. O ano do copyright fica coberto, para a captura não falhar na virada do ano. Os snapshots ficam em `tests/visual/__screenshots__/win32/` e foram gerados no Windows: como cada sistema renderiza as fontes de um jeito, a suíte roda só localmente (no `test:e2e`, no `verify` e no `test:visual`) e fica fora do CI.
+`tests/visual/sections.spec.ts` captura cada seção em 390×844 e 1440×900 com movimento reduzido, além do header rolado, do menu aberto, do botão flutuante, dos erros do formulário e do FAQ com a segunda pergunta aberta. O ano do copyright fica coberto, para a captura não falhar na virada do ano. Os snapshots ficam em `tests/visual/__screenshots__/win32/` e foram gerados no Windows: como cada sistema renderiza as fontes de um jeito, a suíte roda só localmente (no `test:e2e`, no `verify` e no `test:visual`), fica fora do CI e, fora do Windows, roda sem comparar imagens.
 
 Depois de uma mudança visual intencional, gere os snapshots de novo e revise as imagens antes do commit:
 

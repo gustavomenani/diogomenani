@@ -19,20 +19,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # Os três motores dos testes de comportamento; do Chromium, só o modo headless.
+      - run: npx playwright install --with-deps --only-shell chromium firefox webkit
       # O GitHub Actions já define CI=true: o Playwright passa a proibir test.only, repete uma vez
       # o teste que falhar e deixa a suíte visual de fora (snapshots do Windows).
       - run: npm run verify
-      # Traces e capturas dos testes que falharam, para investigar sem rodar de novo.
-      - if: failure()
-        uses: actions/upload-artifact@v4
+      # Traces dos testes que falharam, mesmo os que passaram na repetição, para investigar
+      # sem rodar de novo.
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: test-results/
+          if-no-files-found: ignore
           retention-days: 7

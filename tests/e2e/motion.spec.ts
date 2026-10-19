@@ -12,22 +12,6 @@ const balancePose = (page: Page) =>
     ),
   );
 
-/** Espera `count` quadros de animação: se a física ainda rodasse, a pose mudaria nesse intervalo. */
-const waitFrames = (page: Page, count: number) =>
-  page.evaluate(
-    (frames) =>
-      new Promise<void>((resolve) => {
-        let left = frames;
-        const tick = () => {
-          left -= 1;
-          if (left <= 0) resolve();
-          else requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      }),
-    count,
-  );
-
 test.describe('com movimento reduzido', () => {
   test.use({ reducedMotion: 'reduce' });
 
@@ -69,10 +53,13 @@ test.describe('com movimento', () => {
   });
 
   test('a balança termina nivelada', async ({ page }) => {
+    // Relógio do Playwright: a física avança em tempo simulado, sem depender da taxa de quadros.
+    await page.clock.install();
     await page.goto('/');
-    await expect.poll(() => balancePose(page), { timeout: 15_000 }).toEqual(LEVEL_POSE);
+    await page.clock.runFor(10_000);
+    expect(await balancePose(page)).toEqual(LEVEL_POSE);
     // Continua igual depois: a animação parou de fato, não só passou pela pose.
-    await waitFrames(page, 60);
+    await page.clock.runFor(1_000);
     expect(await balancePose(page)).toEqual(LEVEL_POSE);
   });
 });
@@ -84,5 +71,14 @@ test.describe('sem JavaScript', () => {
     await page.goto('/');
     await expect(page.locator('[data-motion]')).toHaveAttribute('data-motion', 'pending');
     await expect(page.getByText('Sim. O sigilo profissional é um dever do advogado')).toBeVisible();
+    // Nenhum bloco revelável escondido (opacidade zero ou recortado): toBeVisible não vê isso.
+    const hidden = await page.locator('[data-reveal]').evaluateAll(
+      (elements) =>
+        elements.filter((element) => {
+          const style = getComputedStyle(element);
+          return style.opacity === '0' || style.clipPath.includes('100%');
+        }).length,
+    );
+    expect(hidden).toBe(0);
   });
 });

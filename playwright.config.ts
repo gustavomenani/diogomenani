@@ -4,6 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = 4329;
 const baseURL = `http://127.0.0.1:${PORT}`;
 const isCI = Boolean(process.env.CI);
+const E2E = 'e2e/**/*.spec.ts';
 
 export default defineConfig({
   testDir: 'tests',
@@ -18,23 +19,26 @@ export default defineConfig({
     baseURL,
     trace: 'retain-on-failure',
   },
+  // O comportamento roda nos três motores dos navegadores-alvo; o visual, só no Chromium.
   projects: [
-    {
-      name: 'e2e',
-      testMatch: 'e2e/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] },
-    },
+    { name: 'chromium', testMatch: E2E, use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', testMatch: E2E, use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', testMatch: E2E, use: { ...devices['Desktop Safari'] } },
     {
       name: 'visual',
       testMatch: 'visual/**/*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
       snapshotPathTemplate: '{testDir}/visual/__screenshots__/{platform}/{arg}{ext}',
+      // Fora do Windows não há snapshots de referência: sem isto, a primeira rodada gravaria
+      // imagens novas e as seguintes passariam sem comparar nada.
+      ignoreSnapshots: process.platform !== 'win32',
       expect: {
         toHaveScreenshot: { animations: 'disabled', caret: 'hide', scale: 'css' },
       },
     },
   ],
-  // O build roda antes, nos scripts pretest:e2e e pretest:visual; aqui só servimos o dist/.
+  // `npm run test:e2e` e `npm run test:visual` geram o build antes; `npx playwright test` sozinho
+  // serve o dist/ que já existir.
   webServer: {
     command: `npm run preview -- --host 127.0.0.1 --port ${PORT}`,
     url: baseURL,

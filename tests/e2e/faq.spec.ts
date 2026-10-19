@@ -57,6 +57,8 @@ test('na impressão todas as respostas aparecem', async ({ page }) => {
     'Sim. O sigilo profissional é um dever do advogado',
   ]) {
     await expect(page.getByText(answer)).toBeVisible();
+    // toBeVisible ignora opacidade: no papel, a resposta precisa estar opaca.
+    await expect(page.getByText(answer)).toHaveCSS('opacity', '1');
   }
 });
 
@@ -66,8 +68,11 @@ test.describe('impressão com movimento', () => {
   test('na impressão, as respostas fechadas aparecem na hora, sem transição', async ({ page }) => {
     const answer = page.getByText(SECOND_ANSWER);
     await page.emulateMedia({ media: 'print' });
-    expect(await answer.evaluate((element) => getComputedStyle(element).visibility)).toBe(
-      'visible',
-    );
+    expect(
+      await answer.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return [style.visibility, style.opacity];
+      }),
+    ).toEqual(['visible', '1']);
   });
 });

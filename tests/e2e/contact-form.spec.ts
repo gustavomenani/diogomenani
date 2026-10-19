@@ -151,5 +151,9 @@ test('passar o mouse num campo com erro mantém a borda de erro', async ({ page 
   await f.submit.click();
   // O Nome recebe o foco; o WhatsApp fica só com o erro, como quem volta com o mouse.
   await f.phone.hover();
+  // A borda tem transição: só a cor final conta, não a que passa no meio do caminho.
+  await f.phone.evaluate((field) =>
+    Promise.all(field.getAnimations().map((animation) => animation.finished)),
+  );
   await expect(f.phone).toHaveCSS('border-color', 'rgb(180, 35, 24)');
 });

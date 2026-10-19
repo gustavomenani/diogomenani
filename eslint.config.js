@@ -66,6 +66,8 @@ export default defineConfig(
     extends: [playwright.configs['flat/recommended']],
     rules: {
       'playwright/expect-expect': ['warn', { assertFunctionNames: ['expectExternalLink'] }],
+      // Skip condicional é a forma de declarar o motor (CDP só no Chromium, Tab no Safari).
+      'playwright/no-skipped-test': ['warn', { allowConditional: true }],
     },
   },
   {
