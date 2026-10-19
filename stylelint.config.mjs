@@ -9,11 +9,8 @@ export default {
       true,
       { ignoreProperties: ['-webkit-text-size-adjust', '-webkit-user-select'] },
     ],
-    // Nomes de fonte (Didot, Georgia…) nos tokens de família tipográfica não são palavras-chave.
-    'value-keyword-case': [
-      'lower',
-      { camelCaseSvgKeywords: true, ignoreProperties: ['--serif', '--sans'] },
-    ],
+    // Palavras-chave herdadas do SVG ficam na grafia original: currentColor, optimizeLegibility.
+    'value-keyword-case': ['lower', { camelCaseSvgKeywords: true }],
     // A regra compara só o último seletor composto e acusa elementos diferentes (`.nav a:hover`
     // contra `.menu-nav a`); reordenar para agradá-la mexeria na cascata. A ordem dos estilos foi
     // verificada contra o site original com estilos computados.

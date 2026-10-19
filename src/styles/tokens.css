@@ -17,8 +17,10 @@
   --field-placeholder: #646d92;
   --field-bg: #fbfcff;
   --scrollbar-track: #eceff9;
-  --serif: 'Bodoni Moda', 'Bodoni 72', Didot, 'Bodoni MT', Georgia, serif;
-  --sans: 'Hanken Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Famílias, arquivos e fallbacks: fonts no astro.config.mjs (o <Font> define as variáveis). */
+  --serif: var(--font-bodoni);
+  --sans: var(--font-hanken);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
   --gutter: clamp(20px, 4.4vw, 64px);
