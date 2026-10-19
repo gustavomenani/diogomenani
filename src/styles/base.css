@@ -6,6 +6,11 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Com o menu aberto, a faixa reservada para a barra (menu.ts) acompanha o fundo royal dele. */
+html:has(.page.is-menu-open) {
+  background: var(--royal);
+}
+
 body {
   margin: 0;
   background: #fff;

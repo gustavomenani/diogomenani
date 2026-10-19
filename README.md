@@ -89,7 +89,7 @@ Peças usadas pelas seções:
 - `focus-visibility.ts`: o foco do teclado mostra na hora o bloco ainda escondido e não fica sob o header nem sob o botão flutuante.
 - `balance.ts` e `balance-physics.ts`: a balança da Têmis e a física dela.
 - `topic-picker.ts`: seletor de tema do hero.
-- `menu.ts`: menu mobile, que abre pelo botão e fecha com Esc, link ou ao virar desktop, com o foco no lugar certo.
+- `menu.ts`: menu mobile, que abre pelo botão e fecha com Esc (de qualquer ponto), num link, ao voltar no histórico ou ao virar desktop, com o foco no lugar certo.
 - `faq.ts`: abre e fecha as respostas.
 - `contact-form.ts`, `contact-validation.ts` e `phone-mask.ts`: formulário de contato, regras de validação e máscara do telefone.
 - `scroll-effects.ts` e `scroll-math.ts`: o que depende da rolagem (header, barra de progresso, parallax, link ativo, etapas, manifesto e botão flutuante).

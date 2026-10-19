@@ -106,8 +106,7 @@ test('o link da marca se chama pelo texto visível', async ({ page }) => {
 test.describe('menu mobile', () => {
   test.use({ viewport: MOBILE });
 
-  test('o menu é um landmark e isola o resto da página', async ({ page, browserName }) => {
-    test.fixme(browserName === 'webkit', 'Esc com o foco ainda fora do menu: Task 6 da rodada 2');
+  test('o menu é um landmark e isola o resto da página', async ({ page }) => {
     await page.goto('/');
     const main = page.locator('main');
     const footer = page.locator('footer');

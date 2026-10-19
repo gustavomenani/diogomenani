@@ -253,9 +253,10 @@ import { messages, waLink } from '../lib/whatsapp';
     transform: translateY(-5.25px) rotate(-45deg);
   }
 
+  /* Aberto, o header fica royal opaco: os links do menu rolado passam por baixo da marca. */
   :global(.page.is-menu-open) .site-header {
     color: #fff;
-    background: transparent;
+    background: var(--royal);
     box-shadow: none;
   }
 
@@ -321,6 +322,8 @@ import { messages, waLink } from '../lib/whatsapp';
     padding: calc(var(--header-h) + 28px) 0 32px;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-color: var(--sky-dim) transparent;
+    scrollbar-width: thin;
     background: var(--royal);
     color: #fff;
     clip-path: inset(0 0 100% 0);
@@ -336,6 +339,15 @@ import { messages, waLink } from '../lib/whatsapp';
     transition:
       clip-path 0.8s var(--ease),
       visibility 0s;
+  }
+
+  /*
+   * Em tela baixa o menu rola, e o Firefox foca a área rolável pelo Tab: contorno branco e por
+   * dentro, porque o menu ocupa a tela toda.
+   */
+  :global(.page) .menu:focus-visible {
+    outline-color: #fff;
+    outline-offset: -5px;
   }
 
   :global(.page.is-menu-open) .progress {
