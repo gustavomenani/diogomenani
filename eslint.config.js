@@ -16,8 +16,6 @@ export default defineConfig(
     'playwright-report/',
     'blob-report/',
     '.superpowers/',
-    // Temporário: o script é reescrito em módulos na Task 8.
-    'src/scripts/motion.ts',
   ]),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,

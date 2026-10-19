@@ -1,0 +1,84 @@
+import {
+  clampDt,
+  isSettled,
+  levelAngle,
+  stepBalance,
+  type BalanceState,
+  type Point,
+} from './balance-physics';
+import type { MotionMode } from './motion-mode';
+
+/** A balança começa a se equilibrar logo depois da entrada da Têmis. */
+const SWING_DELAY_MS = 950;
+/** Empurrão (graus/s) dado na balança a cada tema escolhido no seletor. */
+export const TOPIC_IMPULSE = 24;
+
+export interface Balance {
+  /** Dá um empurrão no travessão e anima até a balança assentar de novo. */
+  swing(impulse?: number): void;
+}
+
+const pivotOf = (element: Element) => element.getAttribute('data-pivot') ?? '0 0';
+
+const pointOf = (element: Element): Point => {
+  const [x = 0, y = 0] = pivotOf(element).split(' ').map(Number);
+  return { x, y };
+};
+
+/**
+ * Anima a balança da Têmis: o travessão gira em torno do seu pivô e cada prato gira em torno do
+ * ponto onde está pendurado, compensando o travessão para continuar na vertical.
+ */
+export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balance | null {
+  const beam = root.querySelector('[data-beam]');
+  const panLeft = root.querySelector('[data-pan-l]');
+  const panRight = root.querySelector('[data-pan-r]');
+  if (!beam || !panLeft || !panRight) return null;
+
+  // O desenho original vem inclinado; este é o ângulo que deixa os dois pratos na mesma altura.
+  const level = levelAngle(pointOf(panLeft), pointOf(panRight));
+  let state: BalanceState = { angle: 0, angleVelocity: 0, pans: 0, pansVelocity: 0 };
+  let frame = 0;
+  let lastTime = 0;
+
+  const pose = () => {
+    beam.setAttribute('transform', `rotate(${state.angle.toFixed(3)} ${pivotOf(beam)})`);
+    const pans = (state.pans - state.angle).toFixed(3);
+    panLeft.setAttribute('transform', `rotate(${pans} ${pivotOf(panLeft)})`);
+    panRight.setAttribute('transform', `rotate(${pans} ${pivotOf(panRight)})`);
+  };
+
+  const tick = (time: number) => {
+    const dt = clampDt(time - lastTime);
+    lastTime = time;
+    state = stepBalance(state, dt, level);
+    pose();
+    if (isSettled(state, level)) {
+      state = { angle: level, angleVelocity: 0, pans: 0, pansVelocity: 0 };
+      pose();
+      frame = 0;
+      return;
+    }
+    frame = requestAnimationFrame(tick);
+  };
+
+  const swing = (impulse = 0) => {
+    if (getMode() === 'reduced') return;
+    state = { ...state, angleVelocity: state.angleVelocity + impulse };
+    if (!frame) {
+      lastTime = performance.now();
+      frame = requestAnimationFrame(tick);
+    }
+  };
+
+  if (getMode() === 'reduced') {
+    state = { ...state, angle: level };
+    pose();
+  } else {
+    setTimeout(() => {
+      swing();
+    }, SWING_DELAY_MS);
+  }
+
+  return { swing };
+}

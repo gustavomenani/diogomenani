@@ -30,10 +30,10 @@ const { title, description } = Astro.props;
       <slot />
     </div>
     <script>
-      import { initLanding } from '../scripts/motion';
+      import { initPage } from '../scripts/main';
 
       const root = document.querySelector<HTMLElement>('[data-page]');
-      if (root) initLanding(root);
+      if (root) initPage(root);
     </script>
   </body>
 </html>

@@ -18,7 +18,7 @@ import { sectionIds } from '../data/navigation';
         const open = i === 0;
         const n = i + 1;
         return (
-          <div class:list={['faq-item', { 'is-open': open }]}>
+          <div class:list={['faq-item', { 'is-open': open }]} data-faq-item>
             <h3>
               <button
                 class="faq-btn"
