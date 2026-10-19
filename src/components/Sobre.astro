@@ -1,6 +1,7 @@
 ---
 import { contact, credentials } from '../data/site';
 ---
+
 <section class="section about" id="sobre" aria-labelledby="sobre-title">
   <div class="wrap about-grid">
     <figure class="portrait" data-reveal="unveil">
@@ -9,19 +10,38 @@ import { contact, credentials } from '../data/site';
             <img src="/diogo.jpg" alt="Diogo Menani" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" /> */}
         <div class="portrait-art">
           <span class="portrait-glow" aria-hidden="true"></span>
-          <figcaption class="portrait-ph"><span class="portrait-ph-title">Foto de Diogo Menani</span><span class="portrait-ph-sub">[retrato profissional vertical, 4:5]</span></figcaption>
+          <figcaption class="portrait-ph">
+            <span class="portrait-ph-title">Foto de Diogo Menani</span>
+            <span class="portrait-ph-sub">[retrato profissional vertical, 4:5]</span>
+          </figcaption>
         </div>
       </div>
     </figure>
     <div class="about-copy">
-      <h2 class="h2 about-name" id="sobre-title" data-reveal="rise">Diogo Menani</h2>
-      <p class="about-reg" data-reveal>Advogado inscrito na OAB/{contact.oabState} sob o nº {contact.oabNumber}</p>
+      <h2 class="h2 about-name" id="sobre-title" data-reveal="rise">
+        Diogo Menani
+      </h2>
+      <p class="about-reg" data-reveal>
+        Advogado inscrito na OAB/{contact.oabState} sob o nº {contact.oabNumber}
+      </p>
       <div class="about-text" data-reveal>
-        <p>Atuo na advocacia consultiva e contenciosa: oriento pessoas e empresas antes de decisões importantes e defendo seus interesses quando o conflito já existe.</p>
-        <p>Meu trabalho começa pela escuta. Entendo a sua situação, explico as possibilidades em linguagem simples e definimos juntos o caminho mais seguro, com transparência sobre prazos, custos e riscos.</p>
+        <p>
+          Atuo na advocacia consultiva e contenciosa: oriento pessoas e empresas antes de decisões
+          importantes e defendo seus interesses quando o conflito já existe.
+        </p>
+        <p>
+          Meu trabalho começa pela escuta. Entendo a sua situação, explico as possibilidades em
+          linguagem simples e definimos juntos o caminho mais seguro, com transparência sobre
+          prazos, custos e riscos.
+        </p>
       </div>
       <dl class="creds" data-reveal-list>
-        {credentials.map((item) => <div class="cred"><dt>{item.term}</dt><dd>{item.value}</dd></div>)}
+        {credentials.map((item) => (
+          <div class="cred">
+            <dt>{item.term}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
       </dl>
     </div>
   </div>

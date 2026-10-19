@@ -5,4 +5,7 @@ import { monogram } from '../data/brand';
 type Props = HTMLAttributes<'svg'>;
 const props = Astro.props;
 ---
-<svg viewBox={monogram.viewBox} aria-hidden="true" focusable="false" {...props}><path fill="currentColor" d={monogram.d} /></svg>
+
+<svg viewBox={monogram.viewBox} aria-hidden="true" focusable="false" {...props}>
+  <path fill="currentColor" d={monogram.d} />
+</svg>

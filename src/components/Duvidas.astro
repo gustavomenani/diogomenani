@@ -1,11 +1,16 @@
 ---
 import { faq } from '../data/site';
 ---
+
 <section class="section faq" id="duvidas" aria-labelledby="faq-title">
   <div class="wrap faq-grid">
     <div class="faq-head">
-      <h2 class="h2" id="faq-title" data-reveal="rise">Dúvidas frequentes</h2>
-      <p class="lede" data-reveal>Respostas rápidas para quem está procurando um advogado, talvez pela primeira vez.</p>
+      <h2 class="h2" id="faq-title" data-reveal="rise">
+        Dúvidas frequentes
+      </h2>
+      <p class="lede" data-reveal>
+        Respostas rápidas para quem está procurando um advogado, talvez pela primeira vez.
+      </p>
     </div>
     <div class="faq-list" data-reveal-list>
       {faq.map((item, i) => {
@@ -13,8 +18,24 @@ import { faq } from '../data/site';
         const n = i + 1;
         return (
           <div class:list={['faq-item', { 'is-open': open }]}>
-            <h3><button class="faq-btn" type="button" id={`faq-b${n}`} aria-expanded={open ? 'true' : 'false'} aria-controls={`faq-p${n}`} data-faq-btn><span>{item.q}</span><span class="faq-icon" aria-hidden="true"></span></button></h3>
-            <div class="faq-panel" id={`faq-p${n}`} role="region" aria-labelledby={`faq-b${n}`}><div class="faq-panel-inner"><p>{item.a}</p></div></div>
+            <h3>
+              <button
+                class="faq-btn"
+                type="button"
+                id={`faq-b${n}`}
+                aria-expanded={open ? 'true' : 'false'}
+                aria-controls={`faq-p${n}`}
+                data-faq-btn
+              >
+                <span>{item.q}</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <div class="faq-panel" id={`faq-p${n}`} role="region" aria-labelledby={`faq-b${n}`}>
+              <div class="faq-panel-inner">
+                <p>{item.a}</p>
+              </div>
+            </div>
           </div>
         );
       })}

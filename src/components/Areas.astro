@@ -2,19 +2,46 @@
 import Icon from './Icon.astro';
 import { areas, waLink } from '../data/site';
 ---
+
 <section class="section areas" id="atuacao" aria-labelledby="atuacao-title">
   <div class="wrap areas-grid">
     <div class="areas-head">
-      <h2 class="h2" id="atuacao-title" data-reveal="rise">Áreas de atuação</h2>
-      <p class="lede" data-reveal>Atuação consultiva, para prevenir problemas e orientar decisões, e contenciosa, para defender seus direitos quando o conflito já existe.</p>
-      <p class="areas-note" data-reveal>Não encontrou o seu caso? <a class="link" href={waLink('Olá, Dr. Diogo! Gostaria de saber se você pode me ajudar com um caso.')} target="_blank" rel="noopener">Envie uma mensagem</a> e eu digo se posso ajudar.</p>
+      <h2 class="h2" id="atuacao-title" data-reveal="rise">
+        Áreas de atuação
+      </h2>
+      <p class="lede" data-reveal>
+        Atuação consultiva, para prevenir problemas e orientar decisões, e contenciosa, para
+        defender seus direitos quando o conflito já existe.
+      </p>
+      <p class="areas-note" data-reveal>
+        Não encontrou o seu caso?{' '}
+        <a
+          class="link"
+          href={waLink('Olá, Dr. Diogo! Gostaria de saber se você pode me ajudar com um caso.')}
+          target="_blank"
+          rel="noopener"
+        >
+          Envie uma mensagem
+        </a>{' '}
+        e eu digo se posso ajudar.
+      </p>
     </div>
     <ul class="area-list" data-reveal-list>
       {areas.map((area) => (
         <li class="area">
-          <a class="area-link" href={waLink(`Olá, Dr. Diogo! Gostaria de conversar sobre ${area.name}.`)} target="_blank" rel="noopener">
-            <span class="area-body"><span class="area-name">{area.name}</span><span class="area-desc">{area.desc}</span></span>
-            <span class="area-go">Conversar <Icon name="arrow-up-right" /></span>
+          <a
+            class="area-link"
+            href={waLink(`Olá, Dr. Diogo! Gostaria de conversar sobre ${area.name}.`)}
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="area-body">
+              <span class="area-name">{area.name}</span>
+              <span class="area-desc">{area.desc}</span>
+            </span>
+            <span class="area-go">
+              Conversar <Icon name="arrow-up-right" />
+            </span>
           </a>
         </li>
       ))}

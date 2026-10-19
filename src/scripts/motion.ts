@@ -15,7 +15,8 @@ export function initLanding(root: HTMLElement): void {
   const win = window;
   const doc = document;
   const $ = <T extends Element = HTMLElement>(sel: string) => root.querySelector<T>(sel);
-  const $$ = <T extends Element = HTMLElement>(sel: string) => Array.from(root.querySelectorAll<T>(sel));
+  const $$ = <T extends Element = HTMLElement>(sel: string) =>
+    Array.from(root.querySelectorAll<T>(sel));
   const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
   const whatsapp = root.dataset.whatsapp ?? '';
   const wa = (text: string) => `https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`;
@@ -93,7 +94,12 @@ export function initLanding(root: HTMLElement): void {
     pansV += accP * dt;
     pans += pansV * dt;
     pose();
-    if (Math.abs(angle - LEVEL) < 0.01 && Math.abs(angleV) < 0.02 && Math.abs(pans) < 0.01 && Math.abs(pansV) < 0.02) {
+    if (
+      Math.abs(angle - LEVEL) < 0.01 &&
+      Math.abs(angleV) < 0.02 &&
+      Math.abs(pans) < 0.01 &&
+      Math.abs(pansV) < 0.02
+    ) {
       angle = LEVEL;
       pans = angleV = pansV = 0;
       pose();
@@ -127,14 +133,23 @@ export function initLanding(root: HTMLElement): void {
     }
     const w0 = cta.getBoundingClientRect().width;
     const out = label.animate(
-      [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-45%)' }],
+      [
+        { opacity: 1, transform: 'none' },
+        { opacity: 0, transform: 'translateY(-45%)' },
+      ],
       { duration: 150, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' },
     );
     out.onfinish = () => {
       setText(label, text);
       const w1 = cta.getBoundingClientRect().width;
       out.cancel();
-      label.animate([{ opacity: 0, transform: 'translateY(45%)' }, { opacity: 1, transform: 'none' }], { duration: 460, easing: EXPO });
+      label.animate(
+        [
+          { opacity: 0, transform: 'translateY(45%)' },
+          { opacity: 1, transform: 'none' },
+        ],
+        { duration: 460, easing: EXPO },
+      );
       cta.animate([{ width: `${w0}px` }, { width: `${w1}px` }], { duration: 520, easing: EXPO });
     };
   };
@@ -202,7 +217,13 @@ export function initLanding(root: HTMLElement): void {
   };
 
   /* --- formulário: valida e entrega a mensagem pronta ao WhatsApp --- */
-  const errorFor: Record<string, string> = { nome: 'e-nome', telefone: 'e-tel', email: 'e-email', mensagem: 'e-msg', lgpd: 'e-lgpd' };
+  const errorFor: Record<string, string> = {
+    nome: 'e-nome',
+    telefone: 'e-tel',
+    email: 'e-email',
+    mensagem: 'e-msg',
+    lgpd: 'e-lgpd',
+  };
   const formStatus = (form: HTMLFormElement, text: string, isError: boolean) => {
     const status = form.querySelector('[data-form-status]');
     if (!status) return;
@@ -228,7 +249,9 @@ export function initLanding(root: HTMLElement): void {
     if (tel.value !== v) tel.value = v;
   };
   const isField = (t: EventTarget | null): t is Field =>
-    t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement;
+    t instanceof HTMLInputElement ||
+    t instanceof HTMLTextAreaElement ||
+    t instanceof HTMLSelectElement;
   const onFieldEdit = (target: EventTarget | null) => {
     if (!isField(target) || target.getAttribute('aria-invalid') !== 'true') return;
     setError(target, false);
@@ -307,11 +330,13 @@ export function initLanding(root: HTMLElement): void {
   });
   root.addEventListener('input', (e) => {
     const t = e.target;
-    if (t instanceof HTMLInputElement && t.name === 'telefone' && t.closest('[data-contact-form]')) maskPhone(t);
+    if (t instanceof HTMLInputElement && t.name === 'telefone' && t.closest('[data-contact-form]'))
+      maskPhone(t);
     onFieldEdit(t);
   });
   root.addEventListener('submit', (e) => {
-    const form = e.target instanceof Element ? e.target.closest<HTMLFormElement>('[data-contact-form]') : null;
+    const form =
+      e.target instanceof Element ? e.target.closest<HTMLFormElement>('[data-contact-form]') : null;
     if (!form) return;
     e.preventDefault();
     onSubmit(form);
@@ -328,7 +353,9 @@ export function initLanding(root: HTMLElement): void {
   const nav = $('[data-nav]');
   const indicator = $('[data-nav-ind]');
   const navLinks = $$<HTMLAnchorElement>('[data-nav] a[href^="#"]');
-  const sections = navLinks.map((l) => (l.hash ? $(l.hash) : null)).filter((s): s is HTMLElement => s !== null);
+  const sections = navLinks
+    .map((l) => (l.hash ? $(l.hash) : null))
+    .filter((s): s is HTMLElement => s !== null);
   const stepEls = $$('[data-step]');
   const statement = $('[data-statement]');
   const words = statement ? Array.from(statement.querySelectorAll('.sw')) : [];
@@ -356,7 +383,10 @@ export function initLanding(root: HTMLElement): void {
     let n = 0;
     if (inRow) {
       const p = (vh * 0.86 - r0.top) / (vh * 0.42);
-      n = p <= 0 ? 0 : Math.min(stepEls.length, 1 + Math.floor(clamp(p, 0, 1) * (stepEls.length - 1) + 1e-6));
+      n =
+        p <= 0
+          ? 0
+          : Math.min(stepEls.length, 1 + Math.floor(clamp(p, 0, 1) * (stepEls.length - 1) + 1e-6));
     } else {
       stepEls.forEach((el) => {
         if (el.getBoundingClientRect().top < vh * 0.7) n++;
@@ -383,7 +413,8 @@ export function initLanding(root: HTMLElement): void {
     const max = Math.max(1, doc.documentElement.scrollHeight - vh);
     if (header) {
       header.classList.toggle('is-scrolled', y > 24);
-      if (mode === 'on' && !menuOpen && y > heroH * 0.85 && y > lastY + 4) header.classList.add('is-tucked');
+      if (mode === 'on' && !menuOpen && y > heroH * 0.85 && y > lastY + 4)
+        header.classList.add('is-tucked');
       else if (y < lastY - 4 || y <= heroH * 0.85) header.classList.remove('is-tucked');
     }
     lastY = y;

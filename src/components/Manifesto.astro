@@ -3,13 +3,28 @@ import { commitments, manifesto } from '../data/site';
 
 const words = manifesto.split(' ');
 ---
+
 <section class="section statement is-royal" aria-labelledby="statement-title">
   <span class="statement-glow" aria-hidden="true"></span>
   <div class="wrap">
-    <h2 class="h2 sr-only" id="statement-title">Compromissos</h2>
-    <p class="statement-text" data-statement>{words.map((word, i) => <Fragment>{i > 0 && ' '}<span class="sw">{word}</span></Fragment>)}</p>
+    <h2 class="h2 sr-only" id="statement-title">
+      Compromissos
+    </h2>
+    <p class="statement-text" data-statement>
+      {words.map((word, i) => (
+        <Fragment>
+          {i > 0 && ' '}
+          <span class="sw">{word}</span>
+        </Fragment>
+      ))}
+    </p>
     <dl class="commitments" data-reveal-list>
-      {commitments.map((item) => <div class="commitment"><dt>{item.term}</dt><dd>{item.text}</dd></div>)}
+      {commitments.map((item) => (
+        <div class="commitment">
+          <dt>{item.term}</dt>
+          <dd>{item.text}</dd>
+        </div>
+      ))}
     </dl>
   </div>
 </section>

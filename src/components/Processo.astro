@@ -1,17 +1,25 @@
 ---
 import { steps } from '../data/site';
 ---
+
 <section class="section process" id="como-trabalho" aria-labelledby="process-title">
   <div class="wrap">
     <div class="process-head">
-      <h2 class="h2" id="process-title" data-reveal="rise">Como funciona o atendimento</h2>
-      <p class="lede" data-reveal>Do primeiro contato ao encerramento do caso, você sabe o que está sendo feito e qual é o próximo passo.</p>
+      <h2 class="h2" id="process-title" data-reveal="rise">
+        Como funciona o atendimento
+      </h2>
+      <p class="lede" data-reveal>
+        Do primeiro contato ao encerramento do caso, você sabe o que está sendo feito e qual é o
+        próximo passo.
+      </p>
     </div>
     <ol class="steps" data-reveal-list>
       {steps.map((step, i) => (
         <li class="step" data-step>
           <span class="step-dot" aria-hidden="true"></span>
-          <span class="step-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="step-num" aria-hidden="true">
+            {String(i + 1).padStart(2, '0')}
+          </span>
           <h3 class="step-title">{step.title}</h3>
           <p>{step.text}</p>
         </li>

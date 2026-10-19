@@ -9,6 +9,7 @@ interface Props {
 
 const { title, description } = Astro.props;
 ---
+
 <!doctype html>
 <html lang="pt-BR">
   <head>
@@ -20,7 +21,10 @@ const { title, description } = Astro.props;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:wght@400..700&display=swap" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:wght@400..700&display=swap"
+    />
   </head>
   <body>
     <div class="dm" data-dm-page data-motion="pending" data-whatsapp={whatsapp.number}>

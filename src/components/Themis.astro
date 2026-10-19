@@ -5,6 +5,7 @@
  */
 import { themis } from '../data/brand';
 ---
+
 <svg class="themis" viewBox={themis.viewBox} focusable="false">
   <defs>
     <linearGradient id="themis-fill" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1112">
@@ -17,8 +18,12 @@ import { themis } from '../data/brand';
     <path d={themis.body}></path>
     <g data-beam data-pivot={themis.pivot.join(' ')}>
       <path d={themis.beam}></path>
-      <g data-pan-l data-pivot={themis.hangL.join(' ')}><path d={themis.panL}></path></g>
-      <g data-pan-r data-pivot={themis.hangR.join(' ')}><path d={themis.panR}></path></g>
+      <g data-pan-l data-pivot={themis.hangL.join(' ')}>
+        <path d={themis.panL}></path>
+      </g>
+      <g data-pan-r data-pivot={themis.hangR.join(' ')}>
+        <path d={themis.panR}></path>
+      </g>
     </g>
   </g>
 </svg>

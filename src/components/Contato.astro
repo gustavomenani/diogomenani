@@ -3,19 +3,32 @@ import Icon from './Icon.astro';
 import type { IconName } from './Icon.astro';
 import { areas, contact, defaultMessage, waLink, whatsapp } from '../data/site';
 
-const items: { icon: IconName; label: string; value: string; href?: string; external?: boolean }[] = [
-  { icon: 'whatsapp', label: 'WhatsApp', value: whatsapp.display, href: waLink(), external: true },
-  { icon: 'mail', label: 'E-mail', value: contact.email.label, href: contact.email.href },
-  { icon: 'map-pin', label: 'Escritório', value: contact.address },
-  { icon: 'clock', label: 'Horário', value: contact.hours },
-];
+const items: { icon: IconName; label: string; value: string; href?: string; external?: boolean }[] =
+  [
+    {
+      icon: 'whatsapp',
+      label: 'WhatsApp',
+      value: whatsapp.display,
+      href: waLink(),
+      external: true,
+    },
+    { icon: 'mail', label: 'E-mail', value: contact.email.label, href: contact.email.href },
+    { icon: 'map-pin', label: 'Escritório', value: contact.address },
+    { icon: 'clock', label: 'Horário', value: contact.hours },
+  ];
 ---
+
 <section class="section contact is-royal" id="contato" aria-labelledby="contact-title">
   <span class="contact-glow" aria-hidden="true"></span>
   <div class="wrap contact-grid">
     <div class="contact-copy">
-      <h2 class="h2" id="contact-title" data-reveal="rise">Vamos conversar sobre o seu caso?</h2>
-      <p class="lede" data-reveal>Conte brevemente o que está acontecendo. O retorno é feito em horário comercial, pelo canal que você preferir.</p>
+      <h2 class="h2" id="contact-title" data-reveal="rise">
+        Vamos conversar sobre o seu caso?
+      </h2>
+      <p class="lede" data-reveal>
+        Conte brevemente o que está acontecendo. O retorno é feito em horário comercial, pelo canal
+        que você preferir.
+      </p>
       <div class="contact-cta" data-reveal>
         <a class="btn btn-light" href={waLink(defaultMessage)} target="_blank" rel="noopener">
           <Icon name="whatsapp" />
@@ -25,12 +38,23 @@ const items: { icon: IconName; label: string; value: string; href?: string; exte
       <ul class="contact-list" data-reveal-list>
         {items.map((item) => (
           <li>
-            <span class="cl-icon" aria-hidden="true"><Icon name={item.icon} /></span>
+            <span class="cl-icon" aria-hidden="true">
+              <Icon name={item.icon} />
+            </span>
             <span>
               <span class="cl-label">{item.label}</span>
-              {item.href
-                ? <a class="cl-value" href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener' : undefined}>{item.value}</a>
-                : <span class="cl-value">{item.value}</span>}
+              {item.href ? (
+                <a
+                  class="cl-value"
+                  href={item.href}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noopener' : undefined}
+                >
+                  {item.value}
+                </a>
+              ) : (
+                <span class="cl-value">{item.value}</span>
+              )}
             </span>
           </li>
         ))}
@@ -42,27 +66,60 @@ const items: { icon: IconName; label: string; value: string; href?: string; exte
       <div class="fields">
         <div class="field">
           <label for="f-nome">Nome</label>
-          <input id="f-nome" name="nome" type="text" autocomplete="name" placeholder="Como posso chamar você?" aria-required="true" />
-          <p class="field-error" id="e-nome">Informe seu nome.</p>
+          <input
+            id="f-nome"
+            name="nome"
+            type="text"
+            autocomplete="name"
+            placeholder="Como posso chamar você?"
+            aria-required="true"
+          />
+          <p class="field-error" id="e-nome">
+            Informe seu nome.
+          </p>
         </div>
         <div class="field-row">
           <div class="field">
             <label for="f-tel">WhatsApp</label>
-            <input id="f-tel" name="telefone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(00) 00000-0000" aria-required="true" />
-            <p class="field-error" id="e-tel">Informe um número com DDD.</p>
+            <input
+              id="f-tel"
+              name="telefone"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel-national"
+              placeholder="(00) 00000-0000"
+              aria-required="true"
+            />
+            <p class="field-error" id="e-tel">
+              Informe um número com DDD.
+            </p>
           </div>
           <div class="field">
-            <label for="f-email">E-mail <span class="opt">(opcional)</span></label>
-            <input id="f-email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" />
-            <p class="field-error" id="e-email">Confira o e-mail digitado.</p>
+            <label for="f-email">
+              E-mail <span class="opt">(opcional)</span>
+            </label>
+            <input
+              id="f-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="voce@email.com"
+            />
+            <p class="field-error" id="e-email">
+              Confira o e-mail digitado.
+            </p>
           </div>
         </div>
         <div class="field">
-          <label for="f-assunto">Assunto <span class="opt">(opcional)</span></label>
+          <label for="f-assunto">
+            Assunto <span class="opt">(opcional)</span>
+          </label>
           <div class="select">
             <select id="f-assunto" name="assunto">
               <option value="">Escolha uma área</option>
-              {areas.map((area) => <option value={area.name}>{area.name}</option>)}
+              {areas.map((area) => (
+                <option value={area.name}>{area.name}</option>
+              ))}
               <option value="Outro assunto">Outro assunto</option>
             </select>
             <Icon name="chevron-down" />
@@ -70,21 +127,38 @@ const items: { icon: IconName; label: string; value: string; href?: string; exte
         </div>
         <div class="field">
           <label for="f-msg">Mensagem</label>
-          <textarea id="f-msg" name="mensagem" rows="4" maxlength="1200" placeholder="Conte em poucas linhas o que está acontecendo." aria-required="true"></textarea>
-          <p class="field-error" id="e-msg">Escreva uma mensagem curta sobre o seu caso.</p>
+          <textarea
+            id="f-msg"
+            name="mensagem"
+            rows="4"
+            maxlength="1200"
+            placeholder="Conte em poucas linhas o que está acontecendo."
+            aria-required="true"
+          ></textarea>
+          <p class="field-error" id="e-msg">
+            Escreva uma mensagem curta sobre o seu caso.
+          </p>
         </div>
         <label class="check">
           <input class="check-input" type="checkbox" name="lgpd" aria-required="true" />
-          <span class="check-box" aria-hidden="true"><Icon name="check" strokeWidth={2.6} /></span>
-          <span>Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD.</span>
+          <span class="check-box" aria-hidden="true">
+            <Icon name="check" strokeWidth={2.6} />
+          </span>
+          <span>
+            Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD.
+          </span>
         </label>
-        <p class="field-error" id="e-lgpd">Para continuar, confirme o uso dos dados.</p>
+        <p class="field-error" id="e-lgpd">
+          Para continuar, confirme o uso dos dados.
+        </p>
         <button class="btn btn-royal btn-block" type="submit">
           <Icon name="whatsapp" />
           <span class="btn-label">Enviar pelo WhatsApp</span>
         </button>
         <p class="form-status" role="status" aria-live="polite" data-form-status></p>
-        <a class="form-fallback" href={waLink()} target="_blank" rel="noopener" data-form-fallback>Se o WhatsApp não abriu, toque aqui para enviar a mensagem.</a>
+        <a class="form-fallback" href={waLink()} target="_blank" rel="noopener" data-form-fallback>
+          Se o WhatsApp não abriu, toque aqui para enviar a mensagem.
+        </a>
       </div>
     </form>
   </div>
