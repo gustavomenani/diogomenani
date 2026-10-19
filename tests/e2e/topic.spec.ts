@@ -116,8 +116,10 @@ test('um tema já marcado ao abrir (restaurado pelo navegador) aparece no botão
     );
     await route.fulfill({ response, body: html });
   });
-  // Relógio parado: a balança só se mexeria agora se a sincronização a empurrasse.
+  // Relógio pausado (só install não para o tempo): a balança, que começa a balançar aos 950 ms,
+  // só se mexeria agora se a sincronização a empurrasse.
   await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
   await page.goto('/');
   const cta = page.locator('[data-wa-cta]');
   await expect(cta).toHaveText('Conversar sobre consumo');
