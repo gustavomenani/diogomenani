@@ -186,4 +186,17 @@ import { sectionIds } from '../data/navigation';
       transition: none !important;
     }
   }
+
+  /* Na impressão, todas as respostas aparecem. */
+  @media print {
+    .faq-panel {
+      grid-template-rows: 1fr !important;
+      visibility: visible !important;
+    }
+
+    .faq-panel-inner p {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
 </style>

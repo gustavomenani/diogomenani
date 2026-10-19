@@ -24,19 +24,38 @@ describe('formatPhone', () => {
 });
 
 describe('maskPhone', () => {
+  /** Máscara com o cursor no fim, como quem digita em sequência. */
+  const atEnd = (value: string) => maskPhone(value, value.length).value;
+
   test('número colado com +55 perde o código do país', () => {
-    expect(maskPhone('+55 18 99701-7249')).toBe('(18) 99701-7249');
+    expect(atEnd('+55 18 99701-7249')).toBe('(18) 99701-7249');
   });
 
   test('dígitos além de 11 são descartados', () => {
-    expect(maskPhone('189970172491234')).toBe('(18) 99701-7249');
+    expect(atEnd('189970172491234')).toBe('(18) 99701-7249');
   });
 
   test('número com 12 dígitos que não começa com 55 só é cortado', () => {
-    expect(maskPhone('189970172499')).toBe('(18) 99701-7249');
+    expect(atEnd('189970172499')).toBe('(18) 99701-7249');
   });
 
-  test('valor já formatado continua igual', () => {
-    expect(maskPhone('(18) 99701-7249')).toBe('(18) 99701-7249');
+  test('valor já formatado continua igual, com o cursor no mesmo lugar', () => {
+    expect(maskPhone('(18) 99701-7249', 15)).toEqual({ value: '(18) 99701-7249', caret: 15 });
+  });
+
+  test('apagar o hífen só move o cursor para antes dele', () => {
+    expect(maskPhone('(18) 997017249', 10)).toEqual({ value: '(18) 99701-7249', caret: 10 });
+  });
+
+  test('digitar no meio mantém o cursor logo depois do dígito digitado', () => {
+    expect(maskPhone('(18) 995701-7249', 8)).toEqual({ value: '(18) 99570-1724', caret: 8 });
+  });
+
+  test('ao colar com +55, o cursor desconta os dígitos do país', () => {
+    expect(maskPhone('+55 18 99701-7249', 17)).toEqual({ value: '(18) 99701-7249', caret: 15 });
+  });
+
+  test('cursor dentro do +55 vai para o início', () => {
+    expect(maskPhone('+55 18 99701-7249', 2)).toEqual({ value: '(18) 99701-7249', caret: 0 });
   });
 });

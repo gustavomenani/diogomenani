@@ -46,3 +46,16 @@ test('clicar de novo fecha a pergunta', async ({ page }) => {
   await expect(first).toHaveAttribute('aria-expanded', 'false');
   await expect(page.getByText(FIRST_ANSWER)).toBeHidden();
 });
+
+test('na impressão todas as respostas aparecem', async ({ page }) => {
+  await page.emulateMedia({ media: 'print' });
+  for (const answer of [
+    FIRST_ANSWER,
+    SECOND_ANSWER,
+    'Documento de identidade, comprovante de residência',
+    'Consideram a complexidade e a duração estimada do caso',
+    'Sim. O sigilo profissional é um dever do advogado',
+  ]) {
+    await expect(page.getByText(answer)).toBeVisible();
+  }
+});

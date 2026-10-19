@@ -8,9 +8,33 @@ export function formatPhone(digits: string): string {
   return digits;
 }
 
-/** Aplica a máscara ao que foi digitado ou colado; um número com +55 perde o código do país. */
-export function maskPhone(value: string): string {
-  let digits = value.replace(/\D/g, '');
-  if (digits.length > 11 && digits.startsWith('55')) digits = digits.slice(2);
-  return formatPhone(digits.slice(0, 11));
+export interface MaskedPhone {
+  value: string;
+  /** Posição do cursor no valor formatado: logo depois do mesmo dígito de antes. */
+  caret: number;
+}
+
+const countDigits = (text: string) => text.replace(/\D/g, '').length;
+
+/** Posição logo depois do enésimo dígito de `text` (0: o início). */
+function afterDigit(text: string, count: number): number {
+  if (count <= 0) return 0;
+  let seen = 0;
+  for (let index = 0; index < text.length; index++) {
+    if (/\d/.test(text.charAt(index)) && ++seen === count) return index + 1;
+  }
+  return text.length;
+}
+
+/**
+ * Aplica a máscara ao que foi digitado ou colado e reposiciona o cursor: editar no meio do
+ * número não o joga para o fim. Um número com +55 perde o código do país.
+ */
+export function maskPhone(value: string, caret: number): MaskedPhone {
+  const allDigits = value.replace(/\D/g, '');
+  const countryCode = allDigits.length > 11 && allDigits.startsWith('55') ? 2 : 0;
+  const digits = allDigits.slice(countryCode, countryCode + 11);
+  const formatted = formatPhone(digits);
+  const kept = Math.min(digits.length, countDigits(value.slice(0, caret)) - countryCode);
+  return { value: formatted, caret: afterDigit(formatted, kept) };
 }

@@ -13,3 +13,20 @@ test('escolher um tema troca link e rótulo do botão principal', async ({ page 
   await expect(cta).toHaveAttribute('href', wa(MESSAGES.topic('Direito do Consumidor')));
   await expect(cta).toHaveText('Conversar sobre consumo');
 });
+
+test('cliques rápidos não sobrepõem animações e terminam no último tema', async ({ page }) => {
+  await page.goto('/');
+  const cta = page.locator('[data-wa-cta]');
+  for (const topic of ['Família', 'Trabalho', 'Empresas']) {
+    await page.getByText(topic, { exact: true }).click({ delay: 0 });
+  }
+  const runningOnLabel = await cta
+    .locator('[data-wa-label]')
+    .evaluate(
+      (label) =>
+        label.getAnimations().filter((animation) => animation.playState === 'running').length,
+    );
+  expect(runningOnLabel).toBeLessThanOrEqual(1);
+  await expect(cta).toHaveText('Conversar sobre empresas');
+  await expect(cta).toHaveAttribute('href', wa(MESSAGES.topic('Assessoria para Empresas')));
+});

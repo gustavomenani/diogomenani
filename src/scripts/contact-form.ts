@@ -58,19 +58,11 @@ export function initContactForm(root: HTMLElement): void {
     status.textContent = text;
   };
 
-  // Cada campo acha o seu erro pelo contêiner; o consentimento ainda é um caso à parte.
-  const errorOf = (control: Control): HTMLElement | null =>
-    control === fields.consent
-      ? document.getElementById('e-lgpd')
-      : (control.closest('[data-field]')?.querySelector<HTMLElement>('[data-field-error]') ?? null);
-
+  // Cada controle mora num contêiner [data-field], que guarda a mensagem de erro dele.
   const setError = (control: Control, invalid: boolean) => {
-    (control.closest('[data-field]') ?? control.closest('.check'))?.classList.toggle(
-      'has-error',
-      invalid,
-    );
-    const error = errorOf(control);
-    if (error && control === fields.consent) error.style.display = invalid ? 'block' : '';
+    const container = control.closest('[data-field]');
+    container?.classList.toggle('has-error', invalid);
+    const error = container?.querySelector('[data-field-error]');
     if (invalid && error) control.setAttribute('aria-describedby', error.id);
     else control.removeAttribute('aria-describedby');
     control.setAttribute('aria-invalid', String(invalid));
@@ -85,8 +77,12 @@ export function initContactForm(root: HTMLElement): void {
 
   form.addEventListener('input', (event) => {
     if (event.target === fields.phone) {
-      const masked = maskPhone(fields.phone.value);
-      if (fields.phone.value !== masked) fields.phone.value = masked;
+      const phone = fields.phone;
+      const masked = maskPhone(phone.value, phone.selectionStart ?? phone.value.length);
+      if (phone.value !== masked.value) {
+        phone.value = masked.value;
+        if (document.activeElement === phone) phone.setSelectionRange(masked.caret, masked.caret);
+      }
     }
     onEdit(event.target);
   });

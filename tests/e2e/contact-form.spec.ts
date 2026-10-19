@@ -107,3 +107,41 @@ test('sem assunto e sem e-mail a mensagem omite essas partes', async ({ page, op
     ),
   ]);
 });
+
+test('editar o telefone no meio mantém o cursor no lugar', async ({ page }) => {
+  const { phone } = form(page);
+  await phone.fill('18997017249');
+  await expect(phone).toHaveValue('(18) 99701-7249');
+  const caret = () => phone.evaluate((input: HTMLInputElement) => input.selectionStart);
+
+  // Digita um 5 logo depois de "(18) 99": o resto anda e o cursor fica depois do 5.
+  await phone.evaluate((input: HTMLInputElement) => {
+    input.setSelectionRange(7, 7);
+  });
+  await page.keyboard.type('5');
+  await expect(phone).toHaveValue('(18) 99570-1724');
+  expect(await caret()).toBe(8);
+
+  // Apagar o hífen não o remove: o cursor só passa para antes dele.
+  await phone.fill('18997017249');
+  await phone.evaluate((input: HTMLInputElement) => {
+    input.setSelectionRange(11, 11);
+  });
+  await page.keyboard.press('Backspace');
+  await expect(phone).toHaveValue('(18) 99701-7249');
+  expect(await caret()).toBe(10);
+});
+
+test('o erro do consentimento fica no contêiner do campo', async ({ page }) => {
+  const f = form(page);
+  await f.submit.click();
+  const error = page.locator('[data-field]', { has: f.consent }).getByText(ERRORS.consent);
+  await expect(error).toBeVisible();
+  await expect(error).not.toHaveAttribute('style');
+  await expect(error).toHaveAttribute('id', 'f-lgpd-erro');
+  await expect(f.consent).toHaveAttribute('aria-describedby', 'f-lgpd-erro');
+
+  await f.consent.check();
+  await expect(error).toBeHidden();
+  await expect(f.consent).not.toHaveAttribute('aria-describedby');
+});

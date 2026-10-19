@@ -342,22 +342,6 @@ import { messages, waLink } from '../lib/whatsapp';
     pointer-events: none;
   }
 
-  /* Telas baixas (celular deitado). */
-  @media (height <= 560px) {
-    .menu {
-      padding-top: 84px;
-    }
-
-    .menu-nav a {
-      font-size: 30px;
-      padding: 4px 0;
-    }
-
-    .menu-foot {
-      padding-top: 20px;
-    }
-  }
-
   .menu-inner {
     display: flex;
     flex-direction: column;
@@ -411,6 +395,22 @@ import { messages, waLink } from '../lib/whatsapp';
   .menu-foot p {
     font-size: 14px;
     color: var(--sky);
+  }
+
+  /* Telas baixas (celular deitado): depois das regras base, para valer de fato. */
+  @media (height <= 560px) {
+    .menu {
+      padding-top: 84px;
+    }
+
+    .menu-nav a {
+      font-size: 30px;
+      padding: 4px 0;
+    }
+
+    .menu-foot {
+      padding-top: 20px;
+    }
   }
 
   @media (width >= 1080px) {

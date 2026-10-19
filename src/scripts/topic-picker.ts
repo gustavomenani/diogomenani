@@ -19,45 +19,54 @@ export function initTopicPicker(root: HTMLElement, { getMode, onPick }: TopicPic
   const label = cta?.querySelector<HTMLElement>('[data-wa-label]');
   if (!picker || !cta || !label) return;
 
+  /** Animações da troca em andamento; a troca seguinte as cancela antes de começar. */
+  let running: Animation[] = [];
+
+  /** Troca o rótulo: o antigo sai para cima, o novo entra por baixo e o botão ajusta a largura. */
+  const swapLabel = (text: string) => {
+    // Cancelar também impede o onfinish da troca anterior de gravar um rótulo velho.
+    for (const animation of running) animation.cancel();
+    running = [];
+    if (getMode() === 'reduced') {
+      label.textContent = text;
+      return;
+    }
+    const startWidth = cta.getBoundingClientRect().width;
+    const leave = label.animate(
+      [
+        { opacity: 1, transform: 'none' },
+        { opacity: 0, transform: 'translateY(-45%)' },
+      ],
+      { duration: 150, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' },
+    );
+    running = [leave];
+    leave.onfinish = () => {
+      label.textContent = text;
+      const endWidth = cta.getBoundingClientRect().width;
+      leave.cancel();
+      running = [
+        label.animate(
+          [
+            { opacity: 0, transform: 'translateY(45%)' },
+            { opacity: 1, transform: 'none' },
+          ],
+          { duration: 460, easing: EASE_OUT_EXPO },
+        ),
+        cta.animate([{ width: `${startWidth}px` }, { width: `${endWidth}px` }], {
+          duration: 520,
+          easing: EASE_OUT_EXPO,
+        }),
+      ];
+    };
+  };
+
   picker.addEventListener('change', (event) => {
     const input = event.target;
     if (!(input instanceof HTMLInputElement)) return;
     const { href, cta: text } = input.dataset;
     if (!href || !text) return;
     cta.href = href;
-    swapLabel(cta, label, text, getMode());
+    swapLabel(text);
     onPick();
   });
-}
-
-/** Troca o rótulo: o antigo sai para cima, o novo entra por baixo e o botão ajusta a largura. */
-function swapLabel(cta: HTMLElement, label: HTMLElement, text: string, mode: MotionMode): void {
-  if (mode === 'reduced') {
-    label.textContent = text;
-    return;
-  }
-  const startWidth = cta.getBoundingClientRect().width;
-  const leave = label.animate(
-    [
-      { opacity: 1, transform: 'none' },
-      { opacity: 0, transform: 'translateY(-45%)' },
-    ],
-    { duration: 150, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' },
-  );
-  leave.onfinish = () => {
-    label.textContent = text;
-    const endWidth = cta.getBoundingClientRect().width;
-    leave.cancel();
-    label.animate(
-      [
-        { opacity: 0, transform: 'translateY(45%)' },
-        { opacity: 1, transform: 'none' },
-      ],
-      { duration: 460, easing: EASE_OUT_EXPO },
-    );
-    cta.animate([{ width: `${startWidth}px` }, { width: `${endWidth}px` }], {
-      duration: 520,
-      easing: EASE_OUT_EXPO,
-    });
-  };
 }

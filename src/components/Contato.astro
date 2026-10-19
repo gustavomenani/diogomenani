@@ -119,18 +119,22 @@ const items: readonly ContactItem[] = [
             required
           ></textarea>
         </Field>
-        <label class="check">
-          <input class="check-input" type="checkbox" name="lgpd" required />
-          <span class="check-box" aria-hidden="true">
-            <Icon name="check" strokeWidth={2.6} />
-          </span>
-          <span>
-            Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD.
-          </span>
-        </label>
-        <p class="field-error" id="e-lgpd">
-          Para continuar, confirme o uso dos dados.
-        </p>
+        {/* Contêiner próprio (não .field): as regras de .field label/input pegariam o checkbox. */}
+        <div class="check-field" data-field>
+          <label class="check">
+            <input class="check-input" id="f-lgpd" type="checkbox" name="lgpd" required />
+            <span class="check-box" aria-hidden="true">
+              <Icon name="check" strokeWidth={2.6} />
+            </span>
+            <span>
+              Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a
+              LGPD.
+            </span>
+          </label>
+          <p class="field-error" id="f-lgpd-erro" data-field-error>
+            Para continuar, confirme o uso dos dados.
+          </p>
+        </div>
         <button class="btn btn-royal btn-block" type="submit">
           <Icon name="whatsapp" />
           <span class="btn-label">Enviar pelo WhatsApp</span>

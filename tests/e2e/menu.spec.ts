@@ -60,3 +60,16 @@ test('virar desktop fecha o menu', async ({ page }) => {
   await expect(toggle(page)).toHaveAttribute('aria-expanded', 'false');
   expect(await rootOverflow(page)).toBe('');
 });
+
+test.describe('tela baixa', () => {
+  test.use({ viewport: { width: 844, height: 390 } });
+
+  test('em tela baixa o menu usa a versão compacta', async ({ page }) => {
+    await page.goto('/');
+    await openMenu(page);
+    const first = menuLink(page, 'Sobre');
+    await expect(first).toHaveCSS('font-size', '30px');
+    await expect(first).toHaveCSS('padding-top', '4px');
+    await expect(page.locator('[data-menu] .menu-foot')).toHaveCSS('padding-top', '20px');
+  });
+});

@@ -168,7 +168,7 @@
   outline-offset: 3px;
 }
 
-.check.has-error .check-box {
+.check-field.has-error .check-box {
   border-color: var(--danger);
 }
 
