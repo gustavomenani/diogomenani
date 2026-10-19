@@ -159,7 +159,8 @@ export function initLanding(root: HTMLElement): void {
   };
   const onTopic = (input: HTMLInputElement) => {
     const cta = $<HTMLAnchorElement>('[data-wa-cta]');
-    const label = $('[data-wa-label]');
+    // O rótulo é procurado dentro do botão: outros botões do WhatsApp têm o mesmo hook.
+    const label = cta?.querySelector<HTMLElement>('[data-wa-label]') ?? null;
     const { href, cta: text } = input.dataset;
     if (!cta || !label || !href || !text) return;
     cta.href = href;
@@ -221,13 +222,11 @@ export function initLanding(root: HTMLElement): void {
   };
 
   /* --- formulário: valida e entrega a mensagem pronta ao WhatsApp --- */
-  const errorFor: Record<string, string> = {
-    nome: 'e-nome',
-    telefone: 'e-tel',
-    email: 'e-email',
-    mensagem: 'e-msg',
-    lgpd: 'e-lgpd',
-  };
+  // Cada campo acha o seu erro pelo contêiner; o consentimento ainda é um caso à parte.
+  const errorOf = (el: Field): HTMLElement | null =>
+    el.name === 'lgpd'
+      ? doc.getElementById('e-lgpd')
+      : (el.closest('[data-field]')?.querySelector<HTMLElement>('[data-field-error]') ?? null);
   const formStatus = (form: HTMLFormElement, text: string, isError: boolean) => {
     const status = form.querySelector('[data-form-status]');
     if (!status) return;
@@ -236,10 +235,9 @@ export function initLanding(root: HTMLElement): void {
   };
   const setError = (el: Field, on: boolean) => {
     (el.closest('.field') ?? el.closest('.check'))?.classList.toggle('has-error', on);
-    const id = errorFor[el.name];
-    const msg = id ? doc.getElementById(id) : null;
+    const msg = errorOf(el);
     if (msg && el.name === 'lgpd') msg.style.display = on ? 'block' : '';
-    if (on && id) el.setAttribute('aria-describedby', id);
+    if (on && msg) el.setAttribute('aria-describedby', msg.id);
     else el.removeAttribute('aria-describedby');
     el.setAttribute('aria-invalid', on ? 'true' : 'false');
   };

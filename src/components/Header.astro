@@ -1,16 +1,15 @@
 ---
-import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
 import { contact } from '../data/contact';
-import { anchor, nav } from '../data/navigation';
+import { anchor, nav, sectionIds } from '../data/navigation';
+import { EXTERNAL_LINK } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
-
-const cta = waLink(messages.default);
 ---
 
 <header class="site-header" data-header>
   <div class="wrap header-inner">
-    <a class="brand" href="#inicio" aria-label="Diogo Menani, voltar ao início">
+    <a class="brand" href={anchor(sectionIds.top)} aria-label="Diogo Menani, voltar ao início">
       <Monogram class="brand-mark" />
       <span class="brand-text">
         <span class="brand-name">Diogo Menani</span>
@@ -23,7 +22,7 @@ const cta = waLink(messages.default);
       ))}
       <span class="nav-ind" aria-hidden="true" data-nav-ind></span>
     </nav>
-    <a class="btn btn-header" href={cta} target="_blank" rel="noopener">
+    <a class="btn btn-header" href={waLink(messages.default)} {...EXTERNAL_LINK}>
       Agendar conversa
     </a>
     <button
@@ -49,11 +48,10 @@ const cta = waLink(messages.default);
       ))}
     </nav>
     <div class="menu-foot">
-      <a class="btn btn-light" href={cta} target="_blank" rel="noopener">
-        <Icon name="whatsapp" />
-        <span class="btn-label">Agendar uma conversa</span>
-      </a>
-      <p>{contact.oab} · Atendimento presencial e online</p>
+      <WhatsAppButton label="Agendar uma conversa" />
+      <p>
+        {contact.oab} · {contact.serviceMode}
+      </p>
     </div>
   </div>
 </div>

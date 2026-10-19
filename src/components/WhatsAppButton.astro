@@ -1,0 +1,22 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+import { EXTERNAL_LINK } from '../lib/links';
+import { messages, waLink } from '../lib/whatsapp';
+
+type Props = HTMLAttributes<'a'> & {
+  /** Texto do botão. */
+  label: string;
+  /** Mensagem pronta; sem ela, vai a de agendamento. */
+  message?: string;
+};
+
+const { label, message = messages.default, class: className, ...attrs } = Astro.props;
+---
+
+<a class:list={['btn btn-light', className]} href={waLink(message)} {...EXTERNAL_LINK} {...attrs}>
+  <Icon name="whatsapp" />
+  <span class="btn-label" data-wa-label>
+    {label}
+  </span>
+</a>

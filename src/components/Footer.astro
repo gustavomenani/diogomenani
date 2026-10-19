@@ -1,9 +1,10 @@
 ---
 import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
-import { wordmark } from '../data/brand';
+import { THEMIS_SHAPE_ID, wordmark } from '../data/brand';
 import { contact, social, whatsapp } from '../data/contact';
-import { anchor, footerNav } from '../data/navigation';
+import { anchor, footerNav, sectionIds } from '../data/navigation';
+import { EXTERNAL_LINK } from '../lib/links';
 import { waLink } from '../lib/whatsapp';
 
 const year = new Date().getFullYear();
@@ -13,7 +14,7 @@ const year = new Date().getFullYear();
   <div class="wrap">
     <div class="footer-brand">
       <svg class="footer-themis" viewBox="0 0 860 1112" aria-hidden="true" focusable="false">
-        <use href="#themis-shape"></use>
+        <use href={`#${THEMIS_SHAPE_ID}`}></use>
       </svg>
       <Monogram class="footer-mark" data-reveal />
       <span class="footer-rule" aria-hidden="true" data-reveal="draw"></span>
@@ -51,7 +52,7 @@ const year = new Date().getFullYear();
         <p class="footer-col-title">Contato</p>
         <ul>
           <li>
-            <a href={waLink()} target="_blank" rel="noopener">
+            <a href={waLink()} {...EXTERNAL_LINK}>
               WhatsApp {whatsapp.display}
             </a>
           </li>
@@ -66,7 +67,7 @@ const year = new Date().getFullYear();
         <ul>
           {social.map((item) => (
             <li>
-              <a href={item.href} target="_blank" rel="noopener" aria-label={item.ariaLabel}>
+              <a href={item.href} {...EXTERNAL_LINK} aria-label={item.ariaLabel}>
                 <Icon name={item.icon} />
                 {item.label}
               </a>
@@ -83,7 +84,7 @@ const year = new Date().getFullYear();
         Conteúdo de caráter informativo, em conformidade com o Código de Ética e Disciplina da OAB e
         o Provimento nº 205/2021 do CFOAB.
       </p>
-      <a class="to-top" href="#inicio">
+      <a class="to-top" href={anchor(sectionIds.top)}>
         Voltar ao topo <Icon name="arrow-up" />
       </a>
     </div>

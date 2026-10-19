@@ -1,44 +1,38 @@
 ---
-import Icon from './Icon.astro';
 import Themis from './Themis.astro';
+import WhatsAppButton from './WhatsAppButton.astro';
 import { contact } from '../data/contact';
 import { areas } from '../data/content';
+import { anchor, sectionIds } from '../data/navigation';
 import { messages, waLink } from '../lib/whatsapp';
+
+/** Título em duas linhas; cada palavra sobe sozinha na animação de entrada. */
+const TITLE_LINES = ['Clareza para entender.', 'Firmeza para defender.'];
+const titleWords = TITLE_LINES.map((line) => line.split(' '));
 ---
 
-<section class="hero is-royal" id="inicio" aria-labelledby="hero-title" data-hero>
+<section class="hero is-royal" id={sectionIds.top} aria-labelledby="hero-title" data-hero>
   <div class="hero-bg" aria-hidden="true">
     <span class="hero-glow" data-glow></span>
   </div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <h1
-        class="hero-title"
-        id="hero-title"
-        aria-label="Clareza para entender. Firmeza para defender."
-      >
-        <span class="line" aria-hidden="true">
-          <span class="w">
-            <span>Clareza</span>
-          </span>{' '}
-          <span class="w">
-            <span>para</span>
-          </span>{' '}
-          <span class="w">
-            <span>entender.</span>
-          </span>
-        </span>{' '}
-        <span class="line" aria-hidden="true">
-          <span class="w">
-            <span>Firmeza</span>
-          </span>{' '}
-          <span class="w">
-            <span>para</span>
-          </span>{' '}
-          <span class="w">
-            <span>defender.</span>
-          </span>
-        </span>
+      <h1 class="hero-title" id="hero-title" aria-label={TITLE_LINES.join(' ')}>
+        {titleWords.map((words, lineIndex) => (
+          <Fragment>
+            {lineIndex > 0 && ' '}
+            <span class="line" aria-hidden="true">
+              {words.map((word, wordIndex) => (
+                <Fragment>
+                  {wordIndex > 0 && ' '}
+                  <span class="w">
+                    <span>{word}</span>
+                  </span>
+                </Fragment>
+              ))}
+            </span>
+          </Fragment>
+        ))}
       </h1>
       <span class="hero-rule" aria-hidden="true"></span>
       <p class="hero-lead">
@@ -67,19 +61,8 @@ import { messages, waLink } from '../lib/whatsapp';
         </div>
       </fieldset>
       <div class="hero-actions">
-        <a
-          class="btn btn-light"
-          href={waLink(messages.default)}
-          target="_blank"
-          rel="noopener"
-          data-wa-cta
-        >
-          <Icon name="whatsapp" />
-          <span class="btn-label" data-wa-label>
-            Agendar uma conversa
-          </span>
-        </a>
-        <a class="link-light" href="#como-trabalho">
+        <WhatsAppButton label="Agendar uma conversa" data-wa-cta />
+        <a class="link-light" href={anchor(sectionIds.process)}>
           Como funciona o atendimento
         </a>
       </div>
@@ -94,7 +77,7 @@ import { messages, waLink } from '../lib/whatsapp';
     <ul class="facts">
       <li>{contact.oab}</li>
       <li>{contact.city}</li>
-      <li>Atendimento presencial e online</li>
+      <li>{contact.serviceMode}</li>
     </ul>
   </div>
 </section>

@@ -1,21 +1,39 @@
 ---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
 import { contact } from '../data/contact';
 import { credentials } from '../data/content';
+import { sectionIds } from '../data/navigation';
+
+// Foto por convenção: salve o retrato (vertical, 4:5) em src/assets/diogo.jpg (ou .jpeg, .png,
+// .webp) e ele entra no lugar do placeholder, otimizado pelo Astro.
+const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/diogo.{jpg,jpeg,png,webp}', {
+  eager: true,
+});
+const photo = Object.values(photos)[0]?.default;
 ---
 
-<section class="section about" id="sobre" aria-labelledby="sobre-title">
+<section class="section about" id={sectionIds.about} aria-labelledby="sobre-title">
   <div class="wrap about-grid">
     <figure class="portrait" data-reveal="unveil">
       <div class="portrait-frame">
-        {/* Para usar a foto: salve em public/diogo.jpg e troque o bloco .portrait-art por
-            <img src="/diogo.jpg" alt="Diogo Menani" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" /> */}
-        <div class="portrait-art">
-          <span class="portrait-glow" aria-hidden="true"></span>
-          <span class="portrait-ph">
-            <span class="portrait-ph-title">Foto de Diogo Menani</span>
-            <span class="portrait-ph-sub">[retrato profissional vertical, 4:5]</span>
-          </span>
-        </div>
+        {photo ? (
+          <Image
+            src={photo}
+            alt="Diogo Menani"
+            class="portrait-photo"
+            widths={[340, 480, 680, 960]}
+            sizes="(max-width: 639px) 340px, 480px"
+          />
+        ) : (
+          <div class="portrait-art">
+            <span class="portrait-glow" aria-hidden="true"></span>
+            <span class="portrait-ph">
+              <span class="portrait-ph-title">Foto de Diogo Menani</span>
+              <span class="portrait-ph-sub">[retrato profissional vertical, 4:5]</span>
+            </span>
+          </div>
+        )}
       </div>
     </figure>
     <div class="about-copy">
