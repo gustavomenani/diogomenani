@@ -98,6 +98,90 @@ test('envio válido abre o WhatsApp com a mensagem montada', async ({ page, open
   await expect(fallback).toHaveAttribute('href', expected);
 });
 
+test('editar um campo depois de enviar esconde o link de reserva e limpa o aviso', async ({
+  page,
+  openedUrls,
+}) => {
+  const f = form(page);
+  await fillValid(page);
+  await f.submit.click();
+  await expect.poll(openedUrls).toHaveLength(1);
+  const fallback = page.getByRole('link', {
+    name: 'Se o WhatsApp não abriu, toque aqui para enviar a mensagem.',
+  });
+  await expect(fallback).toBeVisible();
+  // O link levaria a mensagem antiga.
+  await f.message.fill('Outra mensagem.');
+  await expect(fallback).toBeHidden();
+  await expect(page.getByText('Mensagem pronta. Abrindo o WhatsApp…')).toBeHidden();
+});
+
+test('o foco fica no botão durante o intervalo entre envios', async ({ page, openedUrls }) => {
+  const f = form(page);
+  await fillValid(page);
+  await f.submit.focus();
+  await page.keyboard.press('Enter');
+  await expect.poll(openedUrls).toHaveLength(1);
+  await expect(f.submit).toBeFocused();
+  await expect(f.submit).toHaveAttribute('aria-disabled', 'true');
+  // Um segundo envio no intervalo não abre outra conversa.
+  await page.keyboard.press('Enter');
+  expect(await openedUrls()).toHaveLength(1);
+  await expect(f.submit).not.toHaveAttribute('aria-disabled', 'true');
+});
+
+test('a máscara espera o fim da composição do teclado (IME)', async ({ page }) => {
+  const { phone } = form(page);
+  await phone.focus();
+  // Durante a composição, o texto é do teclado: reformatar no meio embaralharia o número.
+  const duringComposition = await phone.evaluate((input: HTMLInputElement) => {
+    input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    input.value = '１８９';
+    input.dispatchEvent(
+      new InputEvent('input', {
+        bubbles: true,
+        isComposing: true,
+        inputType: 'insertCompositionText',
+      }),
+    );
+    return input.value;
+  });
+  expect(duringComposition).toBe('１８９');
+  await phone.evaluate((input: HTMLInputElement) => {
+    input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+  });
+  await expect(phone).toHaveValue('(18) 9');
+});
+
+test('o campo focado tem contorno de 2 px, vermelho quando tem erro', async ({ page }) => {
+  const f = form(page);
+  await f.name.focus();
+  await expect(f.name).toHaveCSS('outline-style', 'solid');
+  await expect(f.name).toHaveCSS('outline-width', '2px');
+  await expect(f.name).toHaveCSS('outline-color', 'rgb(36, 64, 230)');
+  await f.submit.click();
+  await expect(f.name).toBeFocused();
+  await expect(f.name).toHaveCSS('outline-color', 'rgb(180, 35, 24)');
+});
+
+test.describe('no celular', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('ao enviar com erros, o primeiro campo inválido fica no meio da tela', async ({ page }) => {
+    const f = form(page);
+    // O botão no pé da tela deixa o Nome, primeiro inválido, acima dela.
+    await f.submit.scrollIntoViewIfNeeded();
+    await f.submit.click();
+    await expect(f.name).toBeFocused();
+    await expect
+      .poll(async () => {
+        const box = await f.name.boundingBox();
+        return box ? Math.abs(box.y + box.height / 2 - 844 / 2) : Infinity;
+      })
+      .toBeLessThan(24);
+  });
+});
+
 test('sem assunto e sem e-mail a mensagem omite essas partes', async ({ page, openedUrls }) => {
   await fillValid(page);
   await form(page).submit.click();

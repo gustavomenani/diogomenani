@@ -14,6 +14,9 @@ export interface MaskedPhone {
   caret: number;
 }
 
+/** Código do Brasil: com ele, o número ganha a máscara nacional. */
+const BRAZIL = '55';
+
 const countDigits = (text: string) => text.replace(/\D/g, '').length;
 
 /** Posição logo depois do enésimo dígito de `text` (0: o início). */
@@ -28,13 +31,25 @@ function afterDigit(text: string, count: number): number {
 
 /**
  * Aplica a máscara ao que foi digitado ou colado e reposiciona o cursor: editar no meio do
- * número não o joga para o fim. Um número com +55 perde o código do país.
+ * número não o joga para o fim. Dígitos de largura total (teclados asiáticos) viram comuns; o +55
+ * e os zeros à esquerda do DDD saem; com o + de outro país, o número fica como foi digitado.
  */
 export function maskPhone(value: string, caret: number): MaskedPhone {
-  const allDigits = value.replace(/\D/g, '');
-  const countryCode = allDigits.length > 11 && allDigits.startsWith('55') ? 2 : 0;
-  const digits = allDigits.slice(countryCode, countryCode + 11);
+  const typed = value.normalize('NFKC');
+  const typedCaret = value.slice(0, caret).normalize('NFKC').length;
+  const allDigits = typed.replace(/\D/g, '');
+  const international = typed.trimStart().startsWith('+');
+  // Outro país, ou o próprio +55 ainda sendo digitado: nada a formatar por enquanto.
+  if (international && (!allDigits.startsWith(BRAZIL) || allDigits === BRAZIL)) {
+    return { value: typed, caret: typedCaret };
+  }
+  // Sem o +, o 55 só é o código do país quando sobra número além dos 11 dígitos.
+  const countryCode =
+    allDigits.startsWith(BRAZIL) && (international || allDigits.length > 11) ? BRAZIL.length : 0;
+  const leadingZeros = /^0*/.exec(allDigits.slice(countryCode))?.[0].length ?? 0;
+  const skipped = countryCode + leadingZeros;
+  const digits = allDigits.slice(skipped, skipped + 11);
   const formatted = formatPhone(digits);
-  const kept = Math.min(digits.length, countDigits(value.slice(0, caret)) - countryCode);
+  const kept = Math.min(digits.length, countDigits(typed.slice(0, typedCaret)) - skipped);
   return { value: formatted, caret: afterDigit(formatted, kept) };
 }

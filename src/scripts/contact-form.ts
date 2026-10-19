@@ -32,6 +32,9 @@ const isControl = (target: EventTarget | null): target is Control =>
 export function initContactForm(root: HTMLElement): void {
   const form = root.querySelector('[data-contact-form]');
   if (!(form instanceof HTMLFormElement)) return;
+  const status = form.querySelector('[data-form-status]');
+  const fallback = form.querySelector<HTMLAnchorElement>('[data-form-fallback]');
+  const submit = form.querySelector<HTMLButtonElement>('[type="submit"]');
 
   const name = controlOf(form, 'nome', HTMLInputElement);
   const phone = controlOf(form, 'telefone', HTMLInputElement);
@@ -40,14 +43,16 @@ export function initContactForm(root: HTMLElement): void {
   const message = controlOf(form, 'mensagem', HTMLTextAreaElement);
   const consent = controlOf(form, 'lgpd', HTMLInputElement);
   if (!name || !phone || !email || !subject || !message || !consent) {
-    // Um markup incompleto desliga só o formulário; o resto da página continua funcionando.
-    console.error('Formulário de contato incompleto: envio pelo WhatsApp desativado.');
+    // Um markup incompleto desliga só a validação: enviar não recarrega a página, e o link de
+    // reserva leva ao WhatsApp. O resto da página continua funcionando.
+    console.error('Formulário de contato incompleto: o envio fica pelo link do WhatsApp.');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      fallback?.classList.add('is-shown');
+    });
     return;
   }
   const fields = { name, phone, email, subject, message, consent };
-  const status = form.querySelector('[data-form-status]');
-  const fallback = form.querySelector<HTMLAnchorElement>('[data-form-fallback]');
-  const submit = form.querySelector<HTMLButtonElement>('[type="submit"]');
 
   const showStatus = (text: string, isError: boolean) => {
     if (!status) return;
@@ -67,29 +72,41 @@ export function initContactForm(root: HTMLElement): void {
   };
 
   // Ao editar um campo marcado, o erro dele sai (o próximo envio confere de novo); sem erros
-  // restantes, o aviso também.
+  // restantes, o aviso também. Depois de um envio, editar esconde o link de reserva, que levaria
+  // a mensagem antiga.
   const onEdit = (target: EventTarget | null) => {
+    if (fallback?.classList.contains('is-shown')) {
+      fallback.classList.remove('is-shown');
+      showStatus('', false);
+    }
     if (!isControl(target) || target.getAttribute('aria-invalid') !== 'true') return;
     setError(target, false);
     if (!form.querySelector('[aria-invalid="true"]')) showStatus('', false);
   };
 
+  const applyPhoneMask = () => {
+    const masked = maskPhone(phone.value, phone.selectionStart ?? phone.value.length);
+    if (phone.value === masked.value) return;
+    phone.value = masked.value;
+    if (document.activeElement === phone) phone.setSelectionRange(masked.caret, masked.caret);
+  };
+
   form.addEventListener('input', (event) => {
-    if (event.target === phone) {
-      const masked = maskPhone(phone.value, phone.selectionStart ?? phone.value.length);
-      if (phone.value !== masked.value) {
-        phone.value = masked.value;
-        if (document.activeElement === phone) phone.setSelectionRange(masked.caret, masked.caret);
-      }
-    }
+    // Durante a composição (IME), o texto ainda é do teclado: a máscara espera o fim dela.
+    const composing = event instanceof InputEvent && event.isComposing;
+    if (event.target === phone && !composing) applyPhoneMask();
     onEdit(event.target);
   });
+  phone.addEventListener('compositionend', applyPhoneMask);
   form.addEventListener('change', (event) => {
     onEdit(event.target);
   });
 
+  // aria-disabled, e não disabled: desabilitar o botão focado jogaria o foco para o corpo.
+  let coolingDown = false;
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (coolingDown) return;
     const request = {
       name: fields.name.value,
       phone: fields.phone.value,
@@ -102,17 +119,20 @@ export function initContactForm(root: HTMLElement): void {
 
     const firstInvalid = invalid[0];
     if (firstInvalid) {
-      fields[firstInvalid].focus();
+      // Cada navegador rola o campo focado de um jeito (o Safari o deixa sob o header): o
+      // primeiro erro vai para o meio da tela.
+      const control = fields[firstInvalid];
+      control.focus({ preventScroll: true });
+      control.scrollIntoView({ block: 'center', behavior: 'instant' });
       showStatus(STATUS.invalid, true);
       fallback?.classList.remove('is-shown');
       return;
     }
 
     const url = waLink(buildContactMessage(request));
-    if (submit) {
-      submit.classList.add('is-loading');
-      submit.disabled = true;
-    }
+    coolingDown = true;
+    submit?.classList.add('is-loading');
+    submit?.setAttribute('aria-disabled', 'true');
     showStatus(STATUS.sent, false);
     // Se o navegador bloquear a nova aba, o link de reserva leva à mesma mensagem.
     if (fallback) {
@@ -121,10 +141,9 @@ export function initContactForm(root: HTMLElement): void {
     }
     window.open(url, '_blank', 'noopener');
     setTimeout(() => {
-      if (submit) {
-        submit.classList.remove('is-loading');
-        submit.disabled = false;
-      }
+      coolingDown = false;
+      submit?.classList.remove('is-loading');
+      submit?.removeAttribute('aria-disabled');
     }, SUBMIT_COOLDOWN_MS);
   });
 }

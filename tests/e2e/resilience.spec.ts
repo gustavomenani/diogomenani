@@ -38,6 +38,26 @@ test('uma revelação que falha não derruba o resto da página', async ({ page,
   expect(errors).toEqual([expect.stringContaining('revelação')]);
 });
 
+test('com o formulário incompleto, enviar não recarrega a página e mostra o link de reserva', async ({
+  page,
+}) => {
+  await page.route('**/', async (route) => {
+    const response = await route.fetch();
+    const html = (await response.text()).replace(/<input[^>]*name="nome"[^>]*>/, '');
+    await route.fulfill({ response, body: html });
+  });
+  await page.goto('/');
+  const navigations: string[] = [];
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) navigations.push(frame.url());
+  });
+  await page.getByRole('button', { name: 'Enviar pelo WhatsApp', exact: true }).click();
+  await expect(
+    page.getByRole('link', { name: 'Se o WhatsApp não abriu, toque aqui para enviar a mensagem.' }),
+  ).toBeVisible();
+  expect(navigations).toEqual([]);
+});
+
 test('um formulário incompleto não derruba o resto da página', async ({ page }) => {
   // Serve a página sem o campo "Nome": o formulário fica sem script, o resto segue funcionando.
   await page.route('**/', async (route) => {

@@ -6,6 +6,10 @@ describe('waLink', () => {
     expect(waLink()).toBe('https://wa.me/5518997017249');
   });
 
+  test('um caractere inválido (metade de um emoji) vira � em vez de travar o link', () => {
+    expect(waLink('Oi \uD83D')).toBe('https://wa.me/5518997017249?text=Oi%20%EF%BF%BD');
+  });
+
   test('com texto envia a mensagem codificada para a URL', () => {
     expect(waLink(messages.default)).toBe(
       'https://wa.me/5518997017249?text=Ol%C3%A1%2C%20Dr.%20Diogo!%20Gostaria%20de%20agendar%20uma%20conversa.',
@@ -52,6 +56,18 @@ describe('buildContactMessage', () => {
         message: 'Fui demitida.',
       }),
     ).toBe('Olá, Dr. Diogo! Meu nome é Ana. Fui demitida. (WhatsApp: (18) 99701-7249)');
+  });
+
+  test('nome terminado em ponto não ganha ponto duplicado', () => {
+    expect(
+      buildContactMessage({
+        name: 'Ana S.',
+        phone: '(18) 99701-7249',
+        email: '',
+        subject: '',
+        message: 'Oi.',
+      }),
+    ).toBe('Olá, Dr. Diogo! Meu nome é Ana S. Oi. (WhatsApp: (18) 99701-7249)');
   });
 
   test('e-mail só com espaços conta como não informado', () => {

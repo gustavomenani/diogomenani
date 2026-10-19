@@ -38,7 +38,6 @@
   appearance: none;
   transition:
     border-color 0.3s,
-    box-shadow 0.4s var(--ease),
     background-color 0.3s;
 }
 
@@ -58,21 +57,22 @@
   border-color: var(--field-border-hover);
 }
 
+/* Foco: contorno de 2 px, visível em qualquer fundo (a sombra suave sozinha não bastava). */
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  outline: none;
   border-color: var(--royal-bright);
   background: #fff;
-  box-shadow: 0 0 0 4px rgb(var(--royal-bright-rgb) / 14%);
+  outline: 2px solid var(--royal-bright);
+  outline-offset: 2px;
 }
 
-/* Alto contraste (forced-colors): a sombra do foco some, então um contorno a substitui. */
+/* Alto contraste (forced-colors): o contorno do foco usa a cor de destaque do sistema. */
 @media (forced-colors: active) {
   .field input:focus,
   .field select:focus,
   .field textarea:focus {
-    outline: 2px solid highlight;
+    outline-color: highlight;
   }
 }
 
@@ -112,7 +112,7 @@
 .field.has-error input:focus,
 .field.has-error textarea:focus {
   border-color: var(--danger);
-  box-shadow: 0 0 0 4px rgb(var(--danger-rgb) / 12%);
+  outline-color: var(--danger);
 }
 
 .has-error .field-error {

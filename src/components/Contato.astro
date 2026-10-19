@@ -7,7 +7,7 @@ import { areas } from '../data/content';
 import type { IconName } from '../data/icons';
 import { sectionIds } from '../data/navigation';
 import { externalLink } from '../lib/links';
-import { waLink } from '../lib/whatsapp';
+import { messages, waLink } from '../lib/whatsapp';
 
 interface ContactItem {
   icon: IconName;
@@ -150,7 +150,13 @@ const items: readonly ContactItem[] = [
           <span class="btn-label">Enviar pelo WhatsApp</span>
         </button>
         <p class="form-status" role="status" aria-live="polite" data-form-status></p>
-        <a class="form-fallback" href={waLink()} {...externalLink()} data-form-fallback>
+        {/* O envio troca o destino pela mensagem montada; sem ela, vale a de agendamento. */}
+        <a
+          class="form-fallback"
+          href={waLink(messages.default)}
+          {...externalLink()}
+          data-form-fallback
+        >
           Se o WhatsApp não abriu, toque aqui para enviar a mensagem.
         </a>
       </div>

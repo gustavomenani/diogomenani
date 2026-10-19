@@ -11,11 +11,17 @@ export const messages = {
   unlistedCase: `${GREETING} Gostaria de saber se você pode me ajudar com um caso.`,
 } as const;
 
-/** Link do WhatsApp do escritório, com mensagem pronta quando `text` é informado. */
+/**
+ * Link do WhatsApp do escritório, com mensagem pronta quando `text` é informado. Um caractere
+ * inválido (metade de um emoji, por exemplo) vira �: o encodeURIComponent lançaria.
+ */
 export function waLink(text?: string): string {
   const base = `https://wa.me/${whatsapp.number}`;
-  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+  return text ? `${base}?text=${encodeURIComponent(text.toWellFormed())}` : base;
 }
+
+/** Fecha a frase com ponto, sem repetir a pontuação que já veio digitada. */
+const asSentence = (text: string) => (/[.!?…]$/.test(text) ? text : `${text}.`);
 
 /** O que o formulário de contato envia. */
 export interface ContactRequest {
@@ -36,7 +42,7 @@ export function buildContactMessage({
 }: ContactRequest): string {
   const trimmedEmail = email.trim();
   return (
-    `${GREETING} Meu nome é ${name.trim()}.` +
+    `${GREETING} Meu nome é ${asSentence(name.trim())}` +
     (subject ? ` Assunto: ${subject}.` : '') +
     ` ${message.trim()}` +
     ` (WhatsApp: ${phone}${trimmedEmail ? `, e-mail: ${trimmedEmail}` : ''})`

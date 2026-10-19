@@ -50,6 +50,19 @@ describe('validateContact', () => {
     expect(validateContact({ ...valid, email: 'ana@x' })).toEqual(['email']);
   });
 
+  test('e-mail com espaço no meio ou sem o nome antes do @ é recusado', () => {
+    expect(validateContact({ ...valid, email: 'ana souza@email.com' })).toEqual(['email']);
+    expect(validateContact({ ...valid, email: '@email.com' })).toEqual(['email']);
+  });
+
+  test('e-mail com espaço sobrando nas pontas é aceito', () => {
+    expect(validateContact({ ...valid, email: ' ana@email.com ' })).toEqual([]);
+  });
+
+  test('telefone de outro país, com o código, é aceito', () => {
+    expect(validateContact({ ...valid, phone: '+351 912 345 678' })).toEqual([]);
+  });
+
   test('e-mail é opcional', () => {
     expect(validateContact({ ...valid, email: '' })).toEqual([]);
     expect(validateContact({ ...valid, email: '   ' })).toEqual([]);

@@ -21,6 +21,10 @@ describe('formatPhone', () => {
   test('a partir de 7 dígitos, o hífen separa os 4 últimos', () => {
     expect(formatPhone('1899701')).toBe('(18) 9-9701');
   });
+
+  test('com 6 dígitos ainda não há hífen', () => {
+    expect(formatPhone('189970')).toBe('(18) 9970');
+  });
 });
 
 describe('maskPhone', () => {
@@ -65,5 +69,33 @@ describe('maskPhone', () => {
 
   test('cursor dentro do +55 vai para o início', () => {
     expect(maskPhone('+55 18 99701-7249', 2)).toEqual({ value: '(18) 99701-7249', caret: 0 });
+  });
+
+  test('só com o DDD, o cursor fica onde estava', () => {
+    expect(maskPhone('18', 1)).toEqual({ value: '18', caret: 1 });
+  });
+
+  test('zeros à esquerda do DDD saem', () => {
+    expect(atEnd('018 99701-7249')).toBe('(18) 99701-7249');
+    expect(atEnd('(018) 99701-7249')).toBe('(18) 99701-7249');
+  });
+
+  test('número com + e código de outro país fica como foi digitado', () => {
+    expect(maskPhone('+351 912 345 678', 9)).toEqual({ value: '+351 912 345 678', caret: 9 });
+    expect(atEnd('+1 (555) 123-4567')).toBe('+1 (555) 123-4567');
+  });
+
+  test('o + e o 55 ainda sendo digitados ficam como estão', () => {
+    expect(atEnd('+')).toBe('+');
+    expect(atEnd('+5')).toBe('+5');
+    expect(atEnd('+55')).toBe('+55');
+  });
+
+  test('digitado com +55, o resto do número ganha a máscara', () => {
+    expect(maskPhone('+55 18 9', 8)).toEqual({ value: '(18) 9', caret: 6 });
+  });
+
+  test('dígitos de largura total (teclados asiáticos) viram dígitos comuns', () => {
+    expect(atEnd('１８９９７０１７２４９')).toBe('(18) 99701-7249');
   });
 });
