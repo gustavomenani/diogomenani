@@ -1,6 +1,7 @@
 /** Âncoras das seções: valem para os ids das seções e para todos os links internos. */
 export const sectionIds = {
   top: 'inicio',
+  main: 'conteudo',
   about: 'sobre',
   areas: 'atuacao',
   process: 'como-trabalho',

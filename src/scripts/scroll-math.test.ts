@@ -78,7 +78,16 @@ describe('litWordCount', () => {
 });
 
 describe('nextTuck', () => {
-  const base = { heroHeight: 900, motionOn: true, menuOpen: false };
+  const base = { heroHeight: 900, motionOn: true, menuOpen: false, headerHasFocus: false };
+
+  test('com o foco dentro do header, ele não recolhe', () => {
+    expect(nextTuck({ ...base, headerHasFocus: true, y: 1000, lastY: 900, tucked: false })).toBe(
+      false,
+    );
+    expect(nextTuck({ ...base, headerHasFocus: true, y: 1000, lastY: 1000, tucked: true })).toBe(
+      false,
+    );
+  });
 
   test('recolhe ao descer depois de 85% do hero', () => {
     expect(nextTuck({ ...base, y: 1000, lastY: 900, tucked: false })).toBe(true);

@@ -38,8 +38,10 @@ const year = new Date().getFullYear();
       </svg>
     </div>
     <div class="footer-cols">
-      <div class="footer-col">
-        <p class="footer-col-title">Navegação</p>
+      <nav class="footer-col" aria-labelledby="footer-nav-title">
+        <p class="footer-col-title" id="footer-nav-title">
+          Navegação
+        </p>
         <ul>
           {footerNav.map((link) => (
             <li>
@@ -47,7 +49,7 @@ const year = new Date().getFullYear();
             </li>
           ))}
         </ul>
-      </div>
+      </nav>
       <div class="footer-col">
         <p class="footer-col-title">Contato</p>
         <ul>

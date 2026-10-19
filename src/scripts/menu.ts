@@ -7,32 +7,36 @@ export interface Menu {
   isOpen(): boolean;
 }
 
-/** Menu mobile em tela cheia: abre pelo botão, fecha com Esc, link ou ao virar desktop. */
+/**
+ * Menu mobile em tela cheia: abre pelo botão, fecha com Esc, link ou ao virar desktop.
+ * Fechado, ele fica `inert`; aberto, o resto da página (tudo menos o header) fica `inert`.
+ */
 export function initMenu(root: HTMLElement): Menu {
   const header = root.querySelector('[data-header]');
   const menu = root.querySelector<HTMLElement>('[data-menu]');
   const toggle = root.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const toggleText = root.querySelector('[data-menu-text]');
   if (!menu || !toggle) return { isOpen: () => false };
+  const background = [...root.children].filter(
+    (element): element is HTMLElement =>
+      element instanceof HTMLElement && element !== header && element !== menu,
+  );
 
   let open = false;
   const setOpen = (next: boolean) => {
     open = next;
     root.classList.toggle('is-menu-open', next);
     toggle.setAttribute('aria-expanded', String(next));
-    toggle.setAttribute('aria-label', next ? 'Fechar menu' : 'Abrir menu');
     if (toggleText) toggleText.textContent = next ? 'Fechar' : 'Menu';
+    menu.inert = !next;
+    for (const element of background) element.inert = next;
     if (next) {
-      menu.removeAttribute('inert');
-      menu.setAttribute('aria-hidden', 'false');
       document.documentElement.style.overflow = 'hidden';
       header?.classList.remove('is-tucked');
       setTimeout(() => {
         if (open) menu.querySelector('a')?.focus({ preventScroll: true });
       }, FOCUS_DELAY_MS);
     } else {
-      menu.setAttribute('inert', '');
-      menu.setAttribute('aria-hidden', 'true');
       document.documentElement.style.overflow = '';
     }
   };

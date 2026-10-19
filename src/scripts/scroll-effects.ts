@@ -92,6 +92,7 @@ export function initScrollEffects(
           heroHeight,
           motionOn,
           menuOpen: isMenuOpen(),
+          headerHasFocus: header.matches(':focus-within'),
           tucked: header.classList.contains('is-tucked'),
         }),
       );
@@ -159,6 +160,10 @@ export function initScrollEffects(
   };
 
   window.addEventListener('scroll', schedule, { passive: true });
+  // O foco do teclado entrando no header recolhido (ex.: Tab depois do fim da página) o traz de volta.
+  header?.addEventListener('focusin', () => {
+    header.classList.remove('is-tucked');
+  });
   update();
 
   return {

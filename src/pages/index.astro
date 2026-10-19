@@ -10,6 +10,7 @@ import Manifesto from '../components/Manifesto.astro';
 import Processo from '../components/Processo.astro';
 import Sobre from '../components/Sobre.astro';
 import WhatsAppFab from '../components/WhatsAppFab.astro';
+import { sectionIds } from '../data/navigation';
 ---
 
 <Base
@@ -17,7 +18,7 @@ import WhatsAppFab from '../components/WhatsAppFab.astro';
   description="Advocacia e assessoria jurídica para pessoas e empresas, com atendimento presencial e online. Converse com Diogo Menani pelo WhatsApp."
 >
   <Header />
-  <main>
+  <main id={sectionIds.main}>
     <Hero />
     <Sobre />
     <Areas />

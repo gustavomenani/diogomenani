@@ -1,8 +1,13 @@
-/** Perguntas frequentes: cada botão abre e fecha a própria resposta, sem fechar as outras. */
+/**
+ * Perguntas frequentes: cada botão abre e fecha a própria resposta, sem fechar as outras.
+ * O HTML sai com todas declaradas abertas (sem JavaScript, todas aparecem); ao iniciar, cada
+ * botão passa a refletir o estado real do item (is-open).
+ */
 export function initFaq(root: HTMLElement): void {
   for (const button of root.querySelectorAll<HTMLElement>('[data-faq-btn]')) {
     const item = button.closest('[data-faq-item]');
     if (!item) continue;
+    button.setAttribute('aria-expanded', String(item.classList.contains('is-open')));
     button.addEventListener('click', () => {
       const open = !item.classList.contains('is-open');
       item.classList.toggle('is-open', open);

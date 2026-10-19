@@ -142,3 +142,37 @@ body {
 .is-royal .lede {
   color: var(--sky);
 }
+
+/* Link para pular ao conteúdo: o primeiro Tab da página o traz para a tela. */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--royal);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+  box-shadow: 0 18px 40px -18px rgb(0 6 48 / 70%);
+  transform: translateY(calc(-100% - 24px));
+  transition: transform 0.3s var(--ease);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
+
+@media print {
+  .skip-link {
+    display: none;
+  }
+}

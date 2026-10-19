@@ -21,7 +21,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   </div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <h1 class="hero-title" id="hero-title" aria-label={TITLE_LINES.join(' ')}>
+      <h1 class="hero-title" id="hero-title">
+        {/* O texto para leitores de tela vai inteiro; as palavras animadas ficam aria-hidden. */}
+        <span class="sr-only">{TITLE_LINES.join(' ')}</span>
         {titleWords.map((words, lineIndex) => (
           <Fragment>
             {lineIndex > 0 && ' '}

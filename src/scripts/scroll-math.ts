@@ -66,16 +66,21 @@ export function litWordCount(input: {
   return Math.round(progress * words);
 }
 
-/** Se o header fica recolhido: recolhe ao descer depois do hero e reaparece ao subir. */
+/**
+ * Se o header fica recolhido: recolhe ao descer depois do hero e reaparece ao subir. Com o foco
+ * do teclado dentro dele, nunca recolhe (o item focado não pode sumir da tela).
+ */
 export function nextTuck(input: {
   y: number;
   lastY: number;
   heroHeight: number;
   motionOn: boolean;
   menuOpen: boolean;
+  headerHasFocus: boolean;
   tucked: boolean;
 }): boolean {
-  const { y, lastY, heroHeight, motionOn, menuOpen, tucked } = input;
+  const { y, lastY, heroHeight, motionOn, menuOpen, headerHasFocus, tucked } = input;
+  if (headerHasFocus) return false;
   const pastHero = y > heroHeight * TUCK_AFTER_HERO;
   if (motionOn && !menuOpen && pastHero && y > lastY + SCROLL_INTENT) return true;
   if (y < lastY - SCROLL_INTENT || !pastHero) return false;

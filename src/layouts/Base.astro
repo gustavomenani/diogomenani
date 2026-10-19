@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { anchor, sectionIds } from '../data/navigation';
 
 interface Props {
   title: string;
@@ -27,6 +28,9 @@ const { title, description } = Astro.props;
   </head>
   <body>
     <div class="page" data-page data-motion="pending">
+      <a class="skip-link" href={anchor(sectionIds.main)}>
+        Pular para o conteúdo
+      </a>
       <slot />
     </div>
     <script>
