@@ -1,4 +1,4 @@
-import { test, expect, type Page } from './fixtures';
+import { test, expect, countHiddenReveals, jumpTo, type Page } from './fixtures';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -64,6 +64,48 @@ test.describe('com movimento', () => {
   });
 });
 
+test.describe('com a preferência trocada com a página aberta', () => {
+  /** Transições de revelação em andamento. */
+  const revealTransitions = (page: Page) =>
+    page.evaluate(
+      () =>
+        document
+          .getAnimations()
+          .filter(
+            (animation) =>
+              animation instanceof CSSTransition &&
+              animation.effect instanceof KeyframeEffect &&
+              animation.effect.target?.closest('[data-reveal]'),
+          ).length,
+    );
+  const figureTransform = (page: Page) =>
+    page.locator('[data-figure]').evaluate((figure) => figure.style.transform);
+
+  test('ligar "reduzir movimento" vale na hora, e desligar também', async ({ page }) => {
+    const root = page.locator('[data-page]');
+    await page.goto('/');
+    await jumpTo(page, 300);
+    await expect.poll(() => figureTransform(page)).toContain('translate3d');
+    // A balança começa a balançar aos 950 ms: a preferência muda no meio do balanço.
+    await expect.poll(async () => (await balancePose(page))[0]).toMatch(/^rotate/);
+    expect(await balancePose(page)).not.toEqual(LEVEL_POSE);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(root).toHaveAttribute('data-motion', 'reduced');
+    expect(await balancePose(page)).toEqual(LEVEL_POSE);
+    expect(await figureTransform(page)).toBe('');
+    // O que ainda não tinha aparecido aparece de uma vez, sem transição.
+    expect(await countHiddenReveals(page)).toBe(0);
+    expect(await revealTransitions(page)).toBe(0);
+
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect(root).toHaveAttribute('data-motion', 'on');
+    await jumpTo(page, 200);
+    await expect.poll(() => figureTransform(page)).toContain('translate3d');
+    expect(await countHiddenReveals(page)).toBe(0);
+  });
+});
+
 test.describe('sem JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
@@ -71,14 +113,6 @@ test.describe('sem JavaScript', () => {
     await page.goto('/');
     await expect(page.locator('[data-motion]')).toHaveAttribute('data-motion', 'pending');
     await expect(page.getByText('Sim. O sigilo profissional é um dever do advogado')).toBeVisible();
-    // Nenhum bloco revelável escondido (opacidade zero ou recortado): toBeVisible não vê isso.
-    const hidden = await page.locator('[data-reveal]').evaluateAll(
-      (elements) =>
-        elements.filter((element) => {
-          const style = getComputedStyle(element);
-          return style.opacity === '0' || style.clipPath.includes('100%');
-        }).length,
-    );
-    expect(hidden).toBe(0);
+    expect(await countHiddenReveals(page)).toBe(0);
   });
 });

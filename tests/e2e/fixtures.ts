@@ -28,6 +28,27 @@ export async function jumpToSection(page: Page, id: string): Promise<void> {
   }, id);
 }
 
+/** Espera `count` quadros de animação da página. */
+export async function nextFrames(page: Page, count = 2): Promise<void> {
+  await page.evaluate(async (frames) => {
+    for (let i = 0; i < frames; i++) await new Promise(requestAnimationFrame);
+  }, count);
+}
+
+/**
+ * Blocos reveláveis escondidos (opacidade zero ou recortados por completo): `toBeVisible` não
+ * enxerga nenhum dos dois.
+ */
+export async function countHiddenReveals(page: Page): Promise<number> {
+  return page.locator('[data-reveal]').evaluateAll(
+    (elements) =>
+      elements.filter((element) => {
+        const style = getComputedStyle(element);
+        return style.opacity === '0' || style.clipPath.includes('100%');
+      }).length,
+  );
+}
+
 /** Confere destino e atributos de um link que abre em outra aba. */
 export async function expectExternalLink(link: Locator, href: string): Promise<void> {
   await expect(link).toHaveAttribute('href', href);

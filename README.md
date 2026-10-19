@@ -32,7 +32,7 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 ```text
 src/
 ├── pages/index.astro      a página: monta as seções na ordem
-├── layouts/Base.astro     <head>, fontes, skip link e o script que liga a página
+├── layouts/Base.astro     <head>, fontes, skip link e os scripts que iniciam a página
 ├── components/            uma seção por arquivo, mais as peças que elas usam
 ├── data/                  dados do escritório e conteúdo das seções (fonte única)
 ├── lib/                   links e mensagens do WhatsApp; atributos de link externo
@@ -82,9 +82,9 @@ Peças usadas pelas seções:
 
 ### `src/scripts/`
 
-`main.ts` liga tudo na raiz `[data-page]`. Cada recurso tem o seu módulo. A lógica pura fica em arquivos próprios, com testes unitários ao lado (`*.test.ts`).
+`main.ts` liga tudo na raiz `[data-page]`, cada recurso isolado: um erro num deles não derruba os outros. Cada recurso tem o seu módulo. A lógica pura fica em arquivos próprios, com testes unitários ao lado (`*.test.ts`).
 
-- `motion-mode.ts`: escolhe o modo de movimento (`on`, `static` ou `reduced`); o `main.ts` o grava em `data-motion`.
+- `motion-mode.ts`: modo de movimento (`on`, `static` ou `reduced`) e a troca de modo sem animar. Um script inline no `Base.astro` grava `on` ou `reduced` em `data-motion` antes da primeira pintura (e volta a `pending`, em que tudo aparece, se o módulo da página não rodar); o `main.ts` confirma o modo e acompanha a preferência do sistema.
 - `reveal.ts`: revela o conteúdo ao entrar na tela.
 - `balance.ts` e `balance-physics.ts`: a balança da Têmis e a física dela.
 - `topic-picker.ts`: seletor de tema do hero.

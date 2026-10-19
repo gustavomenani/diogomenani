@@ -22,6 +22,8 @@ interface ScrollEffectsOptions {
 export interface ScrollEffects {
   /** Remede o que depende do tamanho da janela e recalcula no próximo quadro. */
   refresh(): void;
+  /** Recalcula tudo na hora, depois de o modo mudar; fora do modo `on`, o parallax zera. */
+  reset(): void;
 }
 
 /**
@@ -172,6 +174,15 @@ export function initScrollEffects(
       heroHeight = hero?.offsetHeight ?? 0;
       activeId = undefined;
       schedule();
+    },
+    reset() {
+      if (getMode() !== 'on') {
+        if (figure) figure.style.transform = '';
+        if (glow) glow.style.transform = '';
+      }
+      activeId = undefined;
+      litWords = -1;
+      update();
     },
   };
 }

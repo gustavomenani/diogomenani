@@ -1,6 +1,5 @@
 /* Base da página: documento, raiz (.page), resets, foco e utilitários de tipografia. */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: var(--header-h);
   scrollbar-color: var(--royal) var(--scrollbar-track);
   scrollbar-width: thin;
@@ -184,11 +183,17 @@ body {
   transform: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+/*
+ * Rolagem suave só depois da primeira interação (main.ts): chegar por âncora ou recarregar no
+ * meio da página pousa direto.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-smooth-scroll] {
+    scroll-behavior: smooth;
   }
+}
 
+@media (prefers-reduced-motion: reduce) {
   .skip-link {
     transition: none;
   }

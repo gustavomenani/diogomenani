@@ -26,6 +26,24 @@ const { title, description } = Astro.props;
   </head>
   <body>
     <div class="page" data-page data-motion="pending">
+      {/*
+        Decide o modo de movimento antes da primeira pintura (motion-mode.ts). Se o módulo da
+        página não rodar (rede, erro), devolve no load o modo sem script, em que tudo aparece.
+      */}
+      <script is:inline>
+        (() => {
+          const root = document.currentScript.parentElement;
+          const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          root.dataset.motion = reduce ? 'reduced' : 'on';
+          addEventListener('load', () => {
+            if ('ready' in root.dataset) return;
+            root.setAttribute('data-instant', '');
+            root.dataset.motion = 'pending';
+            root.getBoundingClientRect();
+            requestAnimationFrame(() => root.removeAttribute('data-instant'));
+          });
+        })();
+      </script>
       <a class="skip-link" href={anchor(sectionIds.main)}>
         Pular para o conteúdo
       </a>

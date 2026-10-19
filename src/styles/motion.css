@@ -4,6 +4,17 @@
  * inteira, todo o conteúdo aparece direto. No fim, os keyframes usados pelos componentes (rise,
  * fade-up, fade, drop, draw, spark, unveil).
  */
+
+/*
+ * Início da página e troca de modo (motion-mode.ts): enquanto a raiz tem data-instant, nada
+ * transiciona e tudo vai direto ao estado novo.
+ */
+.page[data-instant] *,
+.page[data-instant] *::before,
+.page[data-instant] *::after {
+  transition: none !important;
+}
+
 .page[data-motion='on'] [data-reveal] {
   transition:
     opacity 1s var(--ease),

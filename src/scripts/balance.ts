@@ -16,6 +16,8 @@ export const TOPIC_IMPULSE = 24;
 export interface Balance {
   /** Dá um empurrão no travessão e anima até a balança assentar de novo. */
   swing(impulse?: number): void;
+  /** Para a animação e deixa a balança nivelada na hora. */
+  settle(): void;
 }
 
 const pivotOf = (element: Element) => element.getAttribute('data-pivot') ?? '0 0';
@@ -48,17 +50,22 @@ export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balan
     panRight.setAttribute('transform', `rotate(${pans} ${pivotOf(panRight)})`);
   };
 
+  const settle = () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    state = { angle: level, angleVelocity: 0, pans: 0, pansVelocity: 0 };
+    pose();
+  };
+
   const tick = (time: number) => {
     const dt = clampDt(time - lastTime);
     lastTime = time;
     state = stepBalance(state, dt, level);
-    pose();
     if (isSettled(state, level)) {
-      state = { angle: level, angleVelocity: 0, pans: 0, pansVelocity: 0 };
-      pose();
-      frame = 0;
+      settle();
       return;
     }
+    pose();
     frame = requestAnimationFrame(tick);
   };
 
@@ -72,13 +79,12 @@ export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balan
   };
 
   if (getMode() === 'reduced') {
-    state = { ...state, angle: level };
-    pose();
+    settle();
   } else {
     setTimeout(() => {
       swing();
     }, SWING_DELAY_MS);
   }
 
-  return { swing };
+  return { swing, settle };
 }
