@@ -1,0 +1,9 @@
+/*
+ * Capturas de seção: os elementos fixos ficam escondidos, porque a posição deles depende da
+ * rolagem. Header e botão flutuante têm capturas próprias; o skip link só aparece com foco.
+ */
+[data-header],
+[data-fab],
+a[href='#conteudo'] {
+  visibility: hidden !important;
+}

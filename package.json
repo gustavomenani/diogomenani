@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.22.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -14,6 +17,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "pretest:e2e": "npm run build",
+    "test:visual": "playwright test --project=visual",
+    "pretest:visual": "npm run build",
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"src/**/*.{css,astro}\"",

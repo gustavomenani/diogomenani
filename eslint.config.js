@@ -62,7 +62,7 @@ export default defineConfig(
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['tests/e2e/**/*.ts'],
+    files: ['tests/**/*.ts'],
     extends: [playwright.configs['flat/recommended']],
     rules: {
       'playwright/expect-expect': ['warn', { assertFunctionNames: ['expectExternalLink'] }],
