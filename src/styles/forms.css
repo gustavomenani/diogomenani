@@ -51,10 +51,12 @@
   color: var(--field-placeholder);
 }
 
-.field input:hover,
-.field select:hover,
-.field textarea:hover {
-  border-color: var(--field-border-hover);
+@media (hover: hover) {
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--field-border-hover);
+  }
 }
 
 /* Foco: contorno de 2 px, visível em qualquer fundo (a sombra suave sozinha não bastava). */
@@ -187,6 +189,13 @@
 
 .check-field.has-error .check-box {
   border-color: var(--danger);
+}
+
+/* Com movimento reduzido, o ✓ do aceite aparece direto, sem crescer. */
+@media (prefers-reduced-motion: reduce) {
+  .check-box svg {
+    transition: none;
+  }
 }
 
 @media (width >= 640px) {

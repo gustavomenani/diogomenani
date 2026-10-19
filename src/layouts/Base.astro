@@ -23,6 +23,22 @@ const { title, description } = Astro.props;
     {/* Só as variantes normais têm preload: a itálica aparece apenas na seção Sobre. */}
     <Font cssVariable="--font-bodoni" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-hanken" preload={[{ style: 'normal' }]} />
+    {/*
+      Sem script: o header rola com a página (fixo, ficaria branco sobre as seções brancas), e o
+      botão Menu e o formulário, que dependem de script, não aparecem.
+    */}
+    <noscript>
+      <style>
+        .page .site-header {
+          position: absolute;
+        }
+
+        .page .menu-toggle,
+        .page .contact-form {
+          display: none;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <div class="page" data-page data-motion="pending">

@@ -1,4 +1,7 @@
-/* Botões e links de texto. O preenchimento do hover cresce da esquerda (::before). */
+/*
+ * Botões e links de texto. O preenchimento do hover cresce da esquerda (::before). Os realces de
+ * hover só valem em aparelhos com hover de verdade: no toque, eles grudariam depois de tocar.
+ */
 .btn {
   position: relative;
   display: inline-flex;
@@ -9,12 +12,16 @@
   padding: 0 28px;
   border: 0;
   border-radius: var(--radius-pill);
+
+  /* Invisível na tela; no alto contraste (forced-colors) vira o contorno da pílula. */
+  outline: 1px solid transparent;
+  outline-offset: -1px;
   font-family: var(--sans);
   font-weight: 600;
   font-size: 16px;
-  line-height: 1;
+  line-height: 1.2;
   letter-spacing: 0.005em;
-  white-space: nowrap;
+  text-align: center;
   cursor: pointer;
   isolation: isolate;
   overflow: hidden;
@@ -36,23 +43,10 @@
   transition: transform 0.7s var(--ease);
 }
 
-.btn:hover::before {
-  transform: scaleX(1);
-  transform-origin: left center;
-}
-
-.btn:active {
-  transform: scale(0.975);
-}
-
 .btn svg {
   width: 20px;
   height: 20px;
   transition: transform 0.6s var(--ease);
-}
-
-.btn:hover svg {
-  transform: scale(1.08);
 }
 
 .btn-label {
@@ -66,7 +60,7 @@
 }
 
 .btn-light::before {
-  background: #dce3ff;
+  background: var(--btn-light-fill);
 }
 
 .btn-royal {
@@ -101,12 +95,6 @@
     text-decoration-color 0.3s;
 }
 
-.link:hover {
-  color: var(--royal);
-  text-underline-offset: 0.34em;
-  text-decoration-color: currentColor;
-}
-
 .link-light {
   display: inline-flex;
   align-items: center;
@@ -122,15 +110,40 @@
     text-decoration-color 0.3s;
 }
 
-.link-light:hover {
-  text-underline-offset: 0.42em;
-  text-decoration-color: #fff;
+@media (hover: hover) {
+  .btn:hover::before {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  .link:hover {
+    color: var(--royal);
+    text-underline-offset: 0.34em;
+    text-decoration-color: currentColor;
+  }
+
+  .link-light:hover {
+    text-underline-offset: 0.42em;
+    text-decoration-color: #fff;
+  }
 }
 
+/* Crescer ao passar o mouse e encolher ao apertar: só com movimento liberado. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn:hover svg {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn:active {
+    transform: scale(0.975);
+  }
+}
+
+/* Com movimento reduzido, o preenchimento do hover aparece direto, sem deslizar. */
 @media (prefers-reduced-motion: reduce) {
-  .btn,
-  .btn::before,
-  .btn svg {
-    transition-duration: 0.2s !important;
+  .btn::before {
+    transition: none;
   }
 }

@@ -40,7 +40,8 @@ const items: readonly ContactItem[] = [
       <div class="contact-cta" data-reveal>
         <WhatsAppButton label="Conversar pelo WhatsApp" />
       </div>
-      <ul class="contact-list" data-reveal-list>
+      {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
+      <ul class="contact-list" role="list" data-reveal-list>
         {items.map((item) => (
           <li>
             <span class="cl-icon" aria-hidden="true">
@@ -237,11 +238,13 @@ const items: readonly ContactItem[] = [
     color: var(--sky-dim);
   }
 
+  /* Um e-mail longo quebra em qualquer ponto em vez de sair da tela. */
   .cl-value {
     display: block;
     font-size: 17px;
     line-height: 1.45;
     color: #fff;
+    overflow-wrap: anywhere;
   }
 
   a.cl-value {
@@ -252,8 +255,10 @@ const items: readonly ContactItem[] = [
     transition: text-decoration-color 0.3s;
   }
 
-  a.cl-value:hover {
-    text-decoration-color: #fff;
+  @media (hover: hover) {
+    a.cl-value:hover {
+      text-decoration-color: #fff;
+    }
   }
 
   .contact-form {

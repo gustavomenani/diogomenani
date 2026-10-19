@@ -22,6 +22,12 @@
   --field-bg: #fbfcff;
   --scrollbar-track: #eceff9;
 
+  /* Tons de apoio: preenchimento do botão claro, anel do ± do FAQ e etapas ainda não acesas. */
+  --btn-light-fill: #dce3ff;
+  --faq-ring: #c5cde8;
+  --step-idle: #7f8bc4;
+  --step-idle-ring: #b8c1e0;
+
   /* Brilhos e sombra decorativos dos fundos royal e dos traços da marca. */
   --glow-rgb: 96 122 255;
   --rule-glow: rgb(160 182 255 / 70%);

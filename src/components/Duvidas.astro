@@ -91,7 +91,11 @@ import { sectionIds } from '../data/navigation';
     height: 38px;
     border-radius: 50%;
     color: var(--royal);
-    box-shadow: inset 0 0 0 1px #c5cde8;
+    box-shadow: inset 0 0 0 1px var(--faq-ring);
+
+    /* Invisível na tela; no alto contraste vira o anel do ícone. */
+    outline: 1px solid transparent;
+    outline-offset: -1px;
     transition:
       background-color 0.5s var(--ease),
       color 0.5s var(--ease),
@@ -115,8 +119,10 @@ import { sectionIds } from '../data/navigation';
     transform: rotate(90deg);
   }
 
-  .faq-btn:hover .faq-icon {
-    box-shadow: inset 0 0 0 1px var(--royal);
+  @media (hover: hover) {
+    .faq-btn:hover .faq-icon {
+      box-shadow: inset 0 0 0 1px var(--royal);
+    }
   }
 
   .faq-item.is-open .faq-icon {
@@ -182,10 +188,22 @@ import { sectionIds } from '../data/navigation';
     }
   }
 
+  /* Com movimento reduzido, a resposta abre direto e o + vira − sem girar. */
   @media (prefers-reduced-motion: reduce) {
     .faq-panel,
-    .faq-panel-inner p {
+    .faq-panel-inner p,
+    .faq-icon::before,
+    .faq-icon::after {
       transition: none !important;
+    }
+  }
+
+  /* Alto contraste: os traços do ± são fundos, que o modo trocaria pela cor da tela. */
+  @media (forced-colors: active) {
+    .faq-icon::before,
+    .faq-icon::after {
+      forced-color-adjust: none;
+      background: ButtonText;
     }
   }
 

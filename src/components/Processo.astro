@@ -123,19 +123,24 @@ import { sectionIds } from '../data/navigation';
     color: var(--ink-soft);
   }
 
-  /* Com movimento, as etapas acendem conforme a leitura avança (is-active e is-done no script). */
-  :global(.page[data-motion='on']) .step:not(.is-active) .step-num {
-    color: #c9d0ea;
-  }
+  /*
+   * Com movimento, as etapas acendem conforme a leitura avança (is-active e is-done no script).
+   * Só na tela: impressas, saem todas acesas. O número apagado ainda tem 3:1 sobre o branco.
+   */
+  @media screen {
+    :global(.page[data-motion='on']) .step:not(.is-active) .step-num {
+      color: var(--step-idle);
+    }
 
-  :global(.page[data-motion='on']) .step:not(.is-active) .step-dot {
-    background: #fff;
-    box-shadow: inset 0 0 0 1px #b8c1e0;
-    transform: scale(0.85);
-  }
+    :global(.page[data-motion='on']) .step:not(.is-active) .step-dot {
+      background: #fff;
+      box-shadow: inset 0 0 0 1px var(--step-idle-ring);
+      transform: scale(0.85);
+    }
 
-  :global(.page[data-motion='on']) .step:not(.is-done)::after {
-    transform: scaleY(0);
+    :global(.page[data-motion='on']) .step:not(.is-done)::after {
+      transform: scaleY(0);
+    }
   }
 
   @media (width >= 960px) {
@@ -171,7 +176,9 @@ import { sectionIds } from '../data/navigation';
     .step-dot {
       top: 0;
     }
+  }
 
+  @media screen and (width >= 960px) {
     :global(.page[data-motion='on']) .step:not(.is-done)::after {
       transform: scaleX(0);
     }

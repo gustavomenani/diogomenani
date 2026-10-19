@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
+import WhatsAppFab from './WhatsAppFab.astro';
 import { THEMIS_SHAPE_ID, themis, wordmark } from '../data/brand';
 import { contact, social, whatsapp } from '../data/contact';
 import { anchor, footerNav, sectionIds } from '../data/navigation';
@@ -42,7 +43,8 @@ const year = new Date().getFullYear();
         <p class="footer-col-title" id="footer-nav-title">
           Navegação
         </p>
-        <ul>
+        {/* role="list" nas listas: sem ele, o VoiceOver ignora listas com list-style: none. */}
+        <ul role="list">
           {footerNav.map((link) => (
             <li>
               <a href={anchor(link.id)}>{link.label}</a>
@@ -52,7 +54,7 @@ const year = new Date().getFullYear();
       </nav>
       <div class="footer-col">
         <p class="footer-col-title">Contato</p>
-        <ul>
+        <ul role="list">
           <li>
             <a href={waLink()} {...externalLink()}>
               WhatsApp {whatsapp.display}
@@ -66,7 +68,7 @@ const year = new Date().getFullYear();
       </div>
       <div class="footer-col">
         <p class="footer-col-title">Redes</p>
-        <ul>
+        <ul role="list">
           {social.map((item) => (
             <li>
               <a href={item.href} {...externalLink()} aria-label={item.ariaLabel}>
@@ -91,6 +93,8 @@ const year = new Date().getFullYear();
       </a>
     </div>
   </div>
+  {/* Fixo na tela, mas dentro do rodapé: fica num landmark, como o resto do conteúdo. */}
+  <WhatsAppFab />
 </footer>
 
 <style>
@@ -180,11 +184,13 @@ const year = new Date().getFullYear();
     gap: 10px;
   }
 
+  /* Um e-mail ou endereço longo quebra em qualquer ponto em vez de sair da tela. */
   .footer-col li,
   .footer-col p {
     font-size: 15.5px;
     line-height: 1.5;
     color: #fff;
+    overflow-wrap: anywhere;
   }
 
   .footer-col a {
@@ -195,11 +201,13 @@ const year = new Date().getFullYear();
     transition: opacity 0.3s;
   }
 
-  .footer-col a:hover {
-    opacity: 1;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.28em;
+  @media (hover: hover) {
+    .footer-col a:hover {
+      opacity: 1;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.28em;
+    }
   }
 
   .footer-col :global(svg) {
@@ -240,13 +248,24 @@ const year = new Date().getFullYear();
     transition: transform 0.6s var(--ease);
   }
 
-  .to-top:hover :global(svg) {
-    transform: translateY(-3px);
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .to-top:hover :global(svg) {
+      transform: translateY(-3px);
+    }
   }
 
   @media (width >= 768px) {
     .footer-cols {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* No papel, o fundo royal escuro sai junto: o texto é branco. */
+  @media print {
+    .footer {
+      /* stylelint-disable-next-line property-no-vendor-prefix -- o Chrome antes do 136 só lê com prefixo */
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 </style>

@@ -83,16 +83,17 @@ import { messages, waLink } from '../lib/whatsapp';
     transform: translate3d(0, -102%, 0);
   }
 
+  /* Altura mínima, não fixa: com o texto ampliado (zoom só do texto), o header cresce. */
   .header-inner {
     display: flex;
     align-items: center;
     gap: 36px;
-    height: var(--header-h);
-    transition: height 0.5s var(--ease);
+    min-height: var(--header-h);
+    transition: min-height 0.5s var(--ease);
   }
 
   .site-header.is-scrolled .header-inner {
-    height: 72px;
+    min-height: 72px;
   }
 
   .brand {
@@ -109,8 +110,10 @@ import { messages, waLink } from '../lib/whatsapp';
     transition: transform 0.7s var(--ease);
   }
 
-  .brand:hover .brand-mark {
-    transform: translateY(-1px) scale(1.05);
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .brand:hover .brand-mark {
+      transform: translateY(-1px) scale(1.05);
+    }
   }
 
   .brand-text {
@@ -153,9 +156,14 @@ import { messages, waLink } from '../lib/whatsapp';
     transition: opacity 0.3s;
   }
 
-  .nav a:hover,
   .nav a.is-active {
     opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .nav a:hover {
+      opacity: 1;
+    }
   }
 
   /* Indicador do link ativo: 1px de largura, esticado pelo script até a largura do link. */
@@ -188,8 +196,10 @@ import { messages, waLink } from '../lib/whatsapp';
     background: #fff;
   }
 
-  .btn-header:hover {
-    color: var(--royal);
+  @media (hover: hover) {
+    .btn-header:hover {
+      color: var(--royal);
+    }
   }
 
   .site-header.is-scrolled .btn-header {
@@ -202,8 +212,10 @@ import { messages, waLink } from '../lib/whatsapp';
     background: var(--royal-bright);
   }
 
-  .site-header.is-scrolled .btn-header:hover {
-    color: #fff;
+  @media (hover: hover) {
+    .site-header.is-scrolled .btn-header:hover {
+      color: #fff;
+    }
   }
 
   .menu-toggle {
@@ -453,6 +465,30 @@ import { messages, waLink } from '../lib/whatsapp';
     /* O indicador troca de link sem deslizar. */
     .nav-ind {
       transition: opacity 0.4s;
+    }
+
+    /* As barras viram X sem girar, e o header muda de altura sem animar. */
+    .menu-icon::before,
+    .menu-icon::after,
+    .header-inner {
+      transition: none;
+    }
+  }
+
+  /*
+   * Alto contraste: as barras do menu e o indicador do link ativo são fundos, que o modo trocaria
+   * pela cor da tela; ficam com a cor de sistema do texto.
+   */
+  @media (forced-colors: active) {
+    .menu-icon::before,
+    .menu-icon::after {
+      forced-color-adjust: none;
+      background: ButtonText;
+    }
+
+    .nav-ind {
+      forced-color-adjust: none;
+      background: CanvasText;
     }
   }
 

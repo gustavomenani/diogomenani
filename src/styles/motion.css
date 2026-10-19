@@ -2,7 +2,7 @@
  * Revelações na rolagem. Os estados escondidos só valem com data-motion="on", que o script
  * define quando pode animar: sem JavaScript, com movimento reduzido ou numa captura da página
  * inteira, todo o conteúdo aparece direto. No fim, os keyframes usados pelos componentes (rise,
- * fade-up, fade, drop, draw, spark, unveil).
+ * fade-up, fade, drop, draw, spark, figure-unveil).
  */
 
 /*
@@ -115,7 +115,8 @@
   }
 }
 
-@keyframes unveil {
+/* A Têmis do hero surge de baixo para cima (o retrato usa data-reveal="unveil"). */
+@keyframes figure-unveil {
   from {
     mask-image: linear-gradient(to top, #000 40%, transparent 60%);
     mask-size: 100% 250%;

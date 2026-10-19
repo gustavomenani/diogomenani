@@ -69,9 +69,14 @@ const words = manifesto.split(' ');
     transition: opacity 0.7s var(--ease);
   }
 
-  /* Com movimento, as palavras acendem (.is-lit) conforme a frase passa pela tela. */
-  :global(.page[data-motion='on']) .sw:not(.is-lit) {
-    opacity: 0.2;
+  /*
+   * Com movimento, as palavras acendem (.is-lit) conforme a frase passa pela tela; apagadas, a 40%
+   * (3:1 sobre o royal). Só na tela: impressa, a frase sai inteira.
+   */
+  @media screen {
+    :global(.page[data-motion='on']) .sw:not(.is-lit) {
+      opacity: 0.4;
+    }
   }
 
   .commitments {

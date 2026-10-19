@@ -215,4 +215,11 @@ body {
   .skip-link {
     display: none;
   }
+
+  /* No papel, os fundos royal saem junto: o texto deles é branco. */
+  .is-royal {
+    /* stylelint-disable-next-line property-no-vendor-prefix -- o Chrome antes do 136 só lê com prefixo */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

@@ -24,7 +24,8 @@ import { messages, waLink } from '../lib/whatsapp';
         e eu digo se posso ajudar.
       </p>
     </div>
-    <ul class="area-list" data-reveal-list>
+    {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
+    <ul class="area-list" role="list" data-reveal-list>
       {areas.map((area) => (
         <li class="area">
           <a class="area-link" href={waLink(messages.area(area.name))} {...externalLink()}>
@@ -136,27 +137,41 @@ import { messages, waLink } from '../lib/whatsapp';
     transition: transform 0.7s var(--ease);
   }
 
-  .area-link:hover::before,
   .area-link:focus-visible::before {
     transform: scaleY(1);
   }
 
-  .area-link:hover .area-body,
   .area-link:focus-visible .area-body {
     transform: translate3d(14px, 0, 0);
   }
 
-  .area-link:hover .area-name,
-  .area-link:hover .area-desc,
-  .area-link:hover .area-go,
   .area-link:focus-visible .area-name,
   .area-link:focus-visible .area-desc,
   .area-link:focus-visible .area-go {
     color: #fff;
   }
 
-  .area-link:hover .area-go :global(svg) {
-    transform: translate3d(3px, -3px, 0);
+  /* O mesmo realce do foco, só em aparelhos com hover de verdade (no toque, grudaria). */
+  @media (hover: hover) {
+    .area-link:hover::before {
+      transform: scaleY(1);
+    }
+
+    .area-link:hover .area-body {
+      transform: translate3d(14px, 0, 0);
+    }
+
+    .area-link:hover .area-name,
+    .area-link:hover .area-desc,
+    .area-link:hover .area-go {
+      color: #fff;
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .area-link:hover .area-go :global(svg) {
+      transform: translate3d(3px, -3px, 0);
+    }
   }
 
   @media (width >= 640px) {
@@ -181,10 +196,11 @@ import { messages, waLink } from '../lib/whatsapp';
     }
   }
 
+  /* Com movimento reduzido, o preenchimento aparece direto e o texto não desliza. */
   @media (prefers-reduced-motion: reduce) {
     .area-body,
     .area-link::before {
-      transition-duration: 0.2s !important;
+      transition: none;
     }
 
     .area-link:hover .area-body,

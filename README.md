@@ -32,7 +32,7 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 ```text
 src/
 ├── pages/index.astro      a página: monta as seções na ordem
-├── layouts/Base.astro     <head>, fontes, skip link e os scripts que iniciam a página
+├── layouts/Base.astro     <head>, fontes, skip link, os scripts que iniciam a página e o estilo sem JS
 ├── components/            uma seção por arquivo, mais as peças que elas usam
 ├── data/                  dados do escritório e conteúdo das seções (fonte única)
 ├── lib/                   links e mensagens do WhatsApp; atributos de link externo
@@ -59,8 +59,8 @@ Seções, na ordem da página. O CSS de cada uma fica no `<style>` do próprio a
 - `Manifesto.astro`: a frase de compromisso e a lista de compromissos.
 - `Duvidas.astro`: perguntas frequentes (`#duvidas`).
 - `Contato.astro`: canais de contato e o formulário que monta a mensagem (`#contato`).
-- `Footer.astro`: rodapé, com marca, navegação, contatos, redes sociais, OAB e aviso legal.
-- `WhatsAppFab.astro`: botão flutuante do WhatsApp, no celular e no tablet.
+- `Footer.astro`: rodapé, com marca, navegação, contatos, redes sociais, OAB, aviso legal e o botão flutuante (fixo na tela, mas dentro do landmark do rodapé).
+- `WhatsAppFab.astro`: botão flutuante do WhatsApp, no celular e no tablet; mora no `Footer.astro`.
 
 Peças usadas pelas seções:
 

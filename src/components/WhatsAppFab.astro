@@ -16,7 +16,10 @@ import { messages, waLink } from '../lib/whatsapp';
 </a>
 
 <style>
-  /* Botão flutuante (só abaixo de 1080px): aparece depois do hero e some perto do contato. */
+  /*
+   * Botão flutuante (só abaixo de 1080px): aparece depois do hero e some perto do contato. Fica no
+   * HTML do rodapé, mas fixo na tela.
+   */
   .fab {
     position: fixed;
     right: var(--fab-offset);
@@ -36,6 +39,10 @@ import { messages, waLink } from '../lib/whatsapp';
     box-shadow:
       0 20px 44px -18px rgb(var(--royal-rgb) / 75%),
       inset 0 0 0 1px rgb(255 255 255 / 14%);
+
+    /* Invisível na tela; no alto contraste vira o contorno do botão. */
+    outline: 1px solid transparent;
+    outline-offset: -1px;
     opacity: 0;
     visibility: hidden;
     transform: translate3d(0, 140%, 0);
@@ -72,8 +79,22 @@ import { messages, waLink } from '../lib/whatsapp';
     }
   }
 
-  .fab:hover {
-    background: var(--royal-bright);
+  @media (hover: hover) {
+    .fab:hover {
+      background: var(--royal-bright);
+    }
+  }
+
+  /*
+   * O botão flutua sobre fundos claros e royal: um anel branco entre ele e o contorno azul fica
+   * visível nos dois. Vence o contorno branco do rodapé, onde o botão mora no HTML.
+   */
+  :global(.page .footer) .fab:focus-visible {
+    outline: 2px solid var(--royal-bright);
+    outline-offset: 2px;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 20px 44px -18px rgb(var(--royal-rgb) / 75%);
   }
 
   .fab :global(svg) {
