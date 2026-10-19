@@ -19,14 +19,14 @@ import { messages, waLink } from '../lib/whatsapp';
   /* Botão flutuante (só abaixo de 1080px): aparece depois do hero e some perto do contato. */
   .fab {
     position: fixed;
-    right: clamp(16px, 2.2vw, 32px);
-    bottom: clamp(16px, 2.2vw, 32px);
+    right: var(--fab-offset);
+    bottom: var(--fab-offset);
     z-index: 45;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    height: 56px;
+    height: var(--fab-size);
     padding: 0 22px 0 18px;
     border-radius: var(--radius-pill);
     background: var(--royal);
@@ -83,7 +83,7 @@ import { messages, waLink } from '../lib/whatsapp';
 
   @media (width <= 639px) {
     .fab {
-      width: 56px;
+      width: var(--fab-size);
       padding: 0;
     }
 

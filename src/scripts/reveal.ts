@@ -19,6 +19,8 @@ const isOnScreen = (element: Element) => {
 export interface Reveal {
   /** Mostra de uma vez tudo o que ainda falta revelar. */
   revealAll(): void;
+  /** Mostra na hora, sem transição, os blocos que contêm `target` e ainda não apareceram. */
+  revealAround(target: Element): void;
 }
 
 /**
@@ -60,6 +62,26 @@ export function initReveal(root: HTMLElement, getMode: () => MotionMode): Reveal
     for (const element of elements) show(element);
   };
 
+  const revealAround = (target: Element) => {
+    // Escondidos ou ainda no meio da entrada (com o atraso do escalonamento, por exemplo).
+    const unfinished = elements.filter(
+      (element) =>
+        element.contains(target) &&
+        (!element.classList.contains('is-in') || element.getAnimations().length > 0),
+    );
+    if (unfinished.length === 0) return;
+    for (const element of unfinished) {
+      observer.unobserve(element);
+      element.style.transition = 'none';
+      show(element);
+    }
+    // Ler o layout aplica o estado revelado ainda sem transição; ela volta no quadro seguinte.
+    target.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      for (const element of unfinished) element.style.removeProperty('transition');
+    });
+  };
+
   if (getMode() === 'on') {
     // Todas as medidas antes da primeira escrita: um único cálculo de layout.
     const onScreen = new Set(elements.filter(isOnScreen));
@@ -71,5 +93,5 @@ export function initReveal(root: HTMLElement, getMode: () => MotionMode): Reveal
     revealAll();
   }
 
-  return { revealAll };
+  return { revealAll, revealAround };
 }

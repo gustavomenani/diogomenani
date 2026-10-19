@@ -183,6 +183,13 @@ body {
   transform: none;
 }
 
+/* Abaixo de 1080 px, o botão flutuante cobre o pé da tela: o foco e as rolagens param acima dele. */
+@media (width < 1080px) {
+  html {
+    scroll-padding-bottom: calc(var(--fab-offset) + var(--fab-size) + 12px);
+  }
+}
+
 /*
  * Rolagem suave só depois da primeira interação (main.ts): chegar por âncora ou recarregar no
  * meio da página pousa direto.

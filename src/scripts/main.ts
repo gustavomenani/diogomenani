@@ -1,6 +1,7 @@
 import { initBalance, TOPIC_IMPULSE } from './balance';
 import { initContactForm } from './contact-form';
 import { initFaq } from './faq';
+import { initFocusVisibility } from './focus-visibility';
 import { initMenu } from './menu';
 import {
   detectMotionMode,
@@ -40,8 +41,8 @@ function tryInit(name: string, init: () => void): boolean {
 }
 
 /**
- * Liga o comportamento da página: revelações, balança da Têmis, seletor de tema, menu mobile,
- * FAQ, formulário de contato e efeitos de rolagem. `root` é a raiz [data-page].
+ * Liga o comportamento da página: revelações, foco do teclado, balança da Têmis, seletor de tema,
+ * menu mobile, FAQ, formulário de contato e efeitos de rolagem. `root` é a raiz [data-page].
  * O que a inicialização muda (modo, blocos já na tela, header, etapas) aparece direto no estado
  * certo, sem animar. No fim, a raiz ganha data-ready: sem ele, o script inline do Base.astro
  * devolve a página ao modo sem script.
@@ -68,6 +69,9 @@ function startPage(root: HTMLElement): void {
     });
   if (fallback) root.dataset.motion = 'pending';
 
+  tryInit('foco', () => {
+    initFocusVisibility(root, reveal);
+  });
   const balance = attempt('balança', () => initBalance(root, getMode), null);
   tryInit('seletor de tema', () => {
     initTopicPicker(root, {

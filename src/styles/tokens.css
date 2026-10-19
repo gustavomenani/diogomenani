@@ -40,4 +40,8 @@
 
   /* Altura do header no topo; também é a folga das âncoras ao rolar. */
   --header-h: 84px;
+
+  /* Botão flutuante (abaixo de 1080 px): distância das bordas e altura; o foco para acima dele. */
+  --fab-offset: clamp(16px, 2.2vw, 32px);
+  --fab-size: 56px;
 }

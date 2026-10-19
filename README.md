@@ -86,6 +86,7 @@ Peças usadas pelas seções:
 
 - `motion-mode.ts`: modo de movimento (`on`, `static` ou `reduced`) e a troca de modo sem animar. Um script inline no `Base.astro` grava `on` ou `reduced` em `data-motion` antes da primeira pintura (e volta a `pending`, em que tudo aparece, se o módulo da página não rodar); o `main.ts` confirma o modo e acompanha a preferência do sistema.
 - `reveal.ts`: revela o conteúdo ao entrar na tela.
+- `focus-visibility.ts`: o foco do teclado mostra na hora o bloco ainda escondido e não fica sob o header nem sob o botão flutuante.
 - `balance.ts` e `balance-physics.ts`: a balança da Têmis e a física dela.
 - `topic-picker.ts`: seletor de tema do hero.
 - `menu.ts`: menu mobile, que abre pelo botão e fecha com Esc, link ou ao virar desktop, com o foco no lugar certo.
