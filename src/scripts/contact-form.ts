@@ -17,10 +17,9 @@ function controlOf<T extends Control>(
   form: HTMLFormElement,
   name: string,
   type: abstract new () => T,
-): T {
+): T | null {
   const control = form.elements.namedItem(name);
-  if (control instanceof type) return control;
-  throw new Error(`O formulário de contato não tem o campo "${name}".`);
+  return control instanceof type ? control : null;
 }
 
 const isControl = (target: EventTarget | null): target is Control =>
@@ -36,14 +35,18 @@ export function initContactForm(root: HTMLElement): void {
   const form = root.querySelector<HTMLFormElement>('[data-contact-form]');
   if (!form) return;
 
-  const fields = {
-    name: controlOf(form, 'nome', HTMLInputElement),
-    phone: controlOf(form, 'telefone', HTMLInputElement),
-    email: controlOf(form, 'email', HTMLInputElement),
-    subject: controlOf(form, 'assunto', HTMLSelectElement),
-    message: controlOf(form, 'mensagem', HTMLTextAreaElement),
-    consent: controlOf(form, 'lgpd', HTMLInputElement),
-  };
+  const name = controlOf(form, 'nome', HTMLInputElement);
+  const phone = controlOf(form, 'telefone', HTMLInputElement);
+  const email = controlOf(form, 'email', HTMLInputElement);
+  const subject = controlOf(form, 'assunto', HTMLSelectElement);
+  const message = controlOf(form, 'mensagem', HTMLTextAreaElement);
+  const consent = controlOf(form, 'lgpd', HTMLInputElement);
+  if (!name || !phone || !email || !subject || !message || !consent) {
+    // Um markup incompleto desliga só o formulário; o resto da página continua funcionando.
+    console.error('Formulário de contato incompleto: envio pelo WhatsApp desativado.');
+    return;
+  }
+  const fields = { name, phone, email, subject, message, consent };
   const status = form.querySelector('[data-form-status]');
   const fallback = form.querySelector<HTMLAnchorElement>('[data-form-fallback]');
   const submit = form.querySelector<HTMLButtonElement>('[type="submit"]');
