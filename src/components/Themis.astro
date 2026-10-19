@@ -1,0 +1,24 @@
+---
+/**
+ * Têmis com a balança articulada. O script gira o travessão em torno de `data-pivot`
+ * e mantém os pratos na vertical, girando cada um em torno do ponto onde está pendurado.
+ */
+import { themis } from '../data/brand';
+---
+<svg class="themis" viewBox={themis.viewBox} focusable="false">
+  <defs>
+    <linearGradient id="themis-fill" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1112">
+      <stop offset="0" stop-color="#FFFFFF"></stop>
+      <stop offset="0.6" stop-color="#FFFFFF"></stop>
+      <stop offset="0.95" stop-color="#FFFFFF" stop-opacity="0"></stop>
+    </linearGradient>
+  </defs>
+  <g id="themis-shape" fill="url(#themis-fill)">
+    <path d={themis.body}></path>
+    <g data-beam data-pivot={themis.pivot.join(' ')}>
+      <path d={themis.beam}></path>
+      <g data-pan-l data-pivot={themis.hangL.join(' ')}><path d={themis.panL}></path></g>
+      <g data-pan-r data-pivot={themis.hangR.join(' ')}><path d={themis.panR}></path></g>
+    </g>
+  </g>
+</svg>

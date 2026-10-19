@@ -1,0 +1,37 @@
+---
+import Icon from './Icon.astro';
+import Monogram from './Monogram.astro';
+import { contact, defaultMessage, nav, waLink } from '../data/site';
+
+const cta = waLink(defaultMessage);
+---
+<header class="site-header" data-header>
+  <div class="wrap header-inner">
+    <a class="brand" href="#inicio" aria-label="Diogo Menani, voltar ao início">
+      <Monogram class="brand-mark" />
+      <span class="brand-text"><span class="brand-name">Diogo Menani</span><span class="brand-sub">Advocacia &amp; Assessoria Jurídica</span></span>
+    </a>
+    <nav class="nav" aria-label="Principal" data-nav>
+      {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+      <span class="nav-ind" aria-hidden="true" data-nav-ind></span>
+    </nav>
+    <a class="btn btn-header" href={cta} target="_blank" rel="noopener">Agendar conversa</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu" data-menu-toggle><span data-menu-text>Menu</span><span class="menu-icon" aria-hidden="true"></span></button>
+  </div>
+  <span class="progress" aria-hidden="true" data-progress></span>
+</header>
+
+<div class="menu" id="menu" aria-hidden="true" data-menu>
+  <div class="wrap menu-inner">
+    <nav class="menu-nav" aria-label="Menu">
+      {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+    <div class="menu-foot">
+      <a class="btn btn-light" href={cta} target="_blank" rel="noopener">
+        <Icon name="whatsapp" />
+        <span class="btn-label">Agendar uma conversa</span>
+      </a>
+      <p>{contact.oab} · Atendimento presencial e online</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,8 @@
+---
+import Icon from './Icon.astro';
+import { defaultMessage, waLink } from '../data/site';
+---
+<a class="fab" href={waLink(defaultMessage)} target="_blank" rel="noopener" aria-label="Conversar pelo WhatsApp" data-fab>
+  <Icon name="whatsapp" />
+  <span class="fab-label">WhatsApp</span>
+</a>

@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+import Monogram from './Monogram.astro';
+import { wordmark } from '../data/brand';
+import { contact, footerNav, social, waLink, whatsapp } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+<footer class="footer" data-footer>
+  <div class="wrap">
+    <div class="footer-brand">
+      <svg class="footer-themis" viewBox="0 0 860 1112" aria-hidden="true" focusable="false"><use href="#themis-shape"></use></svg>
+      <Monogram class="footer-mark" data-reveal />
+      <span class="footer-rule" aria-hidden="true" data-reveal="draw"></span>
+      <svg class="footer-name" viewBox={wordmark.name.viewBox} role="img" aria-label="Diogo Menani" focusable="false"><path fill="currentColor" d={wordmark.name.d}></path></svg>
+      <svg class="footer-sub" viewBox={wordmark.sub.viewBox} role="img" aria-label="Advocacia e Assessoria Jurídica" focusable="false"><path fill="currentColor" d={wordmark.sub.d}></path></svg>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <p class="footer-col-title">Navegação</p>
+        <ul>
+          {footerNav.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p class="footer-col-title">Contato</p>
+        <ul>
+          <li><a href={waLink()} target="_blank" rel="noopener">WhatsApp {whatsapp.display}</a></li>
+          <li><a href={contact.email.href}>{contact.email.label}</a></li>
+          <li>{contact.address}</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <p class="footer-col-title">Redes</p>
+        <ul>
+          {social.map((item) => <li><a href={item.href} target="_blank" rel="noopener" aria-label={item.ariaLabel}><Icon name={item.icon} />{item.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© {year} Diogo Menani. {contact.oab}.</p>
+      <p class="footer-legal">Conteúdo de caráter informativo, em conformidade com o Código de Ética e Disciplina da OAB e o Provimento nº 205/2021 do CFOAB.</p>
+      <a class="to-top" href="#inicio">Voltar ao topo <Icon name="arrow-up" /></a>
+    </div>
+  </div>
+</footer>

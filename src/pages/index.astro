@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import Areas from '../components/Areas.astro';
+import Contato from '../components/Contato.astro';
+import Duvidas from '../components/Duvidas.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Manifesto from '../components/Manifesto.astro';
+import Processo from '../components/Processo.astro';
+import Sobre from '../components/Sobre.astro';
+import WhatsAppFab from '../components/WhatsAppFab.astro';
+---
+<Base
+  title="Diogo Menani — Advocacia & Assessoria Jurídica"
+  description="Advocacia e assessoria jurídica para pessoas e empresas, com atendimento presencial e online. Converse com Diogo Menani pelo WhatsApp."
+>
+  <Header />
+  <main>
+    <Hero />
+    <Sobre />
+    <Areas />
+    <Processo />
+    <Manifesto />
+    <Duvidas />
+    <Contato />
+  </main>
+  <Footer />
+  <WhatsAppFab />
+</Base>
