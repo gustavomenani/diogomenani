@@ -39,7 +39,7 @@ Levar o código da landing page (Astro 7 + TypeScript, uma página, contato pelo
 - **CSS:** uma camada global (tokens em `:root`, base, botões e links, formulários, sistema de movimento) mais estilos escopados por componente, com `scopedStyleStrategy: 'where'`. O escopo não acrescenta especificidade, então a cascata continua igual à do CSS escrito. A raiz `.dm` vira `.page`, e os estados seguem o padrão `is-*`.
 - **JavaScript:** `motion.ts` é dividido por recurso em `src/scripts/`. A lógica pura (física da balança, máscara de telefone, validação, cálculos de rolagem) fica em arquivos próprios, com testes unitários.
 - **Dados:** `src/data/contact.ts`, `content.ts`, `navigation.ts` e `brand.ts`. As mensagens e os links do WhatsApp ficam em `src/lib/whatsapp.ts`.
-- **Fontes:** woff2 dos subconjuntos latin e latin-ext versionados em `src/assets/fonts/`, servidos pela API de fontes do Astro (provider local), com as licenças OFL junto.
+- **Fontes:** woff2 do subconjunto latin (cobre todo o português) versionados em `src/assets/fonts/`, servidos pela API de fontes do Astro (provider local), com as licenças OFL junto. O latin-ext fica de fora: o provider local não distingue subconjuntos no preload, e a página não usa nenhum caractere dele.
 - **Prova de equivalência:** uma ferramenta compara a baseline com a versão nova (estilos computados, geometria, DOM, estados de hover e foco, impressão e capturas de tela) e só aceita diferenças desta lista.
 
 ## Mudanças intencionais (as únicas diferenças permitidas)
