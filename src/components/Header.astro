@@ -1,7 +1,6 @@
 ---
+import MobileMenu from './MobileMenu.astro';
 import Monogram from './Monogram.astro';
-import WhatsAppButton from './WhatsAppButton.astro';
-import { contact } from '../data/contact';
 import { anchor, nav, sectionIds } from '../data/navigation';
 import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
@@ -38,24 +37,7 @@ import { messages, waLink } from '../lib/whatsapp';
   </div>
   <span class="progress" aria-hidden="true" data-progress></span>
 </header>
-
-<nav class="menu" id="menu" aria-label="Menu" data-menu inert>
-  <div class="wrap menu-inner">
-    <div class="menu-nav">
-      {nav.map((item, i) => (
-        <a href={anchor(item.id)} style={`--i:${i}`}>
-          {item.label}
-        </a>
-      ))}
-    </div>
-    <div class="menu-foot">
-      <WhatsAppButton label="Agendar uma conversa" />
-      <p>
-        {contact.oab} · {contact.serviceMode}
-      </p>
-    </div>
-  </div>
-</nav>
+<MobileMenu />
 
 <style>
   .site-header {
@@ -323,125 +305,10 @@ import { messages, waLink } from '../lib/whatsapp';
     }
   }
 
-  /* Menu mobile: tela cheia, revelado de cima para baixo. */
-  .menu {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    display: flex;
-    flex-direction: column;
-    padding: calc(var(--header-h) + 28px) 0 32px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-color: var(--sky-dim) transparent;
-    scrollbar-width: thin;
-    background: var(--royal);
-    color: #fff;
-    clip-path: inset(0 0 100% 0);
-    visibility: hidden;
-    transition:
-      clip-path 0.8s var(--ease),
-      visibility 0s linear 0.8s;
-  }
-
-  :global(.page.is-menu-open) .menu {
-    clip-path: inset(0 0 0 0);
-    visibility: visible;
-    transition:
-      clip-path 0.8s var(--ease),
-      visibility 0s;
-  }
-
-  /*
-   * Em tela baixa o menu rola, e o Firefox foca a área rolável pelo Tab: contorno branco e por
-   * dentro, porque o menu ocupa a tela toda.
-   */
-  :global(.page) .menu:focus-visible {
-    outline-color: #fff;
-    outline-offset: -5px;
-  }
-
   :global(.page.is-menu-open) .progress {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-  }
-
-  .menu-inner {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  .menu-nav {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .menu-nav a {
-    display: block;
-    padding: 8px 0;
-    font-family: var(--serif);
-    font-weight: 500;
-    font-size: clamp(36px, 9vw, 54px);
-    line-height: 1.15;
-    opacity: 0;
-    transform: translate3d(0, 28px, 0);
-    transition:
-      opacity 0.5s ease,
-      transform 0.8s var(--ease);
-  }
-
-  /* Ao abrir, os links entram um a um (--i é o índice de cada link). */
-  :global(.page.is-menu-open) .menu-nav a {
-    opacity: 1;
-    transform: none;
-    transition-delay: calc(0.16s + var(--i) * 0.06s);
-  }
-
-  .menu-foot {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px;
-    margin-top: auto;
-    padding-top: 32px;
-    border-top: 1px solid var(--line-on-royal);
-    opacity: 0;
-    transition: opacity 0.6s ease;
-  }
-
-  :global(.page.is-menu-open) .menu-foot {
-    opacity: 1;
-    transition-delay: 0.45s;
-  }
-
-  .menu-foot p {
-    font-size: 14px;
-    color: var(--sky);
-  }
-
-  /* Telas baixas (celular deitado): depois das regras base, para valer de fato. */
-  @media (height <= 560px) {
-    .menu {
-      padding-top: var(--header-h);
-    }
-
-    .menu-nav a {
-      font-size: 30px;
-      padding: 4px 0;
-    }
-
-    .menu-foot {
-      padding-top: 20px;
-    }
-  }
-
-  /* Acima do DESKTOP_QUERY (src/scripts/menu.ts), o menu mobile não existe. */
-  @media (width >= 1080px) {
-    .menu {
-      display: none;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -449,15 +316,6 @@ import { messages, waLink } from '../lib/whatsapp';
     .site-header {
       animation: fade 0.5s ease-out backwards !important;
       transition-property: background-color, color, box-shadow;
-    }
-
-    .menu,
-    .menu-nav a {
-      transition-duration: 0.2s !important;
-    }
-
-    .menu-nav a {
-      transform: none !important;
     }
 
     /* O indicador troca de link sem deslizar. */
@@ -491,8 +349,7 @@ import { messages, waLink } from '../lib/whatsapp';
   }
 
   @media print {
-    .site-header,
-    .menu {
+    .site-header {
       display: none !important;
     }
   }

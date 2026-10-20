@@ -1,0 +1,132 @@
+---
+import { areas } from '../data/content';
+import { messages, waLink } from '../lib/whatsapp';
+---
+
+<fieldset class="topic" data-topic>
+  <legend class="topic-label">Sobre o que você quer conversar?</legend>
+  <div class="chips">
+    {areas.map((area) => (
+      <span class="chip-option">
+        <input
+          class="chip-input"
+          type="radio"
+          name="tema"
+          id={`tema-${area.id}`}
+          value={area.id}
+          data-cta={area.topic.cta}
+          data-href={waLink(messages.topic(area.name))}
+        />
+        <label class="chip" for={`tema-${area.id}`}>
+          {area.topic.label}
+        </label>
+      </span>
+    ))}
+  </div>
+</fieldset>
+
+<style>
+  .topic {
+    margin-top: 34px;
+    animation: fade-up 1s var(--ease) 0.78s backwards;
+  }
+
+  /* A legend flutua para sair do encaixe especial do fieldset e virar um bloco comum. */
+  .topic-label {
+    float: left;
+    width: 100%;
+    margin-bottom: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .chips {
+    clear: both;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chip-option {
+    position: relative;
+    display: inline-flex;
+  }
+
+  /*
+   * O rádio fica invisível sobre o próprio chip: o rótulo (.chip) é o que aparece e recebe o foco
+   * visual, e o leitor de tela destaca o lugar certo.
+   */
+  .chip-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    appearance: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+
+    /* Contorno a 50%: 3:1 sobre o royal. O outline transparente aparece no alto contraste. */
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 50%);
+    outline: 1px solid transparent;
+    outline-offset: -1px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+      background-color 0.45s var(--ease),
+      color 0.45s var(--ease),
+      box-shadow 0.45s var(--ease),
+      transform 0.45s var(--ease);
+  }
+
+  @media (hover: hover) {
+    .chip:hover {
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 85%);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .chip:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .chip-input:checked + .chip {
+    background: #fff;
+    color: var(--royal);
+    box-shadow: inset 0 0 0 1px #fff;
+  }
+
+  .chip-input:focus-visible + .chip {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  /* Alto contraste: o fundo branco do chip escolhido viraria o fundo da tela; ele usa o destaque. */
+  @media (forced-colors: active) {
+    .chip-input:checked + .chip {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .topic {
+      animation: fade 0.5s ease-out backwards !important;
+    }
+  }
+</style>

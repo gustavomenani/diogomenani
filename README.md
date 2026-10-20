@@ -71,6 +71,9 @@ Peças usadas pelas seções:
 - `Icon.astro`: ícone pelo nome.
 - `Monogram.astro`: o monograma DM.
 - `Themis.astro`: a Têmis em SVG, com a balança articulada.
+- `MobileMenu.astro`: o menu de tela cheia do celular; mora no `Header.astro`, com o próprio CSS.
+- `TopicPicker.astro`: o seletor de tema (chips) do `Hero.astro`.
+- `ContactForm.astro`: o formulário que monta a mensagem do WhatsApp; mora no `Contato.astro`.
 
 ### `src/data/` e `src/lib/`
 

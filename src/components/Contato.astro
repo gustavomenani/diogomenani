@@ -1,13 +1,12 @@
 ---
-import Field from './Field.astro';
+import ContactForm from './ContactForm.astro';
 import Icon from './Icon.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
 import { contact, whatsapp } from '../data/contact';
-import { areas } from '../data/content';
 import type { IconName } from '../data/icons';
 import { sectionIds } from '../data/navigation';
 import { externalLink } from '../lib/links';
-import { messages, waLink } from '../lib/whatsapp';
+import { waLink } from '../lib/whatsapp';
 
 interface ContactItem {
   icon: IconName;
@@ -61,107 +60,7 @@ const items: readonly ContactItem[] = [
         ))}
       </ul>
     </div>
-    {/*
-      O formulário depende de JavaScript por design: o script valida e monta a mensagem.
-      Obrigatórios com aria-required, não required: o required liga a validação nativa, e o
-      leitor de tela anunciaria o campo como inválido antes de qualquer envio.
-    */}
-    <form class="contact-form" method="post" data-contact-form data-reveal novalidate>
-      <h3 class="form-title">Prefere escrever?</h3>
-      <p class="form-sub">Preencha os campos e a mensagem chega pronta no WhatsApp.</p>
-      <div class="fields">
-        <Field id="f-nome" label="Nome" error="Informe seu nome.">
-          <input
-            id="f-nome"
-            name="nome"
-            type="text"
-            autocomplete="name"
-            placeholder="Como posso chamar você?"
-            aria-required="true"
-          />
-        </Field>
-        <div class="field-row">
-          <Field id="f-tel" label="WhatsApp" error="Informe um número com DDD.">
-            <input
-              id="f-tel"
-              name="telefone"
-              type="tel"
-              inputmode="tel"
-              autocomplete="tel"
-              placeholder="(00) 00000-0000"
-              aria-required="true"
-            />
-          </Field>
-          <Field id="f-email" label="E-mail" optional error="Confira o e-mail digitado.">
-            <input
-              id="f-email"
-              name="email"
-              type="email"
-              autocomplete="email"
-              placeholder="voce@email.com"
-            />
-          </Field>
-        </div>
-        <Field id="f-assunto" label="Assunto" optional>
-          <div class="select">
-            <select id="f-assunto" name="assunto">
-              <option value="">Escolha uma área</option>
-              {areas.map((area) => (
-                <option value={area.name}>{area.name}</option>
-              ))}
-              <option value="Outro assunto">Outro assunto</option>
-            </select>
-            <Icon name="chevron-down" />
-          </div>
-        </Field>
-        <Field id="f-msg" label="Mensagem" error="Escreva uma mensagem curta sobre o seu caso.">
-          <textarea
-            id="f-msg"
-            name="mensagem"
-            rows="4"
-            maxlength="1200"
-            placeholder="Conte em poucas linhas o que está acontecendo."
-            aria-required="true"
-          ></textarea>
-        </Field>
-        {/* Contêiner próprio (não .field): .field label/input pegariam o checkbox. */}
-        <div class="check-field" data-field>
-          <label class="check">
-            <input
-              class="check-input"
-              id="f-lgpd"
-              type="checkbox"
-              name="lgpd"
-              aria-required="true"
-            />
-            <span class="check-box" aria-hidden="true">
-              <Icon name="check" strokeWidth={2.6} />
-            </span>
-            <span>
-              Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a
-              LGPD.
-            </span>
-          </label>
-          <p class="field-error" id="f-lgpd-erro" data-field-error>
-            Para continuar, confirme o uso dos dados.
-          </p>
-        </div>
-        <button class="btn btn-royal btn-block" type="submit">
-          <Icon name="whatsapp" />
-          <span class="btn-label">Enviar pelo WhatsApp</span>
-        </button>
-        <p class="form-status" role="status" aria-live="polite" data-form-status></p>
-        {/* O envio troca o destino pela mensagem montada; sem ela, vale a de agendamento. */}
-        <a
-          class="form-fallback"
-          href={waLink(messages.default)}
-          {...externalLink()}
-          data-form-fallback
-        >
-          Se o WhatsApp não abriu, toque aqui para enviar a mensagem.
-        </a>
-      </div>
-    </form>
+    <ContactForm />
   </div>
 </section>
 
@@ -259,61 +158,6 @@ const items: readonly ContactItem[] = [
     a.cl-value:hover {
       text-decoration-color: #fff;
     }
-  }
-
-  .contact-form {
-    position: relative;
-    padding: clamp(28px, 3vw, 44px);
-    border-radius: 28px;
-    background: #fff;
-    color: var(--ink);
-    box-shadow: 0 48px 90px -44px rgb(0 4 36 / 85%);
-  }
-
-  .form-title {
-    font-family: var(--serif);
-    font-weight: 500;
-    font-size: clamp(26px, 0.8vw + 20px, 32px);
-    line-height: 1.15;
-    color: var(--royal);
-  }
-
-  .form-sub {
-    margin-top: 8px;
-    font-size: 15px;
-    color: var(--ink-soft);
-  }
-
-  .fields {
-    display: grid;
-    gap: 18px;
-    margin-top: 28px;
-  }
-
-  .form-status {
-    min-height: 1.5em;
-    margin-top: 2px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--royal);
-  }
-
-  .form-status.is-error {
-    color: var(--danger);
-  }
-
-  .form-fallback {
-    display: none;
-    justify-self: start;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--royal-bright);
-    text-decoration: underline;
-    text-underline-offset: 0.24em;
-  }
-
-  .form-fallback.is-shown {
-    display: inline-block;
   }
 
   @media (width >= 1024px) {
