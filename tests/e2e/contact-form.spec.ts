@@ -130,6 +130,33 @@ test('o foco fica no botão durante o intervalo entre envios', async ({ page, op
   await expect(f.submit).not.toHaveAttribute('aria-disabled', 'true');
 });
 
+test('dois Enter seguidos abrem uma única conversa', async ({ page, context }) => {
+  // mata: if (coolingDown) return; removido do envio em contact-form
+  // A conversa abre de verdade, numa aba nova: o wa.me responde daqui, sem sair para a rede.
+  await context.route('https://wa.me/**', (route) => route.fulfill({ body: '' }));
+  // Relógio parado: o intervalo entre envios não acaba sozinho, por mais que a aba demore.
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  await page.goto('/');
+  let popups = 0;
+  page.on('popup', () => {
+    popups++;
+  });
+  const f = form(page);
+  await fillValid(page);
+  await f.submit.focus();
+  const first = page.waitForEvent('popup');
+  await page.keyboard.press('Enter');
+  await first;
+  // No Firefox a aba nova fica com o teclado: o segundo Enter é de quem voltou ao site.
+  await page.bringToFront();
+  await expect(f.submit).toHaveAttribute('aria-disabled', 'true');
+  await page.keyboard.press('Enter');
+  // Dá 1,5 s para uma segunda aba aparecer; o relógio parado mantém o intervalo até lá.
+  await page.waitForEvent('popup', { timeout: 1500 }).catch(() => null);
+  expect(popups).toBe(1);
+});
+
 test('a máscara espera o fim da composição do teclado (IME)', async ({ page }) => {
   const { phone } = form(page);
   await phone.focus();

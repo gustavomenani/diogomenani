@@ -33,8 +33,9 @@ export function initContactForm(root: HTMLElement): void {
   const form = root.querySelector('[data-contact-form]');
   if (!(form instanceof HTMLFormElement)) return;
   const status = form.querySelector('[data-form-status]');
-  const fallback = form.querySelector<HTMLAnchorElement>('[data-form-fallback]');
-  const submit = form.querySelector<HTMLButtonElement>('[type="submit"]');
+  const fallbackElement = form.querySelector('[data-form-fallback]');
+  const fallback = fallbackElement instanceof HTMLAnchorElement ? fallbackElement : null;
+  const submit = form.querySelector('[type="submit"]');
 
   const name = controlOf(form, 'nome', HTMLInputElement);
   const phone = controlOf(form, 'telefone', HTMLInputElement);

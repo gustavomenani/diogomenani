@@ -24,8 +24,9 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 | `npm run test:e2e`                               | Gera o build e roda os testes no navegador (Playwright) no Chromium, no Firefox e no WebKit (o motor do Safari): comportamento, acessibilidade com axe, fontes e (fora do CI) a regressão visual. |
 | `npm run test:visual`                            | Gera o build e roda só a regressão visual.                                                                                                                                                        |
 | `npm run validate:html`                          | Valida o HTML gerado em `dist/` (html-validate).                                                                                                                                                  |
+| `npm run generate:images`                        | Gera de novo as imagens PNG de `public/` (favicon de 32 px, ícone do iOS e `og.png`, a prévia dos links) com o Chromium do Playwright. Rode quando a marca ou as cores mudarem.                   |
 
-`npx playwright test` sozinho (ou pela extensão do editor) serve o `dist/` que já existir: rode `npm run build` antes para testar o código atual.
+`npx playwright test` sozinho (ou pela extensão do editor) não gera o build: serve o `dist/` que já existir. Rode `npm run build` antes, senão os testes conferem o código da última build. Ele roda os três motores (Chromium, Firefox e WebKit) e a regressão visual; para um motor só, acrescente `--project=chromium` (ou `firefox`, `webkit`).
 
 ## Estrutura
 
@@ -39,11 +40,12 @@ src/
 ├── scripts/               comportamento no navegador, um módulo por recurso
 ├── styles/                camada global de CSS
 └── assets/fonts/          fontes woff2 e licenças OFL
-public/                    favicon (vai para o site do jeito que está)
+public/                    favicons, prévia dos links (og.png) e cache (_headers): vão para o site do jeito que estão
+scripts/                   geração das imagens PNG de public/ (npm run generate:images)
 brand/                     originais e vetores da marca (não são publicados)
 tests/e2e/                 testes no navegador
 tests/visual/              regressão visual e snapshots
-docs/superpowers/          especificação e plano da correção de qualidade
+docs/superpowers/          especificações e planos de cada rodada (os já executados são registro histórico)
 .github/workflows/ci.yml   CI: npm run verify a cada push na main e em cada pull request
 ```
 
@@ -110,6 +112,7 @@ Peças usadas pelas seções:
 - `tsconfig.json`: TypeScript `strictest`.
 - `eslint.config.js`, `stylelint.config.mjs`, `.prettierrc.json` e `.prettierignore`, `.htmlvalidate.mjs`, `.editorconfig` e `.gitattributes`: regras de código, CSS, formatação, HTML e editor.
 - `vitest.config.ts` e `playwright.config.ts`: testes unitários e testes no navegador.
+- `vercel.json` (e `public/_headers`, para Netlify e Cloudflare Pages): cache longo dos assets com hash no nome (`/_astro/`).
 
 ## Onde editar cada conteúdo
 
@@ -144,7 +147,7 @@ As 6 áreas de atuação são sugestões para o Diogo confirmar. Quando o site t
 
 ## Qualidade e testes
 
-`npm run verify` roda, nesta ordem: formatação (Prettier), lint (ESLint e Stylelint), tipos (`astro check`), testes unitários (Vitest), build, validação do HTML gerado (html-validate) e testes no navegador (Playwright). Os testes no navegador cobrem links e mensagens do WhatsApp, seletor de tema, menu, FAQ, formulário, header, botão flutuante, animações, resiliência do script, fontes, privacidade (nenhuma requisição a terceiros) e acessibilidade: axe (WCAG 2.2 AA) mais o que ele não confere, como o que o leitor de tela anuncia nos campos, o foco no alto contraste e a cor da seleção.
+`npm run verify` roda, nesta ordem: formatação (Prettier), lint (ESLint e Stylelint), tipos (`astro check`), testes unitários (Vitest), build, validação do HTML gerado (html-validate) e testes no navegador (Playwright). Os testes no navegador rodam em três motores, Chromium, Firefox e WebKit (o do Safari), e cobrem links e mensagens do WhatsApp, seletor de tema, menu, FAQ, formulário, header, botão flutuante, animações, resiliência do script, fontes, privacidade (nenhuma requisição a terceiros) e acessibilidade: axe (WCAG 2.2 AA) mais o que ele não confere, como o que o leitor de tela anuncia nos campos, o foco no alto contraste e a cor da seleção.
 
 O CI (`.github/workflows/ci.yml`) roda o `npm run verify` em cada push na `main`, em cada pull request e sob demanda (Actions → CI → Run workflow). Quando um teste falha, os traces ficam guardados como artefato `test-results`.
 

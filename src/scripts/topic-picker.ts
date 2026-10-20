@@ -26,10 +26,11 @@ function topicOf(input: HTMLInputElement): { href: string; text: string } | null
  */
 export function initTopicPicker(root: HTMLElement, { getMode, onPick }: TopicPickerOptions): void {
   const picker = root.querySelector('[data-topic]');
-  const cta = root.querySelector<HTMLAnchorElement>('[data-wa-cta]');
+  const cta = root.querySelector('[data-wa-cta]');
+  if (!picker || !(cta instanceof HTMLAnchorElement)) return;
   // O rótulo é procurado dentro do botão: outros botões do WhatsApp têm o mesmo hook.
-  const label = cta?.querySelector<HTMLElement>('[data-wa-label]');
-  if (!picker || !cta || !label) return;
+  const label = cta.querySelector('[data-wa-label]');
+  if (!label) return;
 
   /** Animações da troca em andamento; a troca seguinte as cancela antes de começar. */
   let running: Animation[] = [];

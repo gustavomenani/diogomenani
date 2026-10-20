@@ -4,7 +4,7 @@
  * botão passa a refletir o estado real do item (is-open).
  */
 export function initFaq(root: HTMLElement): void {
-  for (const button of root.querySelectorAll<HTMLElement>('[data-faq-btn]')) {
+  for (const button of root.querySelectorAll('[data-faq-btn]')) {
     const item = button.closest('[data-faq-item]');
     if (!item) continue;
     button.setAttribute('aria-expanded', String(item.classList.contains('is-open')));

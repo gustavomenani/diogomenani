@@ -1,5 +1,7 @@
 # Correção de qualidade do site — plano de implementação
 
+> Registro histórico: plano executado; o código atual pode ter mudado depois.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Refatorar a landing page para a melhor qualidade de código sem mudar nada visível além da lista fechada de correções da especificação.

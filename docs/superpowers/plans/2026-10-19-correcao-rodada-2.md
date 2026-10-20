@@ -1,5 +1,7 @@
 # Correção de qualidade, rodada 2 — plano
 
+> Registro histórico: plano executado; o código atual pode ter mudado depois.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** corrigir os ~70 achados das seis auditorias da rodada 2, cada um provado por um teste que falha antes, nos três motores.

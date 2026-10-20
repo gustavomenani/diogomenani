@@ -44,17 +44,22 @@ export function initScrollEffects(
   root: HTMLElement,
   { getMode, isMenuOpen }: ScrollEffectsOptions,
 ): ScrollEffects {
+  /** Elemento HTML pelo seletor; nada se faltar (ou se não for HTML). */
+  const htmlElement = (selector: string) => {
+    const element = root.querySelector(selector);
+    return element instanceof HTMLElement ? element : null;
+  };
   const header = root.querySelector('[data-header]');
-  const progress = root.querySelector<HTMLElement>('[data-progress]');
-  const figure = root.querySelector<HTMLElement>('[data-figure]');
-  const glow = root.querySelector<HTMLElement>('[data-glow]');
-  const hero = root.querySelector<HTMLElement>('[data-hero]');
+  const progress = htmlElement('[data-progress]');
+  const figure = htmlElement('[data-figure]');
+  const glow = htmlElement('[data-glow]');
+  const hero = htmlElement('[data-hero]');
   const fab = root.querySelector('[data-fab]');
   const contact = root.querySelector(`#${sectionIds.contact}`);
   const footer = root.querySelector('[data-footer]');
   const nav = root.querySelector('[data-nav]');
-  const indicator = root.querySelector<HTMLElement>('[data-nav-ind]');
-  const navLinks = [...root.querySelectorAll<HTMLAnchorElement>('[data-nav] a[href^="#"]')];
+  const indicator = htmlElement('[data-nav-ind]');
+  const navLinks = [...root.querySelectorAll('[data-nav] a[href^="#"]')];
   /** Cada link da navegação com a seção que ele aponta, achada pelo id (sem seletor CSS). */
   const targets = navLinks.flatMap((link) => {
     const section = document.getElementById(link.getAttribute('href')?.slice(1) ?? '');

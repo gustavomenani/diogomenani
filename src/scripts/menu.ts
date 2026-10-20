@@ -14,9 +14,11 @@ export interface Menu {
  */
 export function initMenu(root: HTMLElement): Menu {
   const header = root.querySelector('[data-header]');
-  const menu = root.querySelector<HTMLElement>('[data-menu]');
-  const toggle = root.querySelector<HTMLButtonElement>('[data-menu-toggle]');
-  if (!menu || !toggle) return { isOpen: () => false };
+  const menu = root.querySelector('[data-menu]');
+  const toggle = root.querySelector('[data-menu-toggle]');
+  if (!(menu instanceof HTMLElement) || !(toggle instanceof HTMLButtonElement)) {
+    return { isOpen: () => false };
+  }
   const toggleText = toggle.querySelector('[data-menu-text]');
   const background = [...root.children].filter(
     (element): element is HTMLElement =>
@@ -103,8 +105,8 @@ export function initMenu(root: HTMLElement): Menu {
     const links = [...header.querySelectorAll('a')];
     const target =
       links.find((link) => href != null && link.getAttribute('href') === href) ??
-      header.querySelector<HTMLElement>('[data-nav] a');
-    target?.focus();
+      header.querySelector('[data-nav] a');
+    if (target instanceof HTMLElement) target.focus();
   });
 
   return { isOpen: () => open };

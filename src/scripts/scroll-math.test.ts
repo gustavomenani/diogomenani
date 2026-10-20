@@ -39,6 +39,17 @@ describe('activeStepCount', () => {
     expect(activeStepCount([800, 800, 801, 800], 1000)).toBe(1);
   });
 
+  test('em linha, 1 px acima da linha de 86% a primeira já acende', () => {
+    // mata: progress <= 0 virando progress <= 0.01 em activeStepCount
+    expect(activeStepCount([859, 859, 859, 859], 1000)).toBe(1);
+  });
+
+  test('em linha, uma fração exata da faixa acende a etapa seguinte apesar do arredondamento', () => {
+    // p = (660,48 − 552,96) / 322,56 = 1/3, que em ponto flutuante dá 0,333…26.
+    // mata: + 1e-6 removido em activeStepCount
+    expect(activeStepCount([552.96, 552.96, 552.96, 552.96], 768)).toBe(2);
+  });
+
   test('em linha, todas acendem quando o bloco passa de 44% da tela', () => {
     expect(activeStepCount([400, 400, 400, 400], 1000)).toBe(4);
   });
@@ -62,6 +73,11 @@ describe('activeStepCount', () => {
     expect(activeStepCount([100, 700], 1000)).toBe(1);
   });
 
+  test('empilhadas, 1 px acima da linha de 70% a etapa acende', () => {
+    // mata: top < 0,7 × altura virando top < 0,7 × altura − 1 em activeStepCount
+    expect(activeStepCount([100, 699], 1000)).toBe(2);
+  });
+
   test('sem etapas, nada acende', () => {
     expect(activeStepCount([], 1000)).toBe(0);
   });
@@ -70,6 +86,12 @@ describe('activeStepCount', () => {
 describe('litWordCount', () => {
   test('a frase ainda abaixo de 90% da tela não acende nada', () => {
     expect(litWordCount({ top: 900, height: 200, viewportHeight: 1000, words: 28 })).toBe(0);
+  });
+
+  test('1 px acima da linha de 90%, a fração de palavra ainda não acende', () => {
+    // p = 1 / 520 → 0,05 palavra
+    // mata: Math.round virando Math.ceil em litWordCount
+    expect(litWordCount({ top: 899, height: 200, viewportHeight: 1000, words: 28 })).toBe(0);
   });
 
   test('no meio do percurso, acende metade', () => {
@@ -84,6 +106,13 @@ describe('litWordCount', () => {
 
   test('ao fim do percurso, acende todas e não passa disso', () => {
     expect(litWordCount({ top: -500, height: 200, viewportHeight: 1000, words: 28 })).toBe(28);
+  });
+
+  test('acende todas exatamente no fim do percurso, e 1 px antes ainda falta uma', () => {
+    // Com 1000 palavras cada pixel conta: p = (900 − 380) / 520 = 1 acende todas; 1 px antes, 998.
+    // mata: STATEMENT_EXTRA 0,32 virando 0,33 em litWordCount
+    expect(litWordCount({ top: 380, height: 200, viewportHeight: 1000, words: 1000 })).toBe(1000);
+    expect(litWordCount({ top: 381, height: 200, viewportHeight: 1000, words: 1000 })).toBe(998);
   });
 });
 
@@ -134,6 +163,18 @@ describe('nextTuck', () => {
     expect(tuckedAfter([1000, 996], { tucked: true })).toBe(true);
   });
 
+  test('5 px numa direção já mudam o estado', () => {
+    // mata: travel > 4 virando travel > 5 em nextTuck
+    expect(tuckedAfter([1000, 1005])).toBe(true);
+    // mata: travel < −4 virando travel < −5 em nextTuck
+    expect(tuckedAfter([1000, 995], { tucked: true })).toBe(false);
+  });
+
+  test('um quadro sem rolagem não zera a distância acumulada', () => {
+    // mata: delta === 0 removido do acúmulo em nextTuck
+    expect(tuckedAfter([1000, 1003, 1003, 1006])).toBe(true);
+  });
+
   test('trocar de direção zera a distância acumulada', () => {
     // Desceu 3, subiu 1 e desceu 3 de novo: só 3 px na direção atual.
     expect(tuckedAfter([1000, 1003, 1002, 1005])).toBe(false);
@@ -145,6 +186,11 @@ describe('nextTuck', () => {
 
   test('reaparece de volta ao hero', () => {
     expect(tuckedAfter([700, 765], { tucked: true })).toBe(false);
+  });
+
+  test('1 px depois de 85% do hero já recolhe', () => {
+    // mata: y <= 0,85 × hero virando y <= 0,85 × hero + 1 em nextTuck
+    expect(tuckedAfter([700, 766])).toBe(true);
   });
 
   test('com movimento reduzido também recolhe', () => {
@@ -187,6 +233,11 @@ describe('isFabVisible', () => {
 
   test('volta quando o contato já saiu por cima da tela', () => {
     expect(isFabVisible({ ...base, y: 3000, contact: { top: -900, bottom: 0 } })).toBe(true);
+  });
+
+  test('com 1 px do contato ainda na tela, continua escondido', () => {
+    // mata: contact.bottom > 0 virando contact.bottom > 1 em isFabVisible
+    expect(isFabVisible({ ...base, y: 3000, contact: { top: -899, bottom: 1 } })).toBe(false);
   });
 
   test('some quando o rodapé aparece', () => {

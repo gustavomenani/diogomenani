@@ -63,3 +63,15 @@ test('contato e rodapé usam o link sem texto', async ({ page }) => {
     WA,
   );
 });
+
+test('todo link que abre em outra aba tem rel com noopener', async ({ page }) => {
+  // mata: rede social do rodapé com target="_blank" escrito à mão, sem o externalLink()
+  const links = await page.locator('a[target="_blank"]').evaluateAll((anchors) =>
+    anchors.map((anchor) => ({
+      href: anchor.getAttribute('href'),
+      rel: anchor.getAttribute('rel') ?? '',
+    })),
+  );
+  expect(links.length).toBeGreaterThan(10);
+  expect(links.filter(({ rel }) => !rel.split(/\s+/).includes('noopener'))).toEqual([]);
+});

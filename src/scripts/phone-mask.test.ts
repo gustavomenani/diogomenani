@@ -43,6 +43,24 @@ describe('maskPhone', () => {
     expect(atEnd('55991234567')).toBe('(55) 99123-4567');
   });
 
+  test('celular com 11 dígitos e fixo com 10 ganham a máscara inteira', () => {
+    // mata: skipped + 11 virando skipped + 10 em maskPhone
+    expect(atEnd('18997017249')).toBe('(18) 99701-7249');
+    // mata: digits.length − 4 virando digits.length − 5 em formatPhone
+    expect(atEnd('1834567890')).toBe('(18) 3456-7890');
+  });
+
+  test('sem o +, 55 seguido de um fixo de 10 dígitos perde o código do país', () => {
+    // 12 dígitos: um a mais que o maior número nacional.
+    // mata: allDigits.length > 11 virando allDigits.length > 12 em maskPhone
+    expect(atEnd('551834567890')).toBe('(18) 3456-7890');
+  });
+
+  test('com um espaço antes do +55, o 55 continua sendo o código do país', () => {
+    // mata: trimStart removido da detecção do + em maskPhone
+    expect(atEnd(' +55 18 9')).toBe('(18) 9');
+  });
+
   test('número com 12 dígitos que não começa com 55 só é cortado', () => {
     expect(atEnd('189970172499')).toBe('(18) 99701-7249');
   });
@@ -78,6 +96,22 @@ describe('maskPhone', () => {
   test('zeros à esquerda do DDD saem', () => {
     expect(atEnd('018 99701-7249')).toBe('(18) 99701-7249');
     expect(atEnd('(018) 99701-7249')).toBe('(18) 99701-7249');
+  });
+
+  test('mais de um zero à esquerda do DDD também sai', () => {
+    // mata: /^0*/ virando /^0?/ em maskPhone
+    expect(atEnd('0018 99701-7249')).toBe('(18) 99701-7249');
+  });
+
+  test('com +55, o zero antes do DDD também sai', () => {
+    // mata: zeros contados desde o início (allDigits) em vez de depois do código do país
+    expect(atEnd('+55 (018) 99701-7249')).toBe('(18) 99701-7249');
+  });
+
+  test('o cursor desconta os zeros à esquerda que saíram', () => {
+    // Cursor logo depois do 8 de "018": no valor formatado, logo depois do 8 de "(18".
+    // mata: − skipped virando − countryCode no cálculo do cursor em maskPhone
+    expect(maskPhone('018 99701-7249', 3)).toEqual({ value: '(18) 99701-7249', caret: 3 });
   });
 
   test('número com + e código de outro país fica como foi digitado', () => {

@@ -1,4 +1,4 @@
-import { test, expect, jumpTo, type Locator } from './fixtures';
+import { test, expect, jumpTo, jumpToSection, type Locator, type Page } from './fixtures';
 
 const ROYAL = 'rgb(0, 22, 123)';
 const MOBILE = { width: 390, height: 844 };
@@ -349,4 +349,136 @@ test('as listas de conteúdo mantêm a semântica de lista no Safari', async ({ 
   const lists = page.locator('#atuacao ul, #contato ul, [data-footer] ul');
   await expect(lists).toHaveCount(5);
   for (const list of await lists.all()) await expect(list).toHaveAttribute('role', 'list');
+});
+
+/**
+ * Rola em `samples` paradas, levando o topo de `anchor` de `from` a `to` (frações da altura da
+ * tela), e anota em cada parada quais `items` estão acesos (com a classe `lit`).
+ */
+function litWhileScrolling(
+  page: Page,
+  options: { anchor: string; items: string; lit: string; from: number; to: number },
+  samples = 16,
+): Promise<boolean[][]> {
+  return page.evaluate(
+    async ({ anchor, items, lit, from, to, stops }) => {
+      const target = document.querySelector(anchor);
+      if (!target) throw new Error(`${anchor} não existe`);
+      const elements = [...document.querySelectorAll(items)];
+      const seen: boolean[][] = [];
+      for (let i = 0; i < stops; i++) {
+        const top = window.innerHeight * (from + ((to - from) * i) / (stops - 1));
+        window.scrollBy({ top: target.getBoundingClientRect().top - top, behavior: 'instant' });
+        await new Promise(requestAnimationFrame);
+        await new Promise(requestAnimationFrame);
+        seen.push(elements.map((element) => element.classList.contains(lit)));
+      }
+      return seen;
+    },
+    { ...options, stops: samples },
+  );
+}
+
+test.describe('rolagem', () => {
+  test.use({ viewport: DESKTOP });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('a barra de progresso vai de 0 no topo a 1 no fim da página', async ({ page }) => {
+    // mata: y / maxScroll virando y / scrollHeight em scroll-effects (sem descontar a tela)
+    const scale = () =>
+      page
+        .locator('[data-progress]')
+        .evaluate((bar) => new DOMMatrix(getComputedStyle(bar).transform).a);
+    await expect.poll(scale).toBeCloseTo(0, 2);
+    await jumpTo(page, await page.evaluate(() => document.documentElement.scrollHeight));
+    await expect.poll(scale).toBeCloseTo(1, 2);
+  });
+
+  test('o indicador da navegação fica sob o link da seção visível', async ({ page }) => {
+    // mata: translateX(linkRect.left − navRect.left) virando translateX(linkRect.left)
+    const indicator = page.locator('[data-nav-ind]');
+    for (const [id, name] of [
+      ['atuacao', 'Atuação'],
+      ['duvidas', 'Dúvidas'],
+    ] as const) {
+      await jumpToSection(page, id);
+      const link = page.locator('[data-nav]').getByRole('link', { name, exact: true });
+      await expect(link).toHaveAttribute('aria-current', 'true');
+      // O indicador desliza até o link: vale a posição em que ele para.
+      await expect
+        .poll(async () => {
+          const [bar, under] = await Promise.all([indicator.boundingBox(), link.boundingBox()]);
+          if (!bar || !under) return Infinity;
+          return Math.max(Math.abs(bar.x - under.x), Math.abs(bar.width - under.width));
+        })
+        .toBeLessThan(1);
+    }
+  });
+
+  const lighting = [
+    {
+      title: 'as etapas acendem em ordem ao rolar',
+      // mata: index < active virando steps.length − 1 − index < active (de trás para a frente)
+      scroll: { anchor: '[data-step]', items: '[data-step]', lit: 'is-active', from: 1, to: 0.3 },
+    },
+    {
+      title: 'as palavras do manifesto acendem ao rolar',
+      // mata: index < lit virando index <= lit (a primeira palavra acende antes da hora)
+      scroll: {
+        anchor: '[data-statement]',
+        items: '[data-statement] > *',
+        lit: 'is-lit',
+        from: 1,
+        to: -0.5,
+      },
+    },
+  ];
+  for (const { title, scroll } of lighting) {
+    test(title, async ({ page }) => {
+      const seen = await litWhileScrolling(page, scroll);
+      const counts = seen.map((lit) => lit.filter(Boolean).length);
+      // Cada parada acende um começo da lista, que só cresce, de nenhum a todos, passando por
+      // estados intermediários.
+      expect(seen).toEqual(counts.map((count, stop) => seen[stop]?.map((_, i) => i < count)));
+      expect(counts).toEqual(counts.toSorted((a, b) => a - b));
+      expect(counts[0]).toBe(0);
+      expect(counts.at(-1)).toBe(seen[0]?.length);
+      expect(new Set(counts).size).toBeGreaterThan(2);
+    });
+  }
+
+  test('o botão flutuante some perto do rodapé', async ({ page }) => {
+    // mata: !(nearContact || nearFooter) virando !nearContact em isFabVisible
+    await page.setViewportSize(MOBILE);
+    const fab = page.locator('[data-fab]');
+    await jumpTo(page, 1500);
+    await expect(fab).toHaveClass(/is-visible/);
+    // No fim da página o contato já saiu por cima da tela e só o rodapé aparece.
+    await jumpTo(page, await page.evaluate(() => document.documentElement.scrollHeight));
+    await expect
+      .poll(() =>
+        page.evaluate(() => document.getElementById('contato')?.getBoundingClientRect().bottom),
+      )
+      .toBeLessThan(0);
+    await expect(fab).not.toHaveClass(/is-visible/);
+  });
+});
+
+test('depois de trocar o tema, o botão principal volta à opacidade 1', async ({ page }) => {
+  // mata: leave.cancel() removido em topic-picker (a saída, com fill forwards, prende o rótulo em 0)
+  await page.setViewportSize(DESKTOP);
+  await page.goto('/');
+  await page.getByText('Consumidor', { exact: true }).click();
+  const cta = page.locator('[data-wa-cta]');
+  // O rótulo novo entra quando a saída do antigo termina; a entrada começa no mesmo instante.
+  await expect(cta).toHaveText('Conversar sobre consumo');
+  await cta.evaluate((node) =>
+    Promise.all(node.getAnimations({ subtree: true }).map((animation) => animation.finished)),
+  );
+  for (const element of [cta, cta.locator('[data-wa-label]')]) {
+    await expect(element).toHaveCSS('opacity', '1');
+  }
 });

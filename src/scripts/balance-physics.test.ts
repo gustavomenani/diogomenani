@@ -101,6 +101,37 @@ describe('isSettled', () => {
     expect(isSettled({ ...AT_LEVEL, pansVelocity: 1.1 * TOL }, LEVEL, TOL)).toBe(false);
   });
 
+  test('exatamente na tolerância, nenhuma das quatro grandezas assenta', () => {
+    // Nível zero: com LEVEL, (LEVEL + TOL) − LEVEL sai um tico abaixo de TOL em ponto flutuante.
+    // mata: < virando <= na comparação do ângulo em isSettled
+    expect(isSettled({ ...REST, angle: TOL }, 0, TOL)).toBe(false);
+    // mata: < virando <= na comparação da velocidade do travessão em isSettled
+    expect(isSettled({ ...AT_LEVEL, angleVelocity: TOL }, LEVEL, TOL)).toBe(false);
+    // mata: < virando <= na comparação dos pratos em isSettled
+    expect(isSettled({ ...AT_LEVEL, pans: TOL }, LEVEL, TOL)).toBe(false);
+    // mata: < virando <= na comparação da velocidade dos pratos em isSettled
+    expect(isSettled({ ...AT_LEVEL, pansVelocity: TOL }, LEVEL, TOL)).toBe(false);
+  });
+
+  test('acima da tolerância, para qualquer lado, nenhuma das quatro grandezas assenta', () => {
+    for (const sign of [1, -1]) {
+      const over = sign * 1.1 * TOL;
+      // mata: Math.abs removido do ângulo em isSettled
+      expect(isSettled({ ...AT_LEVEL, angle: LEVEL + over }, LEVEL, TOL)).toBe(false);
+      // mata: Math.abs removido da velocidade do travessão em isSettled
+      expect(isSettled({ ...AT_LEVEL, angleVelocity: over }, LEVEL, TOL)).toBe(false);
+      // mata: Math.abs removido dos pratos em isSettled
+      expect(isSettled({ ...AT_LEVEL, pans: over }, LEVEL, TOL)).toBe(false);
+      // mata: Math.abs removido da velocidade dos pratos em isSettled
+      expect(isSettled({ ...AT_LEVEL, pansVelocity: over }, LEVEL, TOL)).toBe(false);
+    }
+  });
+
+  test('o travessão é medido em relação ao nível, não ao zero', () => {
+    // mata: state.angle − level virando state.angle em isSettled
+    expect(isSettled({ ...REST, angle: 0 }, LEVEL, TOL)).toBe(false);
+  });
+
   test('partindo do desenho inclinado, passa do nível e assenta antes de 10 s a 60 fps', () => {
     // Um centésimo de grau, bem mais apertado que o da tela (o raio renderizado fica abaixo de
     // 100 px): assentar assim garante assentar com qualquer raio menor.
