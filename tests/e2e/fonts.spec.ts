@@ -56,7 +56,7 @@ test('títulos e texto usam as fontes do próprio site', async ({ page }) => {
     };
   });
   expect(families).toEqual({
-    heading: { family: expect.stringMatching(/^Bodoni Moda/), loaded: true },
+    heading: { family: expect.stringMatching(/^Baskervville/), loaded: true },
     text: { family: expect.stringMatching(/^Hanken Grotesk/), loaded: true },
   });
   const origin = new URL(page.url()).origin;
@@ -72,7 +72,7 @@ test('as variantes normais têm preload e nenhum arquivo de fonte vem à toa', a
   await expect(
     page.locator('link[rel="preload"][as="font"][type="font/woff2"][crossorigin]'),
   ).toHaveCount(2);
-  // Bodoni Moda normal e itálica e Hanken Grotesk normal: nenhum arquivo a mais.
+  // Baskervville normal e itálica e Hanken Grotesk normal: nenhum arquivo a mais.
   expect(new Set(downloads.map(({ url }) => url)).size).toBe(3);
 });
 

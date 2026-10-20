@@ -25,6 +25,9 @@ body {
   color: var(--ink);
   background: #fff;
   overflow-x: clip;
+
+  /* A Baskervville traz algarismos de texto (0 parece o): OAB, etapas e datas usam os de título. */
+  font-variant-numeric: lining-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -144,7 +147,6 @@ body {
   letter-spacing: -0.018em;
   color: var(--royal);
   text-wrap: balance;
-  font-variation-settings: 'opsz' 30;
 }
 
 .is-royal .h2 {

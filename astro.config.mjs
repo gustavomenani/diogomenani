@@ -37,20 +37,20 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.local(),
-      name: 'Bodoni Moda',
-      cssVariable: '--font-bodoni',
-      fallbacks: ['Bodoni 72', 'Didot', 'Bodoni MT', 'Georgia', 'serif'],
+      name: 'Baskervville',
+      cssVariable: '--font-baskervville',
+      fallbacks: ['Baskerville', 'Baskerville Old Face', 'Georgia', 'serif'],
       unicodeRange: LATIN,
       options: {
         variants: [
           {
-            src: ['./src/assets/fonts/bodoni-moda-normal-latin.woff2'],
-            weight: '400 900',
+            src: ['./src/assets/fonts/baskervville-normal-latin.woff2'],
+            weight: '400 700',
             style: 'normal',
           },
           {
-            src: ['./src/assets/fonts/bodoni-moda-italic-latin.woff2'],
-            weight: '400 900',
+            src: ['./src/assets/fonts/baskervville-italic-latin.woff2'],
+            weight: '400 700',
             style: 'italic',
           },
         ],

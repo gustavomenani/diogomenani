@@ -168,7 +168,7 @@ Na Vercel ou na Netlify, importe o projeto com o comando de build `npm run build
 
 - `brand/originais/logo.jpg` e `brand/originais/themis.jpg`: os arquivos enviados originalmente.
 - `brand/logo-dm.svg` e `brand/themis.svg`: as versões vetorizadas, para uso fora do site. A página desenha a marca a partir de `src/data/brand.ts`.
-- Fontes: Bodoni Moda e Hanken Grotesk, sob a SIL Open Font License 1.1 (licenças em `src/assets/fonts/`). São servidas pelo próprio site, sem nenhuma requisição ao Google.
+- Fontes: Baskervville (títulos) e Hanken Grotesk (texto), sob a SIL Open Font License 1.1 (licenças em `src/assets/fonts/`). São servidas pelo próprio site, sem nenhuma requisição ao Google.
 - Ícones: Tabler Icons, sob a licença MIT (texto em `src/data/MIT-tabler-icons.txt`).
 
 ## Design
