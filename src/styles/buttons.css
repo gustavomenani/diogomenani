@@ -18,7 +18,7 @@
   outline-offset: -1px;
   font-family: var(--sans);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--fs-base);
   line-height: 1.2;
   letter-spacing: 0.005em;
   text-align: center;

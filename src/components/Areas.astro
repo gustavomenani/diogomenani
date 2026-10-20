@@ -60,7 +60,7 @@ import { messages, waLink } from '../lib/whatsapp';
 
   .areas-note {
     margin-top: 22px;
-    font-size: 16px;
+    font-size: var(--fs-base);
     color: var(--ink-soft);
   }
 
@@ -114,7 +114,7 @@ import { messages, waLink } from '../lib/whatsapp';
     display: block;
     margin-top: 8px;
     max-width: 34em;
-    font-size: 16px;
+    font-size: var(--fs-base);
     line-height: 1.55;
     color: var(--ink-soft);
     transition: color 0.5s var(--ease);
@@ -124,7 +124,7 @@ import { messages, waLink } from '../lib/whatsapp';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--royal-bright);
     transition: color 0.5s var(--ease);
@@ -188,10 +188,10 @@ import { messages, waLink } from '../lib/whatsapp';
       align-items: start;
     }
 
-    /* Gruda abaixo do header fixo, com folga. */
+    /* Gruda abaixo do header (já encolhido pela rolagem), com 48 px de folga. */
     .areas-head {
       position: sticky;
-      top: 120px;
+      top: calc(var(--header-h-scrolled) + 48px);
     }
   }
 

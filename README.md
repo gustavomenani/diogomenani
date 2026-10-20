@@ -33,6 +33,7 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 ```text
 src/
 ├── pages/index.astro      a página: monta as seções na ordem
+├── pages/wordmark-*.ts    a assinatura do rodapé em arquivo: /wordmark-name.svg e /wordmark-sub.svg
 ├── layouts/Base.astro     <head>, fontes, skip link, os scripts que iniciam a página e o estilo sem JS
 ├── components/            uma seção por arquivo, mais as peças que elas usam
 ├── data/                  dados do escritório e conteúdo das seções (fonte única)
@@ -69,7 +70,7 @@ Peças usadas pelas seções:
 - `WhatsAppButton.astro`: botão padrão do WhatsApp (rótulo por prop; sempre com a mensagem de agendamento).
 - `Field.astro`: campo do formulário com rótulo, controle e mensagem de erro.
 - `Icon.astro`: ícone pelo nome.
-- `Monogram.astro`: o monograma DM.
+- `Monogram.astro`: o monograma DM. Com `symbol`, desenha o `<symbol>` (o header faz isso); sem, reaproveita o desenho com `<use>`.
 - `Themis.astro`: a Têmis em SVG, com a balança articulada.
 - `MobileMenu.astro`: o menu de tela cheia do celular; mora no `Header.astro`, com o próprio CSS.
 - `TopicPicker.astro`: o seletor de tema (chips) do `Hero.astro`.
@@ -103,8 +104,8 @@ Peças usadas pelas seções:
 
 `global.css` importa a camada global, nesta ordem:
 
-- `tokens.css`: cores, famílias tipográficas, curvas de animação e medidas.
-- `base.css`: reset, raiz `.page`, foco, contêiner, seções, títulos, skip link e `.sr-only`.
+- `tokens.css`: cores, famílias tipográficas, escala de tamanhos de texto (`--fs-*`, a única que o Stylelint aceita em `font-size`, além de `clamp()` nos títulos), camadas (`--z-*`), curvas de animação e medidas.
+- `base.css`: reset, raiz `.page`, foco, contêiner, seções, títulos, brilho radial (`.glow`), skip link e `.sr-only`.
 - `buttons.css`: botões e links de ação.
 - `forms.css`: campos do formulário.
 - `motion.css`: sistema de revelação e keyframes.

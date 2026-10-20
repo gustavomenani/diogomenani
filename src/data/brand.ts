@@ -7,6 +7,12 @@ export const monogram = {
 } as const;
 
 /**
+ * Id do `<symbol>` do monograma, desenhado no header. O rodapé (e quem mais usar o monograma
+ * na mesma página) reaproveita o desenho com `<use href="#…">`.
+ */
+export const MONOGRAM_SHAPE_ID = 'monogram-shape';
+
+/**
  * Id do grupo com o desenho da Têmis no hero. O rodapé reaproveita o mesmo desenho com
  * `<use href="#…">`, então os dois precisam concordar neste id.
  */

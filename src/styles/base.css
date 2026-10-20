@@ -20,7 +20,7 @@ body {
 .page {
   position: relative;
   font-family: var(--sans);
-  font-size: 17px;
+  font-size: var(--fs-body);
   line-height: 1.65;
   color: var(--ink);
   background: #fff;
@@ -139,6 +139,23 @@ body {
   color: #fff;
 }
 
+/*
+ * Brilho radial dos fundos royal (hero, retrato, manifesto e contato). Cada componente define a
+ * posição, o tamanho (--glow-size) e a força no centro (--glow-alpha).
+ */
+.glow {
+  position: absolute;
+  width: var(--glow-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--glow-rgb) / var(--glow-alpha)),
+    rgb(var(--royal-rgb) / 0%)
+  );
+  pointer-events: none;
+}
+
 .h2 {
   font-family: var(--serif);
   font-weight: 500;
@@ -169,13 +186,13 @@ body {
   position: fixed;
   top: 12px;
   left: 12px;
-  z-index: 60;
+  z-index: var(--z-skip);
   padding: 12px 20px;
   border-radius: var(--radius-pill);
   background: #fff;
   color: var(--royal);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--fs-md);
   line-height: 1.2;
   transform: translateY(calc(-100% - 24px));
   transition: transform 0.3s var(--ease);

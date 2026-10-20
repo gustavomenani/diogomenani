@@ -45,7 +45,7 @@ const PHOTO_SIZES = [
           />
         ) : (
           <div class="portrait-art">
-            <span class="portrait-glow" aria-hidden="true"></span>
+            <span class="glow portrait-glow" aria-hidden="true"></span>
             <span class="portrait-ph">
               <span class="portrait-ph-title">Foto de Diogo Menani</span>
               <span class="portrait-ph-sub">[retrato profissional vertical, 4:5]</span>
@@ -122,17 +122,11 @@ const PHOTO_SIZES = [
   }
 
   .portrait-glow {
-    position: absolute;
+    --glow-size: 90%;
+    --glow-alpha: 50%;
+
     right: -24%;
     top: -22%;
-    width: 90%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(
-      closest-side,
-      rgb(var(--glow-rgb) / 50%),
-      rgb(var(--royal-rgb) / 0%)
-    );
   }
 
   .portrait-ph {
@@ -153,7 +147,7 @@ const PHOTO_SIZES = [
   }
 
   .portrait-ph-sub {
-    font-size: 14px;
+    font-size: var(--fs-sm);
     color: var(--sky);
   }
 
@@ -203,13 +197,13 @@ const PHOTO_SIZES = [
 
   .cred dt {
     margin-bottom: 4px;
-    font-size: 13px;
+    font-size: var(--fs-xs);
     font-weight: 600;
     color: var(--royal);
   }
 
   .cred dd {
-    font-size: 16px;
+    font-size: var(--fs-base);
     line-height: 1.5;
     color: var(--ink);
   }

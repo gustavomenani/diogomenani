@@ -16,7 +16,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
 
 <section class="hero is-royal" id={sectionIds.top} aria-labelledby="hero-title" data-hero>
   <div class="hero-bg" aria-hidden="true">
-    <span class="hero-glow" data-glow></span>
+    <span class="glow hero-glow" data-glow></span>
   </div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
@@ -90,20 +90,20 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     position: absolute;
     inset: auto 0 0;
     height: 45%;
-    background: linear-gradient(to top, rgb(0 8 64 / 50%), rgb(0 8 64 / 0%));
+    background: linear-gradient(to top, rgb(var(--shade-rgb) / 50%), rgb(var(--shade-rgb) / 0%));
   }
 
+  /* O brilho do hero tem uma parada a mais no meio e se apaga antes da borda do círculo. */
   .hero-glow {
-    position: absolute;
+    --glow-size: min(1040px, 92vw);
+    --glow-alpha: 46%;
+
     right: -6%;
     top: -14%;
-    width: min(1040px, 92vw);
-    aspect-ratio: 1;
-    border-radius: 50%;
     background: radial-gradient(
       closest-side,
-      rgb(var(--glow-rgb) / 46%),
-      rgb(58 86 230 / 18%) 48%,
+      rgb(var(--glow-rgb) / var(--glow-alpha)),
+      var(--glow-mid) 48%,
       rgb(var(--royal-rgb) / 0%) 74%
     );
     animation: fade 2.6s ease-out 0.25s backwards;
@@ -182,7 +182,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     background: radial-gradient(
         closest-side,
         rgb(255 255 255 / 95%),
-        rgb(190 205 255 / 30%) 60%,
+        var(--rule-spark) 60%,
         rgb(255 255 255 / 0%)
       )
       0 50% / 96px 18px no-repeat;
@@ -238,7 +238,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     gap: 10px 0;
     padding-top: 22px;
     border-top: 1px solid var(--line-on-royal);
-    font-size: 14px;
+    font-size: var(--fs-sm);
     color: var(--sky);
   }
 

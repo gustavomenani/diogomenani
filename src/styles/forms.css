@@ -11,7 +11,7 @@
 .field label {
   display: block;
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink);
 }
@@ -32,7 +32,7 @@
   border-radius: 12px;
   background: var(--field-bg);
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--fs-base);
   line-height: 1.4;
   caret-color: var(--royal);
   appearance: none;
@@ -101,7 +101,7 @@
 .field-error {
   display: none;
   margin-top: 6px;
-  font-size: 13.5px;
+  font-size: var(--fs-sm);
   color: var(--danger);
 }
 
@@ -134,7 +134,7 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  font-size: 14px;
+  font-size: var(--fs-sm);
   line-height: 1.5;
   color: var(--ink-soft);
   cursor: pointer;

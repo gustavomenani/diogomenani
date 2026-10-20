@@ -9,6 +9,14 @@ import { externalLink } from '../lib/links';
 import { waLink } from '../lib/whatsapp';
 
 const year = new Date().getFullYear();
+
+/** Largura e altura de cada linha da assinatura, lidas do viewBox (proporção da imagem). */
+const sizeOf = (viewBox: string) => {
+  const [width = 0, height = 0] = viewBox.split(' ').slice(2).map(Number);
+  return { width, height };
+};
+const NAME_SIZE = sizeOf(wordmark.name.viewBox);
+const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
 ---
 
 <footer class="footer" data-footer>
@@ -17,26 +25,28 @@ const year = new Date().getFullYear();
       <svg class="footer-themis" viewBox={themis.viewBox} aria-hidden="true" focusable="false">
         <use href={`#${THEMIS_SHAPE_ID}`}></use>
       </svg>
+      {/* O monograma reaproveita o <symbol> que o header desenha. */}
       <Monogram class="footer-mark" data-reveal />
       <span class="footer-rule" aria-hidden="true" data-reveal="draw"></span>
-      <svg
+      {/* A assinatura vem de arquivo (src/pages/wordmark-[part].svg.ts): fica fora do HTML. */}
+      <img
         class="footer-name"
-        viewBox={wordmark.name.viewBox}
-        role="img"
-        aria-label="Diogo Menani"
-        focusable="false"
-      >
-        <path fill="currentColor" d={wordmark.name.d}></path>
-      </svg>
-      <svg
+        src="/wordmark-name.svg"
+        alt="Diogo Menani"
+        width={NAME_SIZE.width}
+        height={NAME_SIZE.height}
+        loading="lazy"
+        decoding="async"
+      />
+      <img
         class="footer-sub"
-        viewBox={wordmark.sub.viewBox}
-        role="img"
-        aria-label="Advocacia e Assessoria Jurídica"
-        focusable="false"
-      >
-        <path fill="currentColor" d={wordmark.sub.d}></path>
-      </svg>
+        src="/wordmark-sub.svg"
+        alt="Advocacia e Assessoria Jurídica"
+        width={SUB_SIZE.width}
+        height={SUB_SIZE.height}
+        loading="lazy"
+        decoding="async"
+      />
     </div>
     <div class="footer-cols">
       <nav class="footer-col" aria-labelledby="footer-nav-title">
@@ -154,14 +164,12 @@ const year = new Date().getFullYear();
   .footer-name {
     width: min(560px, 84%);
     height: auto;
-    color: #fff;
   }
 
   .footer-sub {
     width: min(470px, 70%);
     height: auto;
     margin-top: 14px;
-    color: #fff;
   }
 
   .footer-cols {
@@ -174,7 +182,7 @@ const year = new Date().getFullYear();
 
   .footer-col .footer-col-title {
     margin-bottom: 16px;
-    font-size: 13px;
+    font-size: var(--fs-xs);
     font-weight: 600;
     color: var(--sky-dim);
   }
@@ -187,7 +195,7 @@ const year = new Date().getFullYear();
   /* Um e-mail ou endereço longo quebra em qualquer ponto em vez de sair da tela. */
   .footer-col li,
   .footer-col p {
-    font-size: 15.5px;
+    font-size: var(--fs-md);
     line-height: 1.5;
     color: #fff;
     overflow-wrap: anywhere;
@@ -224,7 +232,7 @@ const year = new Date().getFullYear();
     margin-top: 56px;
     padding-top: 28px;
     border-top: 1px solid var(--line-on-royal);
-    font-size: 13.5px;
+    font-size: var(--fs-sm);
     line-height: 1.55;
     color: var(--sky);
   }

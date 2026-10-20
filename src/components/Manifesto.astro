@@ -5,7 +5,7 @@ const words = manifesto.split(' ');
 ---
 
 <section class="section statement is-royal" aria-labelledby="statement-title">
-  <span class="statement-glow" aria-hidden="true"></span>
+  <span class="glow statement-glow" aria-hidden="true"></span>
   <div class="wrap">
     <h2 class="sr-only" id="statement-title">
       Compromissos
@@ -36,18 +36,11 @@ const words = manifesto.split(' ');
   }
 
   .statement-glow {
-    position: absolute;
+    --glow-size: min(1100px, 110vw);
+    --glow-alpha: 32%;
+
     left: -20%;
     bottom: -60%;
-    width: min(1100px, 110vw);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(
-      closest-side,
-      rgb(var(--glow-rgb) / 32%),
-      rgb(var(--royal-rgb) / 0%)
-    );
-    pointer-events: none;
   }
 
   .statement .wrap {
@@ -103,7 +96,7 @@ const words = manifesto.split(' ');
 
   .commitment dd {
     max-width: 30em;
-    font-size: 16px;
+    font-size: var(--fs-base);
     line-height: 1.6;
     color: var(--sky);
   }

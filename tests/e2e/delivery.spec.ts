@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
+import { monogram, wordmark } from '../../src/data/brand';
 import { test, expect } from './fixtures';
 
 /** Regra de cache dos assets com hash no nome: nunca mudam, então o navegador guarda por 1 ano. */
@@ -40,6 +41,31 @@ test('imagem de prévia em 1200×630', async ({ request }) => {
   expect(response.status()).toBe(200);
   expect(response.headers()['content-type']).toBe('image/png');
   expect(pngSize(await response.body())).toEqual({ width: 1200, height: 630 });
+});
+
+test('wordmark servido como arquivo', async ({ request }) => {
+  // Nome e linha de baixo em arquivos separados: no rodapé, cada um tem a própria largura e o
+  // espaço entre eles é fixo, o que um SVG só não reproduz em todas as larguras de tela.
+  for (const [href, part] of [
+    ['/wordmark-name.svg', wordmark.name],
+    ['/wordmark-sub.svg', wordmark.sub],
+  ] as const) {
+    const response = await request.get(href);
+    expect(response.status(), href).toBe(200);
+    expect(response.headers()['content-type'], href).toMatch(/^image\/svg\+xml\b/);
+    const svg = await response.text();
+    expect(svg, href).toContain(`viewBox="${part.viewBox}"`);
+    expect(svg, href).toContain(part.d);
+  }
+  const html = await (await request.get('/')).text();
+  expect(html).not.toContain(wordmark.name.d.slice(0, 40));
+  expect(html).not.toContain(wordmark.sub.d.slice(0, 40));
+});
+
+test('monograma desenhado uma vez', async ({ request }) => {
+  const html = await (await request.get('/')).text();
+  const drawings = html.split(`d="${monogram.d}"`).length - 1;
+  expect(drawings).toBe(1);
 });
 
 test('cache longo dos assets declarado', () => {

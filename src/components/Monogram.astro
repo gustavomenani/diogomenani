@@ -1,11 +1,25 @@
 ---
+/**
+ * O monograma DM. O desenho vai uma vez por página: quem passa `symbol` o desenha num
+ * `<symbol>` (o header, ou quem usar o monograma numa página sem header); os demais só
+ * reaproveitam o desenho com `<use>`.
+ */
 import type { HTMLAttributes } from 'astro/types';
-import { monogram } from '../data/brand';
+import { MONOGRAM_SHAPE_ID, monogram } from '../data/brand';
 
-type Props = HTMLAttributes<'svg'>;
-const props = Astro.props;
+type Props = HTMLAttributes<'svg'> & {
+  /** Desenha o `<symbol>` do monograma; sem isso, a página já precisa ter um. */
+  symbol?: boolean;
+};
+
+const { symbol = false, ...props } = Astro.props;
 ---
 
 <svg viewBox={monogram.viewBox} aria-hidden="true" focusable="false" {...props}>
-  <path fill="currentColor" d={monogram.d} />
+  {symbol && (
+    <symbol id={MONOGRAM_SHAPE_ID} viewBox={monogram.viewBox}>
+      <path fill="currentColor" d={monogram.d} />
+    </symbol>
+  )}
+  <use href={`#${MONOGRAM_SHAPE_ID}`}></use>
 </svg>
