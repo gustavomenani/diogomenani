@@ -12,6 +12,23 @@ const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/diogo.{jp
   caseSensitive: false,
 });
 const photo = Object.values(photos)[0]?.default;
+
+/**
+ * Largura do retrato na tela, pelo CSS abaixo e pelo .wrap (até 1320 px, margem lateral
+ * clamp(20px, 4,4vw, 64px)):
+ * - até 639 px, 340 px, ou a largura útil (100vw − 40px) nas telas com menos de 380 px;
+ * - de 640 a 959 px, 480 px (a coluna única sempre tem mais que isso);
+ * - de 960 px em diante, a coluna de 5fr (de 12) da largura útil menos o vão de 7vw:
+ *   (100vw − 2·4,4vw − 7vw)·5/12 ≈ 35,1vw até 1319 px; daí em diante o .wrap para de crescer e a
+ *   coluna fica entre 447 e 464 px.
+ */
+const PHOTO_SIZES = [
+  '(max-width: 379px) calc(100vw - 40px)',
+  '(max-width: 639px) 340px',
+  '(max-width: 959px) 480px',
+  '(max-width: 1319px) 35.1vw',
+  '464px',
+].join(', ');
 ---
 
 <section class="section about" id={sectionIds.about} aria-labelledby="sobre-title">
@@ -24,7 +41,7 @@ const photo = Object.values(photos)[0]?.default;
             alt="Diogo Menani"
             class="portrait-photo"
             widths={[340, 480, 680, 960]}
-            sizes="(max-width: 639px) 340px, 480px"
+            sizes={PHOTO_SIZES}
           />
         ) : (
           <div class="portrait-art">

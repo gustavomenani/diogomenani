@@ -19,7 +19,13 @@ const { title, description } = Astro.props;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#00167B" />
+    {/*
+      PNG para os navegadores que não usam o favicon SVG; a tela de início do iOS pede o próprio
+      ícone, quadrado e opaco (o sistema arredonda os cantos). Gerados por npm run generate:images.
+    */}
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {/* Só as variantes normais têm preload: a itálica aparece apenas na seção Sobre. */}
     <Font cssVariable="--font-baskervville" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-hanken" preload={[{ style: 'normal' }]} />

@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { clampDt, isSettled, levelAngle, stepBalance, type BalanceState } from './balance-physics';
+import {
+  clampDt,
+  isSettled,
+  levelAngle,
+  settleTolerance,
+  stepBalance,
+  type BalanceState,
+} from './balance-physics';
 
 /** Pontos onde os pratos ficam pendurados no desenho da Têmis. */
 const LEFT = { x: 161, y: 281 };
@@ -58,25 +65,51 @@ describe('stepBalance', () => {
   });
 });
 
+describe('settleTolerance', () => {
+  // 0,1 px de arco: 0,1 / raio em radianos.
+  test('num raio de 573 px, 0,1 px de arco é um centésimo de grau', () => {
+    expect(settleTolerance(573)).toBeCloseTo(0.01, 5);
+  });
+
+  test('num raio de 100 px, 0,1 px de arco é 0,0573°', () => {
+    expect(settleTolerance(100)).toBeCloseTo(0.0573, 5);
+  });
+});
+
 describe('isSettled', () => {
+  const TOL = settleTolerance(100);
+  const AT_LEVEL: BalanceState = { ...REST, angle: LEVEL };
+
   test('a balança em repouso no nível está assentada', () => {
-    expect(isSettled({ ...REST, angle: LEVEL }, LEVEL)).toBe(true);
+    expect(isSettled(AT_LEVEL, LEVEL, TOL)).toBe(true);
   });
 
-  test('um centésimo de grau fora do nível ainda não está assentado', () => {
-    expect(isSettled({ ...REST, angle: LEVEL + 0.01 }, LEVEL)).toBe(false);
+  test('o travessão assenta logo abaixo da tolerância, não logo acima', () => {
+    expect(isSettled({ ...AT_LEVEL, angle: LEVEL + 0.9 * TOL }, LEVEL, TOL)).toBe(true);
+    expect(isSettled({ ...AT_LEVEL, angle: LEVEL - 1.1 * TOL }, LEVEL, TOL)).toBe(false);
   });
 
-  test('pratos ainda balançando impedem o assentamento', () => {
-    expect(isSettled({ ...REST, angle: LEVEL, pansVelocity: 0.02 }, LEVEL)).toBe(false);
+  test('os pratos assentam logo abaixo da tolerância, não logo acima', () => {
+    expect(isSettled({ ...AT_LEVEL, pans: -0.9 * TOL }, LEVEL, TOL)).toBe(true);
+    expect(isSettled({ ...AT_LEVEL, pans: 1.1 * TOL }, LEVEL, TOL)).toBe(false);
+  });
+
+  test('as velocidades usam a mesma tolerância, por segundo', () => {
+    expect(isSettled({ ...AT_LEVEL, angleVelocity: 0.9 * TOL }, LEVEL, TOL)).toBe(true);
+    expect(isSettled({ ...AT_LEVEL, angleVelocity: -1.1 * TOL }, LEVEL, TOL)).toBe(false);
+    expect(isSettled({ ...AT_LEVEL, pansVelocity: -0.9 * TOL }, LEVEL, TOL)).toBe(true);
+    expect(isSettled({ ...AT_LEVEL, pansVelocity: 1.1 * TOL }, LEVEL, TOL)).toBe(false);
   });
 
   test('partindo do desenho inclinado, passa do nível e assenta antes de 10 s a 60 fps', () => {
+    // Um centésimo de grau, bem mais apertado que o da tela (o raio renderizado fica abaixo de
+    // 100 px): assentar assim garante assentar com qualquer raio menor.
+    const tolerance = settleTolerance(573);
     const startSide = Math.sign(REST.angle - LEVEL);
     let state = REST;
     let steps = 0;
     let crossed = false;
-    while (!isSettled(state, LEVEL) && steps < 600) {
+    while (!isSettled(state, LEVEL, tolerance) && steps < 600) {
       state = stepBalance(state, 1 / 60, LEVEL);
       crossed ||= Math.sign(state.angle - LEVEL) === -startSide;
       steps++;

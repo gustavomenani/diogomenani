@@ -2,6 +2,7 @@ import {
   clampDt,
   isSettled,
   levelAngle,
+  settleTolerance,
   stepBalance,
   type BalanceState,
   type Point,
@@ -27,6 +28,18 @@ const pointOf = (element: Element): Point => {
   return { x, y };
 };
 
+const distance = (a: Point, b: Point) => Math.hypot(b.x - a.x, b.y - a.y);
+
+/** Escala da figura na tela (px por unidade do desenho); zero se ela estiver escondida. */
+function renderedScale(svg: SVGSVGElement | null): number {
+  if (!svg) return 0;
+  const box = svg.viewBox.baseVal;
+  const rect = svg.getBoundingClientRect();
+  if (!box.width || !box.height) return 0;
+  // O desenho cabe inteiro no <svg> (preserveAspectRatio padrão): vale a menor das escalas.
+  return Math.min(rect.width / box.width, rect.height / box.height);
+}
+
 /**
  * Anima a balança da Têmis: o travessão gira em torno do seu pivô e cada prato gira em torno do
  * ponto onde está pendurado, compensando o travessão para continuar na vertical.
@@ -39,6 +52,10 @@ export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balan
 
   // O desenho original vem inclinado; este é o ângulo que deixa os dois pratos na mesma altura.
   const level = levelAngle(pointOf(panLeft), pointOf(panRight));
+  // Raio do movimento: a maior distância do pivô a um ponto onde os pratos ficam pendurados.
+  const pivot = pointOf(beam);
+  const arm = Math.max(distance(pivot, pointOf(panLeft)), distance(pivot, pointOf(panRight)));
+  let tolerance = settleTolerance(arm);
   let state: BalanceState = { angle: 0, angleVelocity: 0, pans: 0, pansVelocity: 0 };
   let frame = 0;
   let lastTime = 0;
@@ -61,7 +78,7 @@ export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balan
     const dt = clampDt(time - lastTime);
     lastTime = time;
     state = stepBalance(state, dt, level);
-    if (isSettled(state, level)) {
+    if (isSettled(state, level, tolerance)) {
       settle();
       return;
     }
@@ -73,6 +90,10 @@ export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balan
     if (getMode() === 'reduced') return;
     state = { ...state, angleVelocity: state.angleVelocity + impulse };
     if (!frame) {
+      // Mede a cada balanço, porque o tamanho da figura muda com a janela. Escondida, ela não
+      // tem escala na tela e vale a do desenho (1 px por unidade): o raio fica em ~81 px.
+      const scale = renderedScale(beam.closest('svg'));
+      tolerance = settleTolerance(arm * (scale || 1));
       lastTime = performance.now();
       frame = requestAnimationFrame(tick);
     }

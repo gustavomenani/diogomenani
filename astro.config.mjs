@@ -32,6 +32,9 @@ export default defineConfig({
   // Escopo dos <style> dos componentes via :where(): não acrescenta especificidade, então a
   // cascata segue exatamente o que está escrito no CSS.
   scopedStyleStrategy: 'where',
+  // Todo o CSS vai embutido no HTML: é uma página só, e a primeira pintura não espera um segundo
+  // arquivo (em 4G lento, ~0,7 s antes).
+  build: { inlineStylesheets: 'always' },
   // Fontes servidas pelo próprio site. O Astro gera os @font-face, os preloads do <Font> e
   // fallbacks com métricas ajustadas (o texto não pula quando a fonte chega).
   fonts: [
