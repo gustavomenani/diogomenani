@@ -2,13 +2,25 @@
 import { Font } from 'astro:assets';
 import '../styles/global.css';
 import { anchor, sectionIds } from '../data/navigation';
+import { site } from '../data/site';
 
 interface Props {
   title: string;
   description: string;
+  /** Caminho da página no site ('/', '/privacidade'): canonical e og:url. */
+  path: string;
+  /** Tira a página dos buscadores (a 404). */
+  noindex?: boolean;
+  /** JSON-LD da página. */
+  structuredData?: object;
 }
 
-const { title, description } = Astro.props;
+const { title, description, path, noindex = false, structuredData } = Astro.props;
+
+// Canonical, og:url e a imagem de prévia exigem endereço absoluto: sem o `site` do
+// astro.config.mjs, essas tags não saem (quem lê o Open Graph não resolve caminho relativo).
+const canonical = Astro.site && new URL(path, Astro.site).href;
+const ogImage = Astro.site && new URL(site.ogImage, Astro.site).href;
 ---
 
 <!doctype html>
@@ -18,6 +30,25 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    {/* Prévia do link no WhatsApp e nas redes. */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={site.locale} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && (
+      <Fragment>
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={site.ogImageAlt} />
+        <meta name="twitter:image" content={ogImage} />
+      </Fragment>
+    )}
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#00167B" />
     {/*
       PNG para os navegadores que não usam o favicon SVG; a tela de início do iOS pede o próprio
@@ -45,6 +76,9 @@ const { title, description } = Astro.props;
         }
       </style>
     </noscript>
+    {structuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    )}
   </head>
   <body>
     <div class="page" data-page data-motion="pending">

@@ -223,7 +223,7 @@ test('o título principal tem nome acessível sem aria-label', async ({ page }) 
   await page.goto('/');
   const title = page.getByRole('heading', {
     level: 1,
-    name: 'Clareza para entender. Firmeza para defender.',
+    name: 'Diogo Menani · Advogado em [Cidade/UF] Clareza para entender. Firmeza para defender.',
     exact: true,
   });
   await expect(title).toBeVisible();

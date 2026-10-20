@@ -10,11 +10,15 @@ import Manifesto from '../components/Manifesto.astro';
 import Processo from '../components/Processo.astro';
 import Sobre from '../components/Sobre.astro';
 import { sectionIds } from '../data/navigation';
+import { site } from '../data/site';
+import { legalService } from '../lib/structured-data';
 ---
 
 <Base
-  title="Diogo Menani — Advocacia & Assessoria Jurídica"
-  description="Advocacia e assessoria jurídica para pessoas e empresas, com atendimento presencial e online. Converse com Diogo Menani pelo WhatsApp."
+  title={site.title}
+  description={site.description}
+  path="/"
+  structuredData={legalService(Astro.site)}
 >
   <Header />
   <main id={sectionIds.main}>

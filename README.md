@@ -34,6 +34,8 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 src/
 ├── pages/index.astro      a página: monta as seções na ordem
 ├── pages/wordmark-*.ts    a assinatura do rodapé em arquivo: /wordmark-name.svg e /wordmark-sub.svg
+├── pages/robots.txt.ts    /robots.txt, para os buscadores
+├── pages/sitemap.xml.ts   /sitemap.xml, com as páginas de data/site.ts
 ├── layouts/Base.astro     <head>, fontes, skip link, os scripts que iniciam a página e o estilo sem JS
 ├── components/            uma seção por arquivo, mais as peças que elas usam
 ├── data/                  dados do escritório e conteúdo das seções (fonte única)
@@ -81,10 +83,12 @@ Peças usadas pelas seções:
 - `data/contact.ts`: WhatsApp, OAB, cidade, e-mail, endereço, horário, modo de atendimento e redes sociais.
 - `data/content.ts`: áreas de atuação (com o tema do seletor), credenciais, etapas, manifesto, compromissos e perguntas frequentes.
 - `data/navigation.ts`: ids das seções (as âncoras) e os links do menu e do rodapé.
+- `data/site.ts`: título, descrição e prévia dos links (Open Graph) e as páginas do sitemap.
 - `data/icons.ts`: desenhos dos ícones (Tabler Icons; licença em `data/MIT-tabler-icons.txt`).
 - `data/brand.ts`: vetores do monograma, do nome e da Têmis. Não precisa mexer.
 - `lib/whatsapp.ts`: mensagens prontas, links `wa.me` e a mensagem que o formulário monta.
 - `lib/links.ts`: atributos de link que abre em outra aba.
+- `lib/structured-data.ts`: os dados estruturados (JSON-LD `LegalService`) que os buscadores leem.
 
 ### `src/scripts/`
 
@@ -130,7 +134,7 @@ Peças usadas pelas seções:
 | Títulos e parágrafos de uma seção                                      | o componente da seção em `src/components/`                                                                                |
 | Cores                                                                  | `src/styles/tokens.css` (o azul royal também está no `theme-color` do `src/layouts/Base.astro` e no `public/favicon.svg`) |
 | Fontes                                                                 | `fonts` no `astro.config.mjs` (arquivos em `src/assets/fonts/`)                                                           |
-| Título e descrição da página nos buscadores                            | `src/pages/index.astro`                                                                                                   |
+| Título e descrição da página nos buscadores e na prévia dos links      | `src/data/site.ts`                                                                                                        |
 
 O que aparece em vários pontos da página (telefone, OAB, cidade, nomes das áreas) vem desses arquivos: mude uma vez e vale em todos os lugares.
 
@@ -147,7 +151,7 @@ Tudo o que está entre `[colchetes]` na página:
 - `src/data/contact.ts`: UF e número da OAB, cidade, e-mail (o texto e o `mailto:`), endereço, horário e o link do LinkedIn.
 - `src/data/content.ts`: formação, especialização e ano de início na advocacia.
 
-As 6 áreas de atuação são sugestões para o Diogo confirmar. Quando o site tiver domínio, informe-o em `site` no `astro.config.mjs`.
+As 6 áreas de atuação são sugestões para o Diogo confirmar. Quando o site tiver domínio, informe-o em `site` no `astro.config.mjs`: sem ele, não saem o canonical, a imagem de prévia dos links (`og:image`), o `url` do JSON-LD nem as páginas do sitemap.
 
 ## Qualidade e testes
 

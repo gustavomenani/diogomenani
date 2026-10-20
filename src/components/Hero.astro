@@ -21,6 +21,8 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <h1 class="hero-title" id="hero-title">
+        {/* Nome e cidade antes do título: também abrem o nome acessível do h1. */}
+        <span class="hero-kicker">Diogo Menani · Advogado em {contact.city}</span>{' '}
         {/* O texto para leitores de tela vai inteiro; as palavras animadas ficam aria-hidden. */}
         <span class="sr-only">{TITLE_LINES.join(' ')}</span>
         {titleWords.map((words, lineIndex) => (
@@ -129,6 +131,24 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     line-height: 1.02;
     letter-spacing: -0.02em;
     color: #fff;
+  }
+
+  /*
+   * Entra com o mesmo fade-up do texto de apoio, 0,1 s antes da primeira palavra do título. Ocupa
+   * 36 px inteiros (linha de 18 px e 18 px de margem): com fração, no celular todas as seções de
+   * baixo desceriam uma fração de pixel, e o antialiasing delas mudaria.
+   */
+  .hero-kicker {
+    display: block;
+    margin-bottom: 18px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: var(--fs-xs);
+    line-height: calc(18 / 13);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sky);
+    animation: fade-up 1s var(--ease) 0.08s backwards;
   }
 
   .hero-title .line {
@@ -290,6 +310,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
 
   @media (prefers-reduced-motion: reduce) {
     .hero-title .w > span,
+    .hero-kicker,
     .hero-lead,
     .hero-actions,
     .hero-facts,
