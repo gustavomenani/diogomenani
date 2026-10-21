@@ -179,6 +179,16 @@ npm run test:visual -- --update-snapshots
 
 Em outro sistema operacional, o mesmo comando cria os snapshots daquele sistema.
 
+## Antes de publicar
+
+1. Preencha os dados do Diogo no lugar dos placeholders `[…]`.
+2. Defina `site` em `astro.config.mjs` (o domínio final). Sem ele, não há canonical, `og:image` absoluta nem `Sitemap:`.
+3. Gere as imagens de novo se a marca mudar: `npm run generate:images`.
+4. Rode `npm run check:launch` até sair "Pronto para publicar.". Ele gera o build e lista, com o arquivo, cada placeholder, o domínio de exemplo `seudominio`, o LinkedIn genérico e a falta de canonical na home.
+5. Revise o aviso de privacidade com o Diogo: o texto é um ponto de partida, não parecer jurídico.
+
+A checagem não roda no CI de propósito: enquanto os dados não chegam, ela falha por definição, e o CI tem de continuar verde.
+
 ## Publicar
 
 Na Vercel ou na Netlify, importe o projeto com o comando de build `npm run build` e a pasta de saída `dist`. Em qualquer outra hospedagem de site estático, basta enviar o conteúdo de `dist/`.

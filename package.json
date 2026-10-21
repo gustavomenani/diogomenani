@@ -24,6 +24,7 @@
     "lint:css": "stylelint \"{src,tests}/**/*.{css,astro}\" --max-warnings 0",
     "validate:html": "html-validate dist",
     "generate:images": "node scripts/generate-images.ts",
+    "check:launch": "npm run build && node scripts/check-launch.ts dist",
     "verify": "npm run format:check && npm run lint && npm run check && npm run test && npm run build && npm run validate:html && playwright test"
   },
   "dependencies": {
