@@ -92,11 +92,19 @@ test('voltar no histórico com o menu aberto o fecha', async ({ page }) => {
   await menuLink(page, 'Dúvidas').click();
   await expect(page).toHaveURL(/#duvidas$/);
   // Descer até a seção recolhe o header: uma subida curta o traz de volta, como faria quem lê.
+  // Antes, a rolagem até a âncora assenta logo abaixo do header (84 px), igual em duas leituras
+  // seguidas: subir no meio dela a deixaria terminar por cima da subida.
+  let previousTop = Number.NaN;
   await expect
-    .poll(() =>
-      page.evaluate(() => document.getElementById('duvidas')?.getBoundingClientRect().top),
-    )
-    .toBeLessThan(100);
+    .poll(async () => {
+      const top = await page.evaluate(
+        () => document.getElementById('duvidas')?.getBoundingClientRect().top ?? Number.NaN,
+      );
+      const settled = Math.abs(top - 84) <= 2 && Math.abs(top - previousTop) < 0.5;
+      previousTop = top;
+      return settled;
+    })
+    .toBe(true);
   await page.evaluate(() => {
     window.scrollBy({ top: -40, behavior: 'instant' });
   });

@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 /** Altura do header fixo (--header-h): a seção que chega por âncora pousa logo abaixo dele. */
 const HEADER_HEIGHT = 84;
 /** Elementos cujo estado na tela depende do modo de movimento: escondidos, apagados ou fechados. */
-const MODE_DEPENDENT = '[data-reveal], .faq-list, [data-step], [data-statement]';
+const MODE_DEPENDENT = '[data-reveal], [data-faq-item], [data-step], [data-statement]';
 
 type RevealState = 'shown' | 'hidden' | 'partial';
 

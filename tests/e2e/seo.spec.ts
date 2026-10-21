@@ -1,3 +1,4 @@
+import { contact } from '../../src/data/contact';
 import { site } from '../../src/data/site';
 import { test, expect } from './fixtures';
 
@@ -10,7 +11,7 @@ test.describe('página inicial', () => {
   });
 
   test('o título tem a cidade', async ({ page }) => {
-    await expect(page).toHaveTitle(site.title);
+    await expect(page).toHaveTitle(`Diogo Menani — Advogado em ${contact.city}`);
   });
 
   test('Open Graph e cartão do Twitter', async ({ page }) => {
@@ -33,6 +34,20 @@ test.describe('página inicial', () => {
     expect(contents.filter((content) => content.startsWith('/'))).toEqual([]);
   });
 
+  test('canonical, og:url e as imagens de prévia, quando saem, são endereços absolutos', async ({
+    page,
+  }) => {
+    // Sem o endereço do site, não saem; com ele, começam por http.
+    const urls = await page
+      .locator(
+        'link[rel="canonical"], meta[property="og:url"], meta[property="og:image"], meta[name="twitter:image"]',
+      )
+      .evaluateAll((elements) =>
+        elements.map((element) => element.getAttribute('href') ?? element.getAttribute('content')),
+      );
+    expect(urls.filter((url) => !url?.startsWith('http'))).toEqual([]);
+  });
+
   test('o JSON-LD é válido e descreve um LegalService', async ({ page }) => {
     const json = await page.locator('script[type="application/ld+json"]').textContent();
     const data = JSON.parse(json ?? '') as Record<string, unknown>;
@@ -49,7 +64,11 @@ test.describe('página inicial', () => {
 test('robots.txt libera o site', async ({ request }) => {
   const response = await request.get('/robots.txt');
   expect(response.status()).toBe(200);
-  expect(await response.text()).toContain('User-agent: *');
+  const text = await response.text();
+  expect(text).toContain('User-agent: *');
+  // Sem o endereço do site, não há Sitemap:; com ele, o endereço é absoluto.
+  const sitemaps = text.split('\n').filter((line) => /^sitemap:/i.test(line));
+  expect(sitemaps.filter((line) => !/^sitemap:\s*http/i.test(line))).toEqual([]);
 });
 
 test('sitemap.xml é XML válido', async ({ page, request }) => {

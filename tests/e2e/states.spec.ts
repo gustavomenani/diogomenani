@@ -223,21 +223,20 @@ test.describe('texto que não cabe', () => {
   `;
 
   test('um e-mail longo quebra em vez de sair da tela', async ({ page }) => {
-    await page.route('**/', async (route) => {
-      const response = await route.fetch();
-      const html = (await response.text()).replaceAll(
-        '[contato@seudominio.adv.br]',
-        'atendimento.juridico@diogomenaniadvocacia.adv.br',
-      );
-      await route.fulfill({ response, body: html });
-    });
     await page.goto('/');
-    const overflowing = await page
-      .getByRole('link', { name: 'atendimento.juridico@diogomenaniadvocacia.adv.br' })
-      .evaluateAll(
-        (links) =>
-          links.filter((link) => link.getBoundingClientRect().right > window.innerWidth).length,
-      );
+    // Os links de e-mail, achados pelo mailto: (e não pelo texto, que muda quando o e-mail real
+    // entrar), ganham um endereço longo.
+    const links = page.locator('a[href^="mailto:"]');
+    expect(await links.count()).toBeGreaterThan(0);
+    await links.evaluateAll((elements) => {
+      for (const element of elements) {
+        element.textContent = 'atendimento.juridico@diogomenaniadvocacia.adv.br';
+      }
+    });
+    const overflowing = await links.evaluateAll(
+      (elements) =>
+        elements.filter((link) => link.getBoundingClientRect().right > window.innerWidth).length,
+    );
     expect(overflowing).toBe(0);
   });
 

@@ -70,8 +70,12 @@ test.describe('no desktop', () => {
   }) => {
     await page.goto('/');
     const cards = areaCards(page);
+    const header = page.locator('[data-header]');
     // O quarto cartão logo abaixo do header; o terceiro, acima da tela e ainda escondido.
     await placeAt(cards.nth(3), 100);
+    // O header recolhe antes do Shift+Tab: a subida do foco e a descida do placeAt no mesmo
+    // quadro deixariam o header sem saber para que lado a página rolou.
+    await expect(header).toHaveClass(/is-tucked/);
     await cards.nth(3).getByRole('link').focus();
     await page.keyboard.press('Shift+Tab');
     const focused = cards.nth(2).getByRole('link');
@@ -79,7 +83,6 @@ test.describe('no desktop', () => {
     expect(await opacityNow(cards.nth(2))).toBe('1');
 
     // O header volta ao subir: depois de ele assentar, o cartão focado continua inteiro abaixo dele.
-    const header = page.locator('[data-header]');
     await expect(header).not.toHaveClass(/is-tucked/);
     await settle(header);
     const headerBox = await boxOf(header);
