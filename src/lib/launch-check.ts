@@ -65,7 +65,7 @@ function visibleStrings(html: string): string[] {
 const around = (text: string, index: number, length: number) =>
   text
     .slice(Math.max(0, index - 20), index + length + 20)
-    .replace(/s+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 
 export function checkHtml(file: string, html: string, options: { isHome: boolean }): LaunchIssue[] {
