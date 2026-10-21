@@ -16,7 +16,8 @@ const SUMMARY = 'Como o site de Diogo Menani trata os dados de quem entra em con
  * abrem em outra aba; o e-mail abre o programa de e-mail.
  */
 const LINKS = [
-  { text: whatsapp.display, href: waLink(), external: true },
+  // O número não quebra no hífen.
+  { text: whatsapp.display, href: waLink(), external: true, nowrap: true },
   { text: contact.email.label, href: contact.email.href, external: false },
   {
     text: 'política de privacidade do WhatsApp',
@@ -79,6 +80,16 @@ function pieces(text: string) {
           {section.paragraphs.map((block) => {
             const rich = (text: string) =>
               pieces(text).map(({ text: piece, link, nowrap }) => {
+                if (link && 'nowrap' in link) {
+                  // No span, que é deste template: o estilo escopado não chega ao <a> do componente.
+                  return (
+                    <span class="nowrap">
+                      <ExternalLink class="link" href={link.href}>
+                        {piece}
+                      </ExternalLink>
+                    </span>
+                  );
+                }
                 if (link?.external) {
                   return (
                     <ExternalLink class="link" href={link.href}>

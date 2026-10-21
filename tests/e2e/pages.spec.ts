@@ -68,7 +68,15 @@ test.describe('aviso de privacidade', () => {
   test('o WhatsApp e o e-mail do responsável são links', async ({ page }) => {
     await page.goto('/privacidade');
     const main = page.getByRole('main');
-    await expectExternalLink(main.getByRole('link', { name: whatsapp.display }), WA);
+    const phone = main.getByRole('link', { name: whatsapp.display });
+    await expectExternalLink(phone, WA);
+    // O número não quebra no hífen: "(18) 99701-" numa linha e "7249" na outra.
+    expect(
+      await phone.evaluate((link) => {
+        const style = getComputedStyle(link);
+        return style.textWrapMode === 'nowrap' || style.whiteSpace === 'nowrap';
+      }),
+    ).toBe(true);
     await expect(
       main.getByRole('link', { name: contact.email.label, exact: true }),
     ).toHaveAttribute('href', contact.email.href);
