@@ -1,6 +1,6 @@
 # Correção de qualidade, rodada 2 — plano
 
-> Registro histórico: plano executado; o código atual pode ter mudado depois.
+> Registro histórico: plano executado até a Task 8; as Tasks 9–11 foram executadas na rodada 3 (ver [o plano da rodada 3](2026-10-20-rodada-3.md)). O código atual pode ter mudado depois.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

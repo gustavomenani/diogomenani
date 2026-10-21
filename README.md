@@ -41,12 +41,12 @@ src/
 ├── layouts/Base.astro     <head>, fontes, skip link, os scripts que iniciam a página e o estilo sem JS
 ├── components/            uma seção por arquivo, mais as peças que elas usam
 ├── data/                  dados do escritório e conteúdo das seções (fonte única)
-├── lib/                   links e mensagens do WhatsApp; atributos de link externo
+├── lib/                   links e mensagens do WhatsApp, atributos de link externo, metadados do <head> e checagem de lançamento
 ├── scripts/               comportamento no navegador, um módulo por recurso
 ├── styles/                camada global de CSS
 └── assets/fonts/          fontes woff2 e licenças OFL
 public/                    favicons, prévia dos links (og.png) e cache (_headers): vão para o site do jeito que estão
-scripts/                   geração das imagens PNG de public/ (npm run generate:images)
+scripts/                   geração das imagens PNG de public/ (npm run generate:images) e a checagem de lançamento (npm run check:launch)
 brand/                     originais e vetores da marca (não são publicados)
 tests/e2e/                 testes no navegador
 tests/visual/              regressão visual e snapshots
@@ -87,13 +87,15 @@ Peças usadas pelas seções:
 - `data/contact.ts`: WhatsApp, OAB, cidade, e-mail, endereço, horário, modo de atendimento e redes sociais.
 - `data/content.ts`: áreas de atuação (com o tema do seletor), credenciais, etapas, manifesto, compromissos e perguntas frequentes.
 - `data/navigation.ts`: ids das seções (as âncoras) e os links do menu e do rodapé.
-- `data/site.ts`: título, descrição e prévia dos links (Open Graph) e as páginas do sitemap.
+- `data/site.ts`: título, descrição e prévia dos links (Open Graph), as páginas do sitemap e o endereço do aviso de privacidade (`privacyPath`).
 - `data/privacy.ts`: o texto do aviso de privacidade e a data da última revisão.
 - `data/icons.ts`: desenhos dos ícones (Tabler Icons; licença em `data/MIT-tabler-icons.txt`).
 - `data/brand.ts`: vetores do monograma, do nome e da Têmis. Não precisa mexer.
 - `lib/whatsapp.ts`: mensagens prontas, links `wa.me` e a mensagem que o formulário monta.
 - `lib/links.ts`: atributos de link que abre em outra aba e o aviso para o leitor de tela.
-- `lib/structured-data.ts`: os dados estruturados (JSON-LD `LegalService`) que os buscadores leem.
+- `lib/structured-data.ts`: os dados estruturados (JSON-LD `LegalService`) que os buscadores leem, e o texto deles para o `<script>`.
+- `lib/page-meta.ts`: os endereços absolutos do `<head>` (canonical, `og:url` e a imagem de prévia), que só saem com `site`.
+- `lib/launch-check.ts`: as regras da checagem de lançamento (placeholders, domínio de exemplo, LinkedIn genérico, falta de canonical); `scripts/check-launch.ts` a roda sobre o `dist/`.
 
 ### `src/scripts/`
 
@@ -121,7 +123,7 @@ Peças usadas pelas seções:
 
 ### Configuração (raiz)
 
-- `astro.config.mjs`: escopo dos estilos (`:where`) e fontes.
+- `astro.config.mjs`: escopo dos estilos (`:where`), CSS embutido no HTML (`inlineStylesheets`), fontes e o domínio do site (`site`, comentado até o domínio existir).
 - `tsconfig.json`: TypeScript `strictest`.
 - `eslint.config.js`, `stylelint.config.mjs`, `.prettierrc.json` e `.prettierignore`, `.htmlvalidate.mjs`, `.editorconfig` e `.gitattributes`: regras de código, CSS, formatação, HTML e editor.
 - `vitest.config.ts` e `playwright.config.ts`: testes unitários e testes no navegador.
