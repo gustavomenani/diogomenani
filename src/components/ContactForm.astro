@@ -3,6 +3,7 @@ import ExternalLink from './ExternalLink.astro';
 import Field from './Field.astro';
 import Icon from './Icon.astro';
 import { areas } from '../data/content';
+import { privacyPath } from '../data/site';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
@@ -82,7 +83,7 @@ import { messages, waLink } from '../lib/whatsapp';
         */}
         <span>
           Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD e o{' '}
-          <ExternalLink class="link" href="/privacidade">
+          <ExternalLink class="link" href={privacyPath}>
             aviso de privacidade
           </ExternalLink>
           .

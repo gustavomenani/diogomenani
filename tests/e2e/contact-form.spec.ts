@@ -79,6 +79,12 @@ test('a máscara formata o telefone', async ({ page }) => {
   await expect(phone).toHaveValue('(18) 3456-7890');
 });
 
+test('digitando, o dígito a mais com DDD 55 é cortado, sem trocar o número', async ({ page }) => {
+  const { phone } = form(page);
+  await phone.pressSequentially('559912345678');
+  await expect(phone).toHaveValue('(55) 99123-4567');
+});
+
 test('envio válido abre o WhatsApp com a mensagem montada', async ({ page, openedUrls }) => {
   const f = form(page);
   await fillValid(page);

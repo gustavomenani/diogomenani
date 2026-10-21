@@ -4,10 +4,10 @@
  * Têmis desenhada no hero e mora com o botão flutuante, que aqui não existem.
  */
 import { contact } from '../data/contact';
+import { privacyPath } from '../data/site';
 
 const year = new Date().getFullYear();
-const PRIVACY_PATH = '/privacidade';
-const current = Astro.url.pathname.replace(/\/$/, '') === PRIVACY_PATH;
+const current = Astro.url.pathname.replace(/\/$/, '') === privacyPath;
 ---
 
 <footer class="simple-footer is-royal">
@@ -15,7 +15,7 @@ const current = Astro.url.pathname.replace(/\/$/, '') === PRIVACY_PATH;
     <p>
       © {year} Diogo Menani. {contact.oab}.
     </p>
-    <a class="link-light" href={PRIVACY_PATH} aria-current={current ? 'page' : undefined}>
+    <a class="link-light" href={privacyPath} aria-current={current ? 'page' : undefined}>
       Aviso de privacidade
     </a>
   </div>

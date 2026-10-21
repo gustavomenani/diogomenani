@@ -85,8 +85,10 @@ export function initContactForm(root: HTMLElement): void {
     if (!form.querySelector('[aria-invalid="true"]')) showStatus('', false);
   };
 
-  const applyPhoneMask = () => {
-    const masked = maskPhone(phone.value, phone.selectionStart ?? phone.value.length);
+  // inputType: digitar um caractere ('insertText') e colar não tratam o 55 inicial do mesmo jeito.
+  const applyPhoneMask = (inputType?: string) => {
+    const caret = phone.selectionStart ?? phone.value.length;
+    const masked = maskPhone(phone.value, caret, inputType);
     if (phone.value === masked.value) return;
     phone.value = masked.value;
     if (document.activeElement === phone) phone.setSelectionRange(masked.caret, masked.caret);
@@ -94,11 +96,13 @@ export function initContactForm(root: HTMLElement): void {
 
   form.addEventListener('input', (event) => {
     // Durante a composição (IME), o texto ainda é do teclado: a máscara espera o fim dela.
-    const composing = event instanceof InputEvent && event.isComposing;
-    if (event.target === phone && !composing) applyPhoneMask();
+    const input = event instanceof InputEvent ? event : undefined;
+    if (event.target === phone && !input?.isComposing) applyPhoneMask(input?.inputType);
     onEdit(event.target);
   });
-  phone.addEventListener('compositionend', applyPhoneMask);
+  phone.addEventListener('compositionend', () => {
+    applyPhoneMask();
+  });
   form.addEventListener('change', (event) => {
     onEdit(event.target);
   });

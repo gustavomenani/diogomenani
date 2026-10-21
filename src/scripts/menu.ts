@@ -87,7 +87,9 @@ export function initMenu(root: HTMLElement): Menu {
   root.addEventListener('click', (event) => {
     if (open && event.target instanceof Element && event.target.closest('a')) setOpen(false);
   });
-  // Voltar no histórico (o botão Voltar do Android, por exemplo) fecha o menu.
+  // Voltar no histórico dentro da página (de uma âncora para a anterior) fecha o menu. O menu não
+  // cria entrada no histórico: sem âncora visitada antes, o Voltar (o do Android, por exemplo)
+  // sai da página com o menu aberto.
   for (const type of ['popstate', 'hashchange']) {
     window.addEventListener(type, () => {
       if (open) close();

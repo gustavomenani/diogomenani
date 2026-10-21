@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { confirmedProfiles, legalService } from './structured-data';
+import { confirmedProfiles, legalService, serializeJsonLd } from './structured-data';
 
 describe('legalService', () => {
   test('é um LegalService do schema.org', () => {
@@ -63,5 +63,13 @@ describe('confirmedProfiles', () => {
         { label: 'Fulano', href: 'https://www.linkedin.com/in/fulano', icon: 'linkedin' },
       ]),
     ).toEqual(['https://www.linkedin.com/in/fulano']);
+  });
+});
+
+describe('serializeJsonLd', () => {
+  test('um "</script>" num valor não fecha o script', () => {
+    const json = serializeJsonLd({ name: 'a</script><script>alert(1)</script>' });
+    expect(json).not.toContain('<');
+    expect(JSON.parse(json)).toEqual({ name: 'a</script><script>alert(1)</script>' });
   });
 });

@@ -6,6 +6,7 @@ import WhatsAppFab from './WhatsAppFab.astro';
 import { THEMIS_SHAPE_ID, themis, wordmark } from '../data/brand';
 import { contact, social, whatsapp } from '../data/contact';
 import { anchor, footerNav, sectionIds } from '../data/navigation';
+import { privacyPath } from '../data/site';
 import { waLink } from '../lib/whatsapp';
 
 const year = new Date().getFullYear();
@@ -97,7 +98,7 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
         o Provimento nº 205/2021 do CFOAB.
       </p>
       <div class="footer-links">
-        <a class="footer-link" href="/privacidade">
+        <a class="footer-link" href={privacyPath}>
           Privacidade
         </a>
         <a class="footer-link to-top" href={anchor(sectionIds.top)}>

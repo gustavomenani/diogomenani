@@ -145,3 +145,4 @@ Quando não encontra nada, sai com código 0 e a mensagem "Pronto para publicar.
 - Breakpoints com `@custom-media` e entrelinhas em tokens (ver Não-objetivos).
 - Ordem das seções (Áreas antes de Sobre): questão de opinião, a confirmar com o Diogo.
 - Base legal do consentimento: o texto do aviso deve ser revisado pelo Diogo.
+- Menu e o Voltar (I35 da rodada 2): o Voltar só fecha o menu quando há entrada de histórico na página (uma âncora visitada antes). Sem ela, o Voltar do Android sai da página com o menu aberto; o menu não cria entrada própria no histórico. Limitação conhecida.

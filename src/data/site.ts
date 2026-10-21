@@ -1,6 +1,9 @@
 // O site para buscadores e para quem compartilha o link: título, descrição, prévia e páginas.
 import { contact } from './contact';
 
+/** Endereço do aviso de privacidade: a página e todos os links para ela. */
+export const privacyPath = '/privacidade';
+
 export const site = {
   /** Nome completo do escritório: og:site_name e o nome no JSON-LD. */
   name: 'Diogo Menani — Advocacia & Assessoria Jurídica',
@@ -14,5 +17,5 @@ export const site = {
   ogImage: '/og.png',
   ogImageAlt: 'Diogo Menani — Advocacia e Assessoria Jurídica',
   /** Páginas do sitemap.xml. */
-  pages: ['/', '/privacidade'],
+  pages: ['/', privacyPath],
 } as const;

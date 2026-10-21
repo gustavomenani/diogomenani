@@ -33,8 +33,10 @@ function afterDigit(text: string, count: number): number {
  * Aplica a máscara ao que foi digitado ou colado e reposiciona o cursor: editar no meio do
  * número não o joga para o fim. Dígitos de largura total (teclados asiáticos) viram comuns; o +55
  * e os zeros à esquerda do DDD saem; com o + de outro país, o número fica como foi digitado.
+ * `inputType` é o do evento de input: 'insertText' é a digitação de um caractere; colar e o
+ * preenchimento automático chegam com outro.
  */
-export function maskPhone(value: string, caret: number): MaskedPhone {
+export function maskPhone(value: string, caret: number, inputType?: string): MaskedPhone {
   const typed = value.normalize('NFKC');
   const typedCaret = value.slice(0, caret).normalize('NFKC').length;
   const allDigits = typed.replace(/\D/g, '');
@@ -43,9 +45,14 @@ export function maskPhone(value: string, caret: number): MaskedPhone {
   if (international && (!allDigits.startsWith(BRAZIL) || allDigits === BRAZIL)) {
     return { value: typed, caret: typedCaret };
   }
-  // Sem o +, o 55 só é o código do país quando sobra número além dos 11 dígitos.
+  // Sem o +, o 55 só é o código do país num número colado (ou preenchido) que passa dos 11
+  // dígitos. Na digitação, o dígito a mais é cortado: com DDD 55, (55) 99123-4567 seguido de um 8
+  // viraria (99) 1234-5678, outro número.
+  const pasted = inputType !== 'insertText';
   const countryCode =
-    allDigits.startsWith(BRAZIL) && (international || allDigits.length > 11) ? BRAZIL.length : 0;
+    allDigits.startsWith(BRAZIL) && (international || (pasted && allDigits.length > 11))
+      ? BRAZIL.length
+      : 0;
   const leadingZeros = /^0*/.exec(allDigits.slice(countryCode))?.[0].length ?? 0;
   const skipped = countryCode + leadingZeros;
   const digits = allDigits.slice(skipped, skipped + 11);

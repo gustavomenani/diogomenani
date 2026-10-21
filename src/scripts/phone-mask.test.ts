@@ -50,6 +50,21 @@ describe('maskPhone', () => {
     expect(atEnd('1834567890')).toBe('(18) 3456-7890');
   });
 
+  test('digitando, um dígito a mais com DDD 55 é cortado, sem virar o código do país', () => {
+    const typed = '(55) 99123-45678';
+    expect(maskPhone(typed, typed.length, 'insertText').value).toBe('(55) 99123-4567');
+  });
+
+  test('colado ou preenchido, o 55 sem o + continua sendo o código do país', () => {
+    expect(maskPhone('5518997017249', 13, 'insertFromPaste').value).toBe('(18) 99701-7249');
+    expect(maskPhone('+55 18 99701-7249', 17, 'insertFromPaste').value).toBe('(18) 99701-7249');
+    expect(maskPhone('5518997017249', 13, 'insertReplacementText').value).toBe('(18) 99701-7249');
+  });
+
+  test('digitando com o +55, o 55 continua sendo o código do país', () => {
+    expect(maskPhone('+55 18 9', 8, 'insertText')).toEqual({ value: '(18) 9', caret: 6 });
+  });
+
   test('sem o +, 55 seguido de um fixo de 10 dígitos perde o código do país', () => {
     // 12 dígitos: um a mais que o maior número nacional.
     // mata: allDigits.length > 11 virando allDigits.length > 12 em maskPhone

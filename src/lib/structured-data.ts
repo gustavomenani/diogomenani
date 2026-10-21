@@ -36,3 +36,12 @@ export function legalService(siteUrl: URL | undefined): Record<string, unknown> 
     }),
   };
 }
+
+/**
+ * O JSON-LD como texto para o `<script>`: todo "<" sai como escape unicode do JSON, então um
+ * "</script>" num valor (um endereço, um nome) não fecha o script antes da hora. Para quem lê o
+ * JSON, é o mesmo caractere.
+ */
+export function serializeJsonLd(data: object): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}

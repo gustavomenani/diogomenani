@@ -3,6 +3,8 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import { anchor, sectionIds } from '../data/navigation';
 import { site } from '../data/site';
+import { pageUrls } from '../lib/page-meta';
+import { serializeJsonLd } from '../lib/structured-data';
 
 interface Props {
   title: string;
@@ -29,10 +31,8 @@ const {
   interactive = true,
 } = Astro.props;
 
-// Canonical, og:url e a imagem de prévia exigem endereço absoluto: sem o `site` do
-// astro.config.mjs, essas tags não saem (quem lê o Open Graph não resolve caminho relativo).
-const canonical = Astro.site && new URL(path, Astro.site).href;
-const ogImage = Astro.site && new URL(site.ogImage, Astro.site).href;
+// Sem o `site` do astro.config.mjs (ou com noindex, no caso do canonical), essas tags não saem.
+const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
 ---
 
 <!doctype html>
@@ -89,7 +89,7 @@ const ogImage = Astro.site && new URL(site.ogImage, Astro.site).href;
       </style>
     </noscript>
     {structuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+      <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
     )}
   </head>
   <body>
