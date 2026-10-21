@@ -52,4 +52,11 @@ import Monogram from './Monogram.astro';
   .link-light {
     font-size: var(--fs-md);
   }
+
+  /* Como o header da home: no papel, a marca e a volta ao site não têm serventia. */
+  @media print {
+    .simple-header {
+      display: none !important;
+    }
+  }
 </style>

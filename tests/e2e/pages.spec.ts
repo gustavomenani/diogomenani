@@ -1,4 +1,5 @@
-import { test, expect, axeViolations, WA, type Page } from './fixtures';
+import { contact, whatsapp } from '../../src/data/contact';
+import { test, expect, axeViolations, expectExternalLink, WA, type Page } from './fixtures';
 
 // Páginas secundárias (aviso de privacidade e 404): sem o módulo da página, tudo aparece de saída.
 
@@ -64,6 +65,33 @@ test.describe('aviso de privacidade', () => {
     expect(await transparentElements(page)).toEqual([]);
   });
 
+  test('o WhatsApp e o e-mail do responsável são links', async ({ page }) => {
+    await page.goto('/privacidade');
+    const main = page.getByRole('main');
+    await expectExternalLink(main.getByRole('link', { name: whatsapp.display }), WA);
+    await expect(
+      main.getByRole('link', { name: contact.email.label, exact: true }),
+    ).toHaveAttribute('href', contact.email.href);
+  });
+
+  test('"e-mail" não quebra no hífen', async ({ page }) => {
+    await page.goto('/privacidade');
+    // Cada "e-mail" do texto, com o que o deixa sem quebra: nowrap nele ou num ancestral.
+    const terms = await page.getByRole('main').evaluate((main) => {
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      const found: string[] = [];
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const count = node.textContent?.split('e-mail').length ?? 1;
+        const parent = node.parentElement;
+        const style = parent && getComputedStyle(parent);
+        const nowrap = style?.textWrapMode === 'nowrap' || style?.whiteSpace === 'nowrap';
+        for (let index = 1; index < count; index++) found.push(nowrap ? 'nowrap' : 'quebra');
+      }
+      return found;
+    });
+    expect(terms).toEqual(['nowrap', 'nowrap']);
+  });
+
   test('o cabeçalho e o rodapé levam de volta ao site', async ({ page }) => {
     await page.goto('/privacidade');
     const banner = page.getByRole('banner');
@@ -78,6 +106,13 @@ test.describe('aviso de privacidade', () => {
     await expect(
       page.getByRole('contentinfo').getByRole('link', { name: 'Aviso de privacidade' }),
     ).toHaveAttribute('href', '/privacidade');
+  });
+
+  test('na impressão, o cabeçalho sai', async ({ page }) => {
+    await page.goto('/privacidade');
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.getByRole('banner')).toBeHidden();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
   test('fica aberto aos buscadores (sem noindex)', async ({ page }) => {

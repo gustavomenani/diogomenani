@@ -3,23 +3,35 @@ import Base from '../layouts/Base.astro';
 import ExternalLink from '../components/ExternalLink.astro';
 import SimpleFooter from '../components/SimpleFooter.astro';
 import SimpleHeader from '../components/SimpleHeader.astro';
+import { contact, whatsapp } from '../data/contact';
 import { sectionIds } from '../data/navigation';
 import { privacySections, privacyUpdated } from '../data/privacy';
-import { site } from '../data/site';
+import { privacyPath, site } from '../data/site';
+import { waLink } from '../lib/whatsapp';
 
 const SUMMARY = 'Como o site de Diogo Menani trata os dados de quem entra em contato.';
 
 /**
- * Os links do aviso: onde a frase aparece num parágrafo, ela vira link. Um parágrafo tem no
- * máximo um.
+ * Os links do aviso: onde a frase aparece no texto, ela vira link. Os que levam para fora do site
+ * abrem em outra aba; o e-mail abre o programa de e-mail.
  */
 const LINKS = [
+  { text: whatsapp.display, href: waLink(), external: true },
+  { text: contact.email.label, href: contact.email.href, external: false },
   {
     text: 'política de privacidade do WhatsApp',
     href: 'https://www.whatsapp.com/legal/privacy-policy',
+    external: true,
   },
-  { text: 'Autoridade Nacional de Proteção de Dados (ANPD)', href: 'https://www.gov.br/anpd' },
+  {
+    text: 'Autoridade Nacional de Proteção de Dados (ANPD)',
+    href: 'https://www.gov.br/anpd',
+    external: true,
+  },
 ] as const;
+
+/** Termo que não quebra no hífen: "e-" no fim de uma linha e "mail" no começo da outra. */
+const NOWRAP = 'e-mail';
 
 // Um link cuja frase saiu do texto sumiria em silêncio: o build para.
 const fullText = privacySections.flatMap((section) => section.paragraphs.flat()).join('\n');
@@ -29,23 +41,29 @@ for (const link of LINKS) {
   }
 }
 
-/** O parágrafo em três partes: o texto antes do link, o link e o texto depois. */
-function split(paragraph: string) {
-  const link = LINKS.find((item) => paragraph.includes(item.text));
-  if (!link) return { before: paragraph };
-  const at = paragraph.indexOf(link.text);
-  return {
-    before: paragraph.slice(0, at),
-    link,
-    after: paragraph.slice(at + link.text.length),
-  };
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** As frases dos links e o termo sem quebra; o grupo faz o split devolver o que achou. */
+const TERMS = new RegExp(
+  `(${[...LINKS.map(({ text }) => text), NOWRAP].map(escapeRegExp).join('|')})`,
+);
+
+/** O texto em pedaços: texto corrido, links e o termo sem quebra. */
+function pieces(text: string) {
+  return text
+    .split(TERMS)
+    .filter(Boolean)
+    .map((piece) => ({
+      text: piece,
+      link: LINKS.find((item) => item.text === piece),
+      nowrap: piece === NOWRAP,
+    }));
 }
 ---
 
 <Base
   title={`Aviso de privacidade — ${site.shortName}`}
   description={SUMMARY}
-  path="/privacidade"
+  path={privacyPath}
   interactive={false}
 >
   <SimpleHeader />
@@ -59,27 +77,34 @@ function split(paragraph: string) {
         <section class="privacy-section">
           <h2>{section.title}</h2>
           {section.paragraphs.map((block) => {
+            const rich = (text: string) =>
+              pieces(text).map(({ text: piece, link, nowrap }) => {
+                if (link?.external) {
+                  return (
+                    <ExternalLink class="link" href={link.href}>
+                      {piece}
+                    </ExternalLink>
+                  );
+                }
+                if (link) {
+                  return (
+                    <a class="link" href={link.href}>
+                      {piece}
+                    </a>
+                  );
+                }
+                return nowrap ? <span class="nowrap">{piece}</span> : piece;
+              });
             if (typeof block !== 'string') {
               return (
                 <ul>
                   {block.map((item) => (
-                    <li>{item}</li>
+                    <li>{rich(item)}</li>
                   ))}
                 </ul>
               );
             }
-            const { before, link, after } = split(block);
-            return (
-              <p>
-                {before}
-                {link && (
-                  <ExternalLink class="link" href={link.href}>
-                    {link.text}
-                  </ExternalLink>
-                )}
-                {after}
-              </p>
-            );
+            return <p>{rich(block)}</p>;
           })}
         </section>
       ))}
@@ -132,5 +157,9 @@ function split(paragraph: string) {
 
   .privacy-section li::marker {
     color: var(--royal-bright);
+  }
+
+  .nowrap {
+    white-space: nowrap;
   }
 </style>

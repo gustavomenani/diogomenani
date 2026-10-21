@@ -1,5 +1,6 @@
 // Aviso de privacidade (/privacidade). É um ponto de partida: o texto deve ser revisado pelo Diogo
-// antes da publicação. Os links (política do WhatsApp e ANPD) saem como marcação na página.
+// antes da publicação. Os links (WhatsApp e e-mail do responsável, política do WhatsApp e ANPD)
+// saem como marcação na página (src/pages/privacidade.astro).
 import { contact, whatsapp } from './contact';
 
 /** Data da última revisão do aviso, como aparece na abertura. */
