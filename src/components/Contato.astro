@@ -1,11 +1,11 @@
 ---
 import ContactForm from './ContactForm.astro';
+import ExternalLink from './ExternalLink.astro';
 import Icon from './Icon.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
 import { contact, whatsapp } from '../data/contact';
 import type { IconName } from '../data/icons';
 import { sectionIds } from '../data/navigation';
-import { externalLink } from '../lib/links';
 import { waLink } from '../lib/whatsapp';
 
 interface ContactItem {
@@ -48,8 +48,12 @@ const items: readonly ContactItem[] = [
             </span>
             <span>
               <span class="cl-label">{item.label}</span>
-              {item.href ? (
-                <a class="cl-value" href={item.href} {...(item.external ? externalLink() : {})}>
+              {item.href && item.external ? (
+                <ExternalLink class="cl-value" href={item.href}>
+                  {item.value}
+                </ExternalLink>
+              ) : item.href ? (
+                <a class="cl-value" href={item.href}>
                   {item.value}
                 </a>
               ) : (

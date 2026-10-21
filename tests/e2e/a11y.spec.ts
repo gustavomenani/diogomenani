@@ -1,25 +1,7 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, jumpTo, type Locator, type Page } from './fixtures';
+import { test, expect, axeViolations, jumpTo, type Locator, type Page } from './fixtures';
 
-const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 const MOBILE = { width: 390, height: 844 };
 const DESKTOP = { width: 1440, height: 900 };
-
-/**
- * Violações do axe em formato legível ("regra: alvo, alvo"), com a interface já assentada:
- * durante as animações de entrada a opacidade baixa falsearia o contraste.
- */
-async function axeViolations(page: Page): Promise<string[]> {
-  await page.evaluate(() => document.fonts.ready.then(() => undefined));
-  await page.waitForFunction(() =>
-    document.getAnimations().every((animation) => animation.playState !== 'running'),
-  );
-  const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
-  return results.violations.map(
-    (violation) =>
-      `${violation.id}: ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`,
-  );
-}
 
 /**
  * Propriedade de acessibilidade que o Chromium expõe para o elemento com o papel e o nome dados
@@ -56,7 +38,7 @@ test('antes do envio, os campos obrigatórios não são anunciados como inválid
     ['textbox', 'Mensagem'],
     [
       'checkbox',
-      'Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD.',
+      'Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD e o aviso de privacidade (abre em outra aba).',
     ],
   ] as const;
   for (const [role, name] of controls) {
@@ -256,3 +238,23 @@ test('a navegação do rodapé é um landmark', async ({ page }) => {
   const nav = page.getByRole('navigation', { name: 'Navegação', exact: true });
   await expect(nav.getByRole('link', { name: 'Dúvidas frequentes' })).toBeAttached();
 });
+
+for (const path of ['/', '/privacidade', '/nao-existe']) {
+  test(`em ${path}, todo link que abre em outra aba avisa o leitor de tela`, async ({ page }) => {
+    await page.goto(path);
+    const NOTE = /\(abre em outra aba\)$/;
+    // Todos, inclusive os escondidos agora (menu fechado, link de reserva do formulário): o
+    // aria-label ou o texto, que inclui o sr-only.
+    const names = await page
+      .locator('a[target="_blank"]')
+      .evaluateAll((anchors) =>
+        anchors.map((anchor) => (anchor.getAttribute('aria-label') ?? anchor.textContent).trim()),
+      );
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.filter((name) => !name.endsWith('(abre em outra aba)'))).toEqual([]);
+    // Os visíveis: o nome acessível que o navegador calcula.
+    for (const link of await page.locator('a[target="_blank"]:visible').all()) {
+      await expect(link).toHaveAccessibleName(NOTE);
+    }
+  });
+}

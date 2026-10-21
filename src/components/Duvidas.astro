@@ -33,11 +33,12 @@ import { sectionIds } from '../data/navigation';
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
-            <section class="faq-panel" id={`faq-p${n}`} aria-labelledby={`faq-b${n}`}>
+            {/* <div>, não <section>: cinco regiões a mais poluiriam a navegação por landmarks. */}
+            <div class="faq-panel" id={`faq-p${n}`}>
               <div class="faq-panel-inner">
                 <p>{item.answer}</p>
               </div>
-            </section>
+            </div>
           </div>
         );
       })}

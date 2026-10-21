@@ -1,0 +1,45 @@
+---
+/**
+ * Rodapé das páginas secundárias (aviso de privacidade e 404). O Footer da home reaproveita a
+ * Têmis desenhada no hero e mora com o botão flutuante, que aqui não existem.
+ */
+import { contact } from '../data/contact';
+
+const year = new Date().getFullYear();
+const PRIVACY_PATH = '/privacidade';
+const current = Astro.url.pathname.replace(/\/$/, '') === PRIVACY_PATH;
+---
+
+<footer class="simple-footer is-royal">
+  <div class="wrap simple-footer-inner">
+    <p>
+      © {year} Diogo Menani. {contact.oab}.
+    </p>
+    <a class="link-light" href={PRIVACY_PATH} aria-current={current ? 'page' : undefined}>
+      Aviso de privacidade
+    </a>
+  </div>
+</footer>
+
+<style>
+  /* Página mais baixa que a tela (a 404): o que sobra abaixo do rodapé continua com a cor dele. */
+  :global(body) {
+    background: var(--royal-deep);
+  }
+
+  .simple-footer.is-royal {
+    background: var(--royal-deep);
+  }
+
+  .simple-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 32px;
+    padding-block: 28px;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--sky);
+  }
+</style>

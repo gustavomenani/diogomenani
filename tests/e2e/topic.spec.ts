@@ -52,13 +52,13 @@ function doubleSwap(page: Page, first: string, second: string, delay: number): P
 test('escolher um tema troca link e rótulo do botão principal', async ({ page }) => {
   await page.goto('/');
   const cta = page.locator('[data-wa-cta]');
-  await expect(cta).toHaveText('Agendar uma conversa');
+  await expect(cta.locator('[data-wa-label]')).toHaveText('Agendar uma conversa');
 
   await page.getByText('Consumidor', { exact: true }).click();
 
   await expect(page.getByLabel('Consumidor', { exact: true })).toBeChecked();
   await expect(cta).toHaveAttribute('href', wa(MESSAGES.topic('Direito do Consumidor')));
-  await expect(cta).toHaveText('Conversar sobre consumo');
+  await expect(cta.locator('[data-wa-label]')).toHaveText('Conversar sobre consumo');
 });
 
 test('cliques rápidos não sobrepõem animações e terminam no último tema', async ({ page }) => {
@@ -74,7 +74,7 @@ test('cliques rápidos não sobrepõem animações e terminam no último tema', 
         label.getAnimations().filter((animation) => animation.playState === 'running').length,
     );
   expect(runningOnLabel).toBeLessThanOrEqual(1);
-  await expect(cta).toHaveText('Conversar sobre empresas');
+  await expect(cta.locator('[data-wa-label]')).toHaveText('Conversar sobre empresas');
   await expect(cta).toHaveAttribute('href', wa(MESSAGES.topic('Assessoria para Empresas')));
 });
 
@@ -100,7 +100,7 @@ for (const delay of [60, 250]) {
     const next = frames[firstAfter];
     expect(Math.abs((next?.width ?? 0) - (before?.width ?? NaN))).toBeLessThanOrEqual(1.5);
 
-    await expect(page.locator('[data-wa-cta]')).toHaveText(final);
+    await expect(page.locator('[data-wa-cta] [data-wa-label]')).toHaveText(final);
   });
 }
 
@@ -122,7 +122,7 @@ test('um tema já marcado ao abrir (restaurado pelo navegador) aparece no botão
   await page.clock.pauseAt(new Date(Date.now() + 1000));
   await page.goto('/');
   const cta = page.locator('[data-wa-cta]');
-  await expect(cta).toHaveText('Conversar sobre consumo');
+  await expect(cta.locator('[data-wa-label]')).toHaveText('Conversar sobre consumo');
   await expect(cta).toHaveAttribute('href', wa(MESSAGES.topic('Direito do Consumidor')));
   expect(
     await cta.locator('[data-wa-label]').evaluate((label) => label.getAnimations().length),

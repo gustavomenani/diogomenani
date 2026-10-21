@@ -114,7 +114,7 @@ export const commitments = [
   },
   {
     term: 'Atendimento online',
-    text: 'Reuniões por videochamada e envio seguro de documentos, sem precisar sair de casa.',
+    text: 'Reuniões por videochamada e envio de documentos pelo WhatsApp, sem precisar sair de casa.',
   },
 ] as const satisfies readonly Commitment[];
 

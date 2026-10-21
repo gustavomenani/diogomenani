@@ -1,11 +1,11 @@
 ---
+import ExternalLink from './ExternalLink.astro';
 import Icon from './Icon.astro';
 import Monogram from './Monogram.astro';
 import WhatsAppFab from './WhatsAppFab.astro';
 import { THEMIS_SHAPE_ID, themis, wordmark } from '../data/brand';
 import { contact, social, whatsapp } from '../data/contact';
 import { anchor, footerNav, sectionIds } from '../data/navigation';
-import { externalLink } from '../lib/links';
 import { waLink } from '../lib/whatsapp';
 
 const year = new Date().getFullYear();
@@ -66,9 +66,7 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
         <p class="footer-col-title">Contato</p>
         <ul role="list">
           <li>
-            <a href={waLink()} {...externalLink()}>
-              WhatsApp {whatsapp.display}
-            </a>
+            <ExternalLink href={waLink()}>WhatsApp {whatsapp.display}</ExternalLink>
           </li>
           <li>
             <a href={contact.email.href}>{contact.email.label}</a>
@@ -81,10 +79,10 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
         <ul role="list">
           {social.map((item) => (
             <li>
-              <a href={item.href} {...externalLink()} aria-label={item.ariaLabel}>
+              <ExternalLink href={item.href} aria-label={item.ariaLabel}>
                 <Icon name={item.icon} />
                 {item.label}
-              </a>
+              </ExternalLink>
             </li>
           ))}
         </ul>
@@ -98,9 +96,14 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
         Conteúdo de caráter informativo, em conformidade com o Código de Ética e Disciplina da OAB e
         o Provimento nº 205/2021 do CFOAB.
       </p>
-      <a class="to-top" href={anchor(sectionIds.top)}>
-        Voltar ao topo <Icon name="arrow-up" />
-      </a>
+      <div class="footer-links">
+        <a class="footer-link" href="/privacidade">
+          Privacidade
+        </a>
+        <a class="footer-link to-top" href={anchor(sectionIds.top)}>
+          Voltar ao topo <Icon name="arrow-up" />
+        </a>
+      </div>
     </div>
   </div>
   {/* Fixo na tela, mas dentro do rodapé: fica num landmark, como o resto do conteúdo. */}
@@ -237,17 +240,34 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
     color: var(--sky);
   }
 
+  /* O aviso legal cede largura: no desktop, cabe na mesma linha do copyright e dos links. */
   .footer-legal {
+    flex: 1 1 24em;
     max-width: 50em;
   }
 
-  .to-top {
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 32px;
+  }
+
+  .footer-link {
     display: inline-flex;
     align-items: center;
     gap: 10px;
     min-height: 44px;
     color: #fff;
     font-weight: 600;
+  }
+
+  @media (hover: hover) {
+    .footer-link:not(.to-top):hover {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.28em;
+    }
   }
 
   .to-top :global(svg) {

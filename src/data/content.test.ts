@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { contact } from './contact';
-import { areas, credentials, faq } from './content';
+import { areas, commitments, credentials, faq } from './content';
 
 test('cada área tem um id único (os temas do seletor viram ids no HTML)', () => {
   const ids = areas.map((area) => area.id);
@@ -15,4 +15,11 @@ test('a credencial de atendimento usa a cidade do contato', () => {
 test('a resposta sobre honorários cita a seccional da OAB do contato', () => {
   const honorarios = faq.find((item) => item.question === 'Como são definidos os honorários?');
   expect(honorarios?.answer).toContain(`OAB/${contact.oabState}`);
+});
+
+test('o atendimento online não promete um envio de documentos que o site não oferece', () => {
+  const online = commitments.find((item) => item.term === 'Atendimento online');
+  expect(online?.text).toBe(
+    'Reuniões por videochamada e envio de documentos pelo WhatsApp, sem precisar sair de casa.',
+  );
 });

@@ -1,19 +1,18 @@
 ---
+import ExternalLink from './ExternalLink.astro';
 import Icon from './Icon.astro';
-import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
-<a
+<ExternalLink
   class="fab"
   href={waLink(messages.default)}
-  {...externalLink()}
   aria-label="Conversar pelo WhatsApp"
   data-fab
 >
   <Icon name="whatsapp" />
   <span class="fab-label">WhatsApp</span>
-</a>
+</ExternalLink>
 
 <style>
   /*

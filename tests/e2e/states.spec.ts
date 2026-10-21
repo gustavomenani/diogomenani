@@ -474,7 +474,7 @@ test('depois de trocar o tema, o botão principal volta à opacidade 1', async (
   await page.getByText('Consumidor', { exact: true }).click();
   const cta = page.locator('[data-wa-cta]');
   // O rótulo novo entra quando a saída do antigo termina; a entrada começa no mesmo instante.
-  await expect(cta).toHaveText('Conversar sobre consumo');
+  await expect(cta.locator('[data-wa-label]')).toHaveText('Conversar sobre consumo');
   await cta.evaluate((node) =>
     Promise.all(node.getAnimations({ subtree: true }).map((animation) => animation.finished)),
   );

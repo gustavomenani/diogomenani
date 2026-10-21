@@ -1,8 +1,8 @@
 ---
 import MobileMenu from './MobileMenu.astro';
+import ExternalLink from './ExternalLink.astro';
 import Monogram from './Monogram.astro';
 import { anchor, nav, sectionIds } from '../data/navigation';
-import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
@@ -21,9 +21,9 @@ import { messages, waLink } from '../lib/whatsapp';
       ))}
       <span class="nav-ind" aria-hidden="true" data-nav-ind></span>
     </nav>
-    <a class="btn btn-header" href={waLink(messages.default)} {...externalLink()}>
+    <ExternalLink class="btn btn-header" href={waLink(messages.default)}>
       Agendar conversa
-    </a>
+    </ExternalLink>
     <button
       class="menu-toggle"
       type="button"

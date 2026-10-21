@@ -34,7 +34,7 @@ test('Esc fecha e devolve o foco ao botão', async ({ page }) => {
 
 test('Tab no último item volta ao botão', async ({ page }) => {
   await openMenu(page);
-  await menuLink(page, 'Agendar uma conversa').focus();
+  await menuLink(page, 'Agendar uma conversa (abre em outra aba)').focus();
   await page.keyboard.press('Tab');
   await expect(toggle(page)).toBeFocused();
 });

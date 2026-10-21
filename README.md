@@ -33,6 +33,8 @@ Node.js 24.16 ou mais novo na linha 24 (é o que o CI usa), 22.22.3+ na linha 22
 ```text
 src/
 ├── pages/index.astro      a página: monta as seções na ordem
+├── pages/privacidade.astro  /privacidade, o aviso de privacidade
+├── pages/404.astro        a página de endereço não encontrado
 ├── pages/wordmark-*.ts    a assinatura do rodapé em arquivo: /wordmark-name.svg e /wordmark-sub.svg
 ├── pages/robots.txt.ts    /robots.txt, para os buscadores
 ├── pages/sitemap.xml.ts   /sitemap.xml, com as páginas de data/site.ts
@@ -64,7 +66,7 @@ Seções, na ordem da página. O CSS de cada uma fica no `<style>` do próprio a
 - `Manifesto.astro`: a frase de compromisso e a lista de compromissos.
 - `Duvidas.astro`: perguntas frequentes (`#duvidas`).
 - `Contato.astro`: canais de contato e o formulário que monta a mensagem (`#contato`).
-- `Footer.astro`: rodapé, com marca, navegação, contatos, redes sociais, OAB, aviso legal e o botão flutuante (fixo na tela, mas dentro do landmark do rodapé).
+- `Footer.astro`: rodapé, com marca, navegação, contatos, redes sociais, OAB, aviso legal, o link do aviso de privacidade e o botão flutuante (fixo na tela, mas dentro do landmark do rodapé).
 - `WhatsAppFab.astro`: botão flutuante do WhatsApp, no celular e no tablet; mora no `Footer.astro`.
 
 Peças usadas pelas seções:
@@ -77,6 +79,8 @@ Peças usadas pelas seções:
 - `MobileMenu.astro`: o menu de tela cheia do celular; mora no `Header.astro`, com o próprio CSS.
 - `TopicPicker.astro`: o seletor de tema (chips) do `Hero.astro`.
 - `ContactForm.astro`: o formulário que monta a mensagem do WhatsApp; mora no `Contato.astro`.
+- `ExternalLink.astro`: link que abre em outra aba; avisa o leitor de tela com "(abre em outra aba)", que na tela não aparece. Todo link para fora do site usa ele.
+- `SimpleHeader.astro` e `SimpleFooter.astro`: cabeçalho e rodapé das páginas secundárias (aviso de privacidade e 404), que não têm o script da página.
 
 ### `src/data/` e `src/lib/`
 
@@ -84,10 +88,11 @@ Peças usadas pelas seções:
 - `data/content.ts`: áreas de atuação (com o tema do seletor), credenciais, etapas, manifesto, compromissos e perguntas frequentes.
 - `data/navigation.ts`: ids das seções (as âncoras) e os links do menu e do rodapé.
 - `data/site.ts`: título, descrição e prévia dos links (Open Graph) e as páginas do sitemap.
+- `data/privacy.ts`: o texto do aviso de privacidade e a data da última revisão.
 - `data/icons.ts`: desenhos dos ícones (Tabler Icons; licença em `data/MIT-tabler-icons.txt`).
 - `data/brand.ts`: vetores do monograma, do nome e da Têmis. Não precisa mexer.
 - `lib/whatsapp.ts`: mensagens prontas, links `wa.me` e a mensagem que o formulário monta.
-- `lib/links.ts`: atributos de link que abre em outra aba.
+- `lib/links.ts`: atributos de link que abre em outra aba e o aviso para o leitor de tela.
 - `lib/structured-data.ts`: os dados estruturados (JSON-LD `LegalService`) que os buscadores leem.
 
 ### `src/scripts/`
@@ -135,6 +140,9 @@ Peças usadas pelas seções:
 | Cores                                                                  | `src/styles/tokens.css` (o azul royal também está no `theme-color` do `src/layouts/Base.astro` e no `public/favicon.svg`) |
 | Fontes                                                                 | `fonts` no `astro.config.mjs` (arquivos em `src/assets/fonts/`)                                                           |
 | Título e descrição da página nos buscadores e na prévia dos links      | `src/data/site.ts`                                                                                                        |
+| Aviso de privacidade (texto e data de atualização)                     | `src/data/privacy.ts` (os links do texto ficam em `src/pages/privacidade.astro`)                                          |
+
+O aviso de privacidade é um ponto de partida: o texto deve ser revisado pelo Diogo antes da publicação.
 
 O que aparece em vários pontos da página (telefone, OAB, cidade, nomes das áreas) vem desses arquivos: mude uma vez e vale em todos os lugares.
 

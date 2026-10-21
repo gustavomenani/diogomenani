@@ -268,3 +268,37 @@ test('passar o mouse num campo com erro mantém a borda de erro', async ({ page 
   );
   await expect(f.phone).toHaveCSS('border-color', 'rgb(180, 35, 24)');
 });
+
+test.describe('consentimento', () => {
+  test('o rótulo cita o aviso de privacidade', async ({ page }) => {
+    // O Playwright põe um espaço em volta do aviso sr-only (um bloco, por ser absoluto); o
+    // navegador, não: "(abre em outra aba)." (o a11y.spec confere o nome do Chromium).
+    await expect(form(page).consent).toHaveAccessibleName(
+      /^Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD e o aviso de privacidade \(abre em outra aba\) ?\.$/,
+    );
+  });
+
+  test('o link do aviso abre outra aba e não marca o checkbox', async ({ page }) => {
+    const f = form(page);
+    const link = page
+      .locator('[data-field]', { has: f.consent })
+      .getByRole('link', { name: 'aviso de privacidade (abre em outra aba)', exact: true });
+    const popup = page.waitForEvent('popup');
+    await link.click();
+    const opened = await popup;
+    await opened.waitForLoadState();
+    expect(new URL(opened.url()).pathname).toBe('/privacidade');
+    await opened.close();
+    await expect(f.consent).not.toBeChecked();
+  });
+
+  test('clicar no texto do rótulo marca o checkbox', async ({ page }) => {
+    const f = form(page);
+    // O começo do texto, longe do link.
+    await page
+      .locator('[data-field]', { has: f.consent })
+      .getByText(/^Concordo com o uso/)
+      .click({ position: { x: 4, y: 4 } });
+    await expect(f.consent).toBeChecked();
+  });
+});

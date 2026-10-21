@@ -1,8 +1,8 @@
 ---
+import ExternalLink from './ExternalLink.astro';
 import Field from './Field.astro';
 import Icon from './Icon.astro';
 import { areas } from '../data/content';
-import { externalLink } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
@@ -76,8 +76,16 @@ import { messages, waLink } from '../lib/whatsapp';
         <span class="check-box" aria-hidden="true">
           <Icon name="check" strokeWidth={2.6} />
         </span>
+        {/*
+          O aviso abre em outra aba, para não perder o que foi digitado. Clicar no link não marca
+          o checkbox: num <label>, o clique num conteúdo interativo fica com ele.
+        */}
         <span>
-          Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD.
+          Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD e o{' '}
+          <ExternalLink class="link" href="/privacidade">
+            aviso de privacidade
+          </ExternalLink>
+          .
         </span>
       </label>
       <p class="field-error" id="f-lgpd-erro" data-field-error>
@@ -90,9 +98,9 @@ import { messages, waLink } from '../lib/whatsapp';
     </button>
     <p class="form-status" role="status" aria-live="polite" data-form-status></p>
     {/* O envio troca o destino pela mensagem montada; sem ela, vale a de agendamento. */}
-    <a class="form-fallback" href={waLink(messages.default)} {...externalLink()} data-form-fallback>
+    <ExternalLink class="form-fallback" href={waLink(messages.default)} data-form-fallback>
       Se o WhatsApp não abriu, toque aqui para enviar a mensagem.
-    </a>
+    </ExternalLink>
   </div>
 </form>
 

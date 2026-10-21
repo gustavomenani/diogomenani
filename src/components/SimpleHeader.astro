@@ -1,0 +1,55 @@
+---
+/**
+ * Cabeçalho das páginas secundárias (aviso de privacidade e 404): a marca e a volta ao site. O
+ * Header da home depende das seções, do menu e do script da página, que aqui não existem.
+ */
+import Monogram from './Monogram.astro';
+---
+
+<header class="simple-header is-royal">
+  <div class="wrap simple-header-inner">
+    <a class="brand" href="/">
+      {/* Sem o Header, é aqui que o desenho do monograma entra na página. */}
+      <Monogram class="brand-mark" symbol />
+      <span class="brand-name">Diogo Menani</span>
+    </a>
+    <a class="link-light" href="/">
+      Voltar ao site
+    </a>
+  </div>
+</header>
+
+<style>
+  .simple-header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 32px;
+    min-height: var(--header-h);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 44px;
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: auto;
+  }
+
+  .brand-name {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: var(--fs-base);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .link-light {
+    font-size: var(--fs-md);
+  }
+</style>

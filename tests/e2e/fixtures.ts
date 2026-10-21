@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
 
 /** Link do WhatsApp do escritório, sem mensagem. */
@@ -46,6 +47,24 @@ export async function countHiddenReveals(page: Page): Promise<number> {
         const style = getComputedStyle(element);
         return style.opacity === '0' || style.clipPath.includes('100%');
       }).length,
+  );
+}
+
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
+
+/**
+ * Violações do axe em formato legível ("regra: alvo, alvo"), com a interface já assentada:
+ * durante as animações de entrada a opacidade baixa falsearia o contraste.
+ */
+export async function axeViolations(page: Page): Promise<string[]> {
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  await page.waitForFunction(() =>
+    document.getAnimations().every((animation) => animation.playState !== 'running'),
+  );
+  const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+  return results.violations.map(
+    (violation) =>
+      `${violation.id}: ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`,
   );
 }
 

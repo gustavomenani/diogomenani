@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import SimpleFooter from '../components/SimpleFooter.astro';
+import SimpleHeader from '../components/SimpleHeader.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import { sectionIds } from '../data/navigation';
+import { site } from '../data/site';
+
+const TEXT =
+  'O endereço que você abriu não existe ou mudou de lugar. Volte ao início ou fale direto pelo WhatsApp.';
+---
+
+<Base
+  title={`Página não encontrada — ${site.shortName}`}
+  description={TEXT}
+  path="/404"
+  noindex
+  interactive={false}
+>
+  <SimpleHeader />
+  <main id={sectionIds.main} class="not-found is-royal">
+    <div class="wrap not-found-inner">
+      <h1 class="h2">Página não encontrada</h1>
+      <p class="lede">{TEXT}</p>
+      <div class="not-found-actions">
+        <a class="link-light" href="/">
+          Ir para o início
+        </a>
+        <WhatsAppButton label="Conversar pelo WhatsApp" />
+      </div>
+    </div>
+  </main>
+  <SimpleFooter />
+</Base>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    min-height: clamp(420px, 70svh, 720px);
+    padding-block: clamp(64px, 6vw + 32px, 128px);
+    border-top: 1px solid var(--line-on-royal);
+  }
+
+  .not-found .lede {
+    max-width: 34em;
+    margin-top: 22px;
+  }
+
+  .not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 32px;
+    margin-top: 36px;
+  }
+</style>

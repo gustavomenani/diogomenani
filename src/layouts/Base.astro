@@ -13,9 +13,21 @@ interface Props {
   noindex?: boolean;
   /** JSON-LD da página. */
   structuredData?: object;
+  /**
+   * Liga o movimento e o módulo da página (padrão). As páginas secundárias (aviso de privacidade
+   * e 404) passam `false`: sem script nenhum, a raiz fica em `pending`, em que tudo aparece.
+   */
+  interactive?: boolean;
 }
 
-const { title, description, path, noindex = false, structuredData } = Astro.props;
+const {
+  title,
+  description,
+  path,
+  noindex = false,
+  structuredData,
+  interactive = true,
+} = Astro.props;
 
 // Canonical, og:url e a imagem de prévia exigem endereço absoluto: sem o `site` do
 // astro.config.mjs, essas tags não saem (quem lê o Open Graph não resolve caminho relativo).
@@ -86,7 +98,7 @@ const ogImage = Astro.site && new URL(site.ogImage, Astro.site).href;
         Decide o modo de movimento antes da primeira pintura (motion-mode.ts). Se o módulo da
         página não rodar (rede, erro), devolve no load o modo sem script, em que tudo aparece.
       */}
-      <script is:inline>
+      {interactive && <script is:inline>
         (() => {
           const root = document.currentScript.parentElement;
           const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -99,17 +111,17 @@ const ogImage = Astro.site && new URL(site.ogImage, Astro.site).href;
             requestAnimationFrame(() => root.removeAttribute('data-instant'));
           });
         })();
-      </script>
+      </script>}
       <a class="skip-link" href={anchor(sectionIds.main)}>
         Pular para o conteúdo
       </a>
       <slot />
     </div>
-    <script>
+    {interactive && <script>
       import { initPage } from '../scripts/main';
 
       const root = document.querySelector<HTMLElement>('[data-page]');
       if (root) initPage(root);
-    </script>
+    </script>}
   </body>
 </html>

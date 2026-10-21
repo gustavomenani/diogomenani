@@ -76,3 +76,27 @@ test.describe('impressão com movimento', () => {
     ).toEqual(['visible', '1']);
   });
 });
+
+test('as respostas não viram regiões, e cada botão controla a própria resposta', async ({
+  page,
+}) => {
+  // Cinco landmarks "região" poluiriam a navegação por regiões do leitor de tela.
+  await expect(page.locator('#duvidas').getByRole('region')).toHaveCount(0);
+  const pairs = [
+    [QUESTIONS[0], FIRST_ANSWER],
+    [QUESTIONS[1], SECOND_ANSWER],
+  ] as const;
+  for (const [question, answer] of pairs) {
+    const button = page.getByRole('button', { name: question });
+    const id = await button.evaluate((element) => element.getAttribute('aria-controls') ?? '');
+    const panel = page.locator(`[id="${id}"]`);
+    await expect(panel).toHaveCount(1);
+    await expect(panel).toContainText(answer);
+  }
+  const second = page.getByRole('button', { name: QUESTIONS[1] });
+  const id = await second.evaluate((element) => element.getAttribute('aria-controls') ?? '');
+  const answer = page.locator(`[id="${id}"]`).getByText(SECOND_ANSWER);
+  await expect(answer).toBeHidden();
+  await second.click();
+  await expect(answer).toBeVisible();
+});

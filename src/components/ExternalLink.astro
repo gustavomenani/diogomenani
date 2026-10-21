@@ -1,0 +1,23 @@
+---
+/**
+ * Link que abre em outra aba: os atributos do externalLink() e o aviso "(abre em outra aba)" para
+ * o leitor de tela, que na tela não aparece. Quando o link tem aria-label (o texto visível não
+ * basta), o aviso vai no fim do próprio aria-label.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { NEW_TAB_NOTE, externalLink, newTabLabel } from '../lib/links';
+
+/** A abertura em outra aba é do componente: quem usa não troca target nem rel. */
+type Props = Omit<HTMLAttributes<'a'>, 'target' | 'rel'>;
+
+const { 'aria-label': ariaLabel, ...attrs } = Astro.props;
+
+// Sem o espaço das pontas: o da quebra de linha antes do aviso ficaria dentro do link, sublinhado,
+// e antes da pontuação que vem depois ("aviso de privacidade .").
+const content = (await Astro.slots.render('default')).trim();
+---
+
+<a {...attrs} {...externalLink()} aria-label={ariaLabel ? newTabLabel(ariaLabel) : undefined}>
+  <Fragment set:html={content} />
+  {!ariaLabel && <span class="sr-only">{` ${NEW_TAB_NOTE}`}</span>}
+</a>
