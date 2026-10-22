@@ -6,6 +6,17 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Versões menores e correções chegam juntas, num pull request por semana; as maiores, uma a uma.
+    groups:
+      menores:
+        update-types: [minor, patch]
+    ignore:
+      # Os tipos do Node acompanham o runtime (.node-version), não a versão mais nova do Node.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # O TypeScript 7 fica de fora enquanto o @astrojs/check só aceitar o 5 e o 6 (peer).
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
