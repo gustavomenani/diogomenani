@@ -36,8 +36,25 @@ function recordTransitions(selector: string): void {
     const { target } = event;
     if (target instanceof Element && target.closest(selector)) {
       const section = target.closest('section[id]')?.id ?? '';
+      const root = document.querySelector('[data-page]');
+      const flags = ['data-instant', 'data-ready', 'data-entered']
+        .filter((name) => root?.hasAttribute(name))
+        .join(',');
+      const anims = target
+        .getAnimations()
+        .map((a) => {
+          const name =
+            (a as CSSAnimation).animationName ?? (a as CSSTransition).transitionProperty ?? '?';
+          return `${name}:${a.playState}@${Math.round(Number(a.currentTime ?? -1))}`;
+        })
+        .join('|');
+      const header = document.querySelector('[data-header]');
       started.push(
-        `#${section} ${target.getAttribute('class') ?? target.tagName} ${event.propertyName}`,
+        `#${section} ${target.getAttribute('class') ?? target.tagName} ${event.propertyName}` +
+          ` t=${Math.round(performance.now())} rs=${document.readyState} root=[${flags}]` +
+          ` hdr=[${header?.className ?? ''}] y=${Math.round(scrollY)} fonts=${document.fonts.status}` +
+          ` anims=${anims} tf=${getComputedStyle(target).transform}` +
+          ` style=${target.getAttribute('style') ?? ''}`,
       );
     }
   });
