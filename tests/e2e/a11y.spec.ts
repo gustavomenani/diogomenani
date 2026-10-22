@@ -1,4 +1,15 @@
-import { test, expect, axeViolations, jumpTo, type Locator, type Page } from './fixtures';
+import AxeBuilder from '@axe-core/playwright';
+import { areas } from '../../src/data/content';
+import {
+  test,
+  expect,
+  axeViolations,
+  jumpTo,
+  settle,
+  SUBMIT,
+  type Locator,
+  type Page,
+} from './fixtures';
 
 const MOBILE = { width: 390, height: 844 };
 const DESKTOP = { width: 1440, height: 900 };
@@ -68,21 +79,76 @@ test.describe('axe', () => {
     expect(await axeViolations(page), 'menu aberto').toEqual([]);
 
     await page.setViewportSize(DESKTOP);
-    await page.getByRole('button', { name: 'Enviar pelo WhatsApp', exact: true }).click();
+    await page.getByRole('button', { name: SUBMIT, exact: true }).click();
     await expect(page.getByText('Revise os campos destacados para continuar.')).toBeVisible();
     expect(await axeViolations(page), 'erros no formulário').toEqual([]);
   });
+
+  /*
+   * O degradê para o prata no pé do hero (.hero::after) e o fundo em degradê deixam todo o texto
+   * do hero sem medida no axe (incomplete), e "sem violações" passaria sem conferir o contraste
+   * dele. Esta passada põe atrás do texto o tom mais claro que fica ali: o branco a 17% sobre o
+   * royal, que é a Têmis no celular (atrás do texto, com opacidade 0,17) e equivale ao centro do
+   * brilho (o royal sozinho, a parada mais clara do degradê, não é o pior caso). O brilho e a
+   * figura saem, porque com eles o axe não mede (bgGradient e imgNode), e nenhum texto fica sobre
+   * o prata do pé. Fica sem medida só o rótulo do botão principal: royal sobre a pílula clara, não
+   * sobre o hero, com o ::before do hover por cima (pseudoContent). Com um mínimo de textos
+   * medidos e nada mais sem medida, se o axe voltar a não medir, o teste reprova em vez de passar
+   * em silêncio.
+   */
+  for (const viewport of [MOBILE, DESKTOP]) {
+    test(`contraste do texto do hero medido sobre o tom mais claro atrás dele em ${viewport.width} px`, async ({
+      page,
+    }) => {
+      // mata: um texto do hero apagado demais para o fundo mais claro atrás dele (no celular, a
+      // Têmis), que o axe deixava sem medida
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      await page.addStyleTag({
+        content:
+          '.hero::after { content: none !important; } .hero-glow { display: none !important; } [data-figure] { visibility: hidden !important; } .hero-bg { background: color-mix(in srgb, #fff 17%, var(--royal)) !important; }',
+      });
+      await settle(page);
+      const results = await new AxeBuilder({ page })
+        .withRules(['color-contrast'])
+        .include('#inicio')
+        .analyze();
+      expect(
+        results.violations.flatMap((rule) => rule.nodes.map((node) => node.target.join(' '))),
+      ).toEqual([]);
+      expect(
+        results.incomplete
+          .flatMap((rule) => rule.nodes.map((node) => node.target.join(' ')))
+          .filter((target) => !target.includes('.btn-label')),
+        'textos sem medida',
+      ).toEqual([]);
+      expect(results.passes.flatMap((rule) => rule.nodes).length).toBeGreaterThanOrEqual(16);
+    });
+  }
 });
 
-test('o link da marca se chama pelo texto visível', async ({ page }) => {
+test('as áreas de atuação são títulos de nível 3, como as etapas e as dúvidas', async ({
+  page,
+}) => {
+  // mata: o nome da área num <span> (fora da estrutura de títulos que o leitor de tela percorre)
+  await page.goto('/');
+  await expect(page.locator('#atuacao').getByRole('heading', { level: 3 })).toHaveText(
+    areas.map(({ name }) => name),
+  );
+});
+
+test('o link da marca se chama pelo texto alternativo do logo', async ({ page }) => {
   await page.setViewportSize(DESKTOP);
   await page.goto('/');
   const brand = page.locator('[data-header]').getByRole('link', {
-    name: 'Diogo Menani Advocacia & Assessoria Jurídica',
+    name: 'Diogo Menani — Advocacia e Assessoria Jurídica',
     exact: true,
   });
   await expect(brand).toBeVisible();
   await expect(brand).not.toHaveAttribute('aria-label');
+  // As duas versões do logo: só a branca tem texto; a azul, por cima dela, é decorativa.
+  await expect(brand.locator('img')).toHaveCount(2);
+  await expect(brand.locator('img[alt=""]')).toHaveCount(1);
 });
 
 test.describe('menu mobile', () => {
@@ -97,7 +163,7 @@ test.describe('menu mobile', () => {
 
     await page.locator('[data-menu-toggle]').click();
     const menu = page.getByRole('navigation', { name: 'Menu', exact: true });
-    await expect(menu.getByRole('link', { name: 'Agendar uma conversa' })).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Fale com um especialista' })).toBeVisible();
     await expect(page.locator('[data-menu]')).not.toHaveAttribute('inert');
     await expect(main).toHaveAttribute('inert');
     await expect(footer).toHaveAttribute('inert');
@@ -148,7 +214,7 @@ test('o primeiro Tab mostra o link para pular ao conteúdo', async ({ page, brow
 
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  await expect(page.getByLabel('Família', { exact: true })).toBeFocused();
+  await expect(page.getByLabel('Família internacional', { exact: true })).toBeFocused();
 });
 
 test('o skip link escondido não projeta sombra sobre a página', async ({ page }) => {
@@ -161,10 +227,13 @@ test('o skip link escondido não projeta sombra sobre a página', async ({ page 
   await expect(skip).not.toHaveCSS('box-shadow', 'none');
 });
 
-test('no alto contraste, o campo focado ganha contorno', async ({ page }) => {
+test('no alto contraste, só o campo focado tem contorno', async ({ page }) => {
   await page.emulateMedia({ forcedColors: 'active' });
   await page.goto('/');
   const name = page.getByLabel('Nome', { exact: true });
+  // mata: o contorno transparente em todos os campos, que o alto contraste pinta com a cor do
+  // sistema
+  await expect(name).toHaveCSS('outline-style', 'none');
   await name.focus();
   await expect(name).toHaveCSS('outline-style', 'solid');
 });
@@ -186,7 +255,7 @@ test('o texto selecionado aparece em qualquer fundo', async ({ page }) => {
   ).toBe(royal);
   // Fundo royal (seções royal, rodapé, menu e header sobre o hero): seleção branca.
   expect(
-    await selection(page.getByText(/^Advocacia e assessoria jurídica para pessoas e empresas/)),
+    await selection(page.getByText(/^Assessoria jurídica completa para Vistos Americanos/)),
   ).toBe(white);
   expect(
     await selection(page.getByRole('contentinfo').getByText(/^Conteúdo de caráter informativo/)),
@@ -196,8 +265,11 @@ test('o texto selecionado aparece em qualquer fundo', async ({ page }) => {
       page.locator('[data-menu]').getByRole('link', { name: 'Sobre', includeHidden: true }),
     ),
   ).toBe(white);
+  // A marca do header é só imagem, sem texto a selecionar: vale a navegação sobre o hero.
   expect(
-    await selection(page.getByRole('banner').getByRole('link', { name: /^Diogo Menani/ })),
+    await selection(
+      page.locator('[data-nav]').getByRole('link', { name: 'Sobre', includeHidden: true }),
+    ),
   ).toBe(white);
 });
 
@@ -205,7 +277,7 @@ test('o título principal tem nome acessível sem aria-label', async ({ page }) 
   await page.goto('/');
   const title = page.getByRole('heading', {
     level: 1,
-    name: 'Diogo Menani · Advogado em [Cidade/UF] Clareza para entender. Firmeza para defender.',
+    name: 'Diogo Menani · Advogado Clareza para entender. Firmeza para defender.',
     exact: true,
   });
   await expect(title).toBeVisible();
@@ -239,7 +311,7 @@ test('a navegação do rodapé é um landmark', async ({ page }) => {
   await expect(nav.getByRole('link', { name: 'Dúvidas frequentes' })).toBeAttached();
 });
 
-for (const path of ['/', '/privacidade', '/nao-existe']) {
+for (const path of ['/', '/privacidade/', '/nao-existe']) {
   test(`em ${path}, todo link que abre em outra aba avisa o leitor de tela`, async ({ page }) => {
     await page.goto(path);
     const NOTE = /\(abre em outra aba\)$/;
@@ -258,3 +330,12 @@ for (const path of ['/', '/privacidade', '/nao-existe']) {
     }
   });
 }
+
+test('o botão de envio do formulário, que abre o WhatsApp em outra aba, também avisa', async ({
+  page,
+}) => {
+  // mata: o aviso sr-only no botão de envio (ContactForm.astro): o window.open trocava de aba sem
+  // aviso, ao contrário de todos os links que abrem outra aba, que o teste acima confere
+  await page.goto('/');
+  await expect(page.locator('[data-contact-form] [type="submit"]')).toHaveAccessibleName(SUBMIT);
+});

@@ -1,8 +1,10 @@
 /*
  * Revelações na rolagem. Os estados escondidos só valem com data-motion="on", que o script
  * define quando pode animar: sem JavaScript, com movimento reduzido ou numa captura da página
- * inteira, todo o conteúdo aparece direto. No fim, os keyframes usados pelos componentes (rise,
- * fade-up, fade, drop, draw, spark, figure-unveil).
+ * inteira, todo o conteúdo aparece direto. E só depois que o módulo da página marcou o que já está
+ * na tela (data-ready): numa rede lenta, a primeira pintura, que pode vir antes do módulo, mostra
+ * tudo, e o que está na tela não some para aparecer de estalo quando ele chega. No fim, os
+ * keyframes usados pelos componentes (rise, fade-up, fade, drop, draw, spark, figure-unveil).
  */
 
 /*
@@ -23,12 +25,12 @@
   transition-delay: var(--d, 0ms);
 }
 
-.page[data-motion='on'] [data-reveal]:not(.is-in) {
+.page[data-motion='on'][data-ready] [data-reveal]:not(.is-in) {
   opacity: 0;
   transform: translate3d(0, 24px, 0);
 }
 
-.page[data-motion='on'] [data-reveal='rise']:not(.is-in) {
+.page[data-motion='on'][data-ready] [data-reveal='rise']:not(.is-in) {
   opacity: 1;
   transform: translate3d(0, 0.5em, 0);
   clip-path: inset(0 0 100% 0);
@@ -38,27 +40,13 @@
   clip-path: inset(-20% -10% -30% -10%);
 }
 
-.page[data-motion='on'] [data-reveal='unveil'] {
-  transition: clip-path 1.7s var(--ease-soft);
-}
-
-.page[data-motion='on'] [data-reveal='unveil']:not(.is-in) {
-  opacity: 1;
-  transform: none;
-  clip-path: inset(100% 0 0 0);
-}
-
-.page[data-motion='on'] [data-reveal='unveil'].is-in {
-  clip-path: inset(0 0 0 0);
-}
-
 .page[data-motion='on'] [data-reveal='draw'] {
   transition:
     transform 1.6s var(--ease),
     opacity 1s ease;
 }
 
-.page[data-motion='on'] [data-reveal='draw']:not(.is-in) {
+.page[data-motion='on'][data-ready] [data-reveal='draw']:not(.is-in) {
   opacity: 0;
   transform: scaleX(0);
 }
@@ -69,16 +57,21 @@
   }
 }
 
+/*
+ * fade-up e fade começam em 0,01, e não em 0: o Chromium não conta para o LCP uma pintura com
+ * opacidade 0, e o texto de apoio do hero só entraria nele quando o fade terminasse (~1,7 s
+ * depois). Com 0,01, que não se vê, ele conta desde a primeira pintura.
+ */
 @keyframes fade-up {
   from {
-    opacity: 0;
+    opacity: 0.01;
     transform: translate3d(0, 18px, 0);
   }
 }
 
 @keyframes fade {
   from {
-    opacity: 0;
+    opacity: 0.01;
   }
 }
 
@@ -115,7 +108,7 @@
   }
 }
 
-/* A Têmis do hero surge de baixo para cima (o retrato usa data-reveal="unveil"). */
+/* A Têmis do hero surge de baixo para cima. */
 @keyframes figure-unveil {
   from {
     mask-image: linear-gradient(to top, #000 40%, transparent 60%);

@@ -72,8 +72,8 @@ test('as variantes normais têm preload e nenhum arquivo de fonte vem à toa', a
   await expect(
     page.locator('link[rel="preload"][as="font"][type="font/woff2"][crossorigin]'),
   ).toHaveCount(2);
-  // Baskervville normal e itálica e Hanken Grotesk normal: nenhum arquivo a mais.
-  expect(new Set(downloads.map(({ url }) => url)).size).toBe(3);
+  // Baskervville e Hanken Grotesk, só as normais (o site não tem itálico): nenhum arquivo a mais.
+  expect(new Set(downloads.map(({ url }) => url)).size).toBe(2);
 });
 
 test('cada fonte baixa uma vez só: o preload é aproveitado', async ({ page, browserName }) => {

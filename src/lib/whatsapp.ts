@@ -1,14 +1,13 @@
 // Links e mensagens do WhatsApp: a única fonte para todo texto que o site envia ao escritório.
 import { whatsapp } from '../data/contact';
 
-const GREETING = 'Olá, Dr. Diogo!';
+const GREETING = 'Olá!';
 
-/** Mensagens prontas que abrem a conversa. */
+/** Mensagens prontas que abrem a conversa; `topic` recebe o assunto da área (`subject`). */
 export const messages = {
-  default: `${GREETING} Gostaria de agendar uma conversa.`,
-  topic: (area: string) => `${GREETING} Gostaria de agendar uma conversa sobre ${area}.`,
-  area: (area: string) => `${GREETING} Gostaria de conversar sobre ${area}.`,
-  unlistedCase: `${GREETING} Gostaria de saber se você pode me ajudar com um caso.`,
+  default: `${GREETING} Gostaria de falar com um especialista.`,
+  topic: (subject: string) => `${GREETING} Gostaria de falar com um especialista sobre ${subject}.`,
+  unlistedCase: `${GREETING} Gostaria de saber se vocês podem me ajudar com um caso.`,
 } as const;
 
 /**
@@ -32,7 +31,11 @@ export interface ContactRequest {
   message: string;
 }
 
-/** Mensagem que o formulário monta; assunto e e-mail ficam de fora quando não foram informados. */
+/**
+ * Mensagem que o formulário monta; assunto e e-mail ficam de fora quando não foram informados.
+ * Nome e relato fecham com ponto: quase ninguém pontua um relato curto, e ele emendaria nos dados
+ * de contato ("…visto negado (WhatsApp: …)").
+ */
 export function buildContactMessage({
   name,
   phone,
@@ -44,7 +47,7 @@ export function buildContactMessage({
   return (
     `${GREETING} Meu nome é ${asSentence(name.trim())}` +
     (subject ? ` Assunto: ${subject}.` : '') +
-    ` ${message.trim()}` +
+    ` ${asSentence(message.trim())}` +
     ` (WhatsApp: ${phone}${trimmedEmail ? `, e-mail: ${trimmedEmail}` : ''})`
   );
 }

@@ -1,4 +1,3 @@
-import { contact } from '../../src/data/contact';
 import { site } from '../../src/data/site';
 import { test, expect } from './fixtures';
 
@@ -10,14 +9,17 @@ test.describe('página inicial', () => {
     await page.goto('/');
   });
 
-  test('o título tem a cidade', async ({ page }) => {
-    await expect(page).toHaveTitle(`Diogo Menani — Advogado em ${contact.city}`);
+  test('o título é o nome do escritório, sem cidade', async ({ page }) => {
+    await expect(page).toHaveTitle('Diogo Menani — Advocacia & Assessoria Jurídica');
   });
 
   test('Open Graph e cartão do Twitter', async ({ page }) => {
     const meta = (attribute: string, value: string) =>
       page.locator(`meta[${attribute}="${value}"]`);
     await expect(meta('property', 'og:title')).toHaveAttribute('content', site.title);
+    // O mesmo nome curto do WebSite no JSON-LD: com o longo aqui, o Google tende a ficar com ele e
+    // a cortá-lo no celular. O literal vai à mão para o teste não repetir o site.ts.
+    await expect(meta('property', 'og:site_name')).toHaveAttribute('content', 'Diogo Menani');
     await expect(meta('property', 'og:description')).toHaveAttribute('content', site.description);
     await expect(meta('property', 'og:locale')).toHaveAttribute('content', 'pt_BR');
     await expect(meta('property', 'og:type')).toHaveAttribute('content', 'website');
@@ -48,17 +50,63 @@ test.describe('página inicial', () => {
     expect(urls.filter((url) => !url?.startsWith('http'))).toEqual([]);
   });
 
-  test('o JSON-LD é válido e descreve um LegalService', async ({ page }) => {
+  test('o JSON-LD é válido e descreve uma Organization', async ({ page }) => {
     const json = await page.locator('script[type="application/ld+json"]').textContent();
-    const data = JSON.parse(json ?? '') as Record<string, unknown>;
-    expect(data['@type']).toBe('LegalService');
+    const data = JSON.parse(json ?? '') as Record<string, unknown> & {
+      '@graph'?: Record<string, unknown>[];
+    };
+    // Sem o endereço do site, sai só a Organization; com ele, Organization e WebSite num @graph.
+    const nodes = data['@graph'] ?? [data];
+    expect(nodes.map((node) => node['@type'])).toContain('Organization');
   });
 
-  test('o título principal começa pelo nome e pela cidade', async ({ page }) => {
+  test('o título principal começa pelo nome', async ({ page }) => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName(
-      /^Diogo Menani · Advogado em /,
+      /^Diogo Menani · Advogado /,
     );
   });
+});
+
+test('o theme-color acompanha a cor do topo de cada página', async ({ page }) => {
+  // mata: o theme-color fixo em royal (no Chrome do Android, a barra do navegador ficava royal
+  // sobre o azul-noite do alto do hero, com uma emenda de cor)
+  /** A cor de um token de tokens.css, como o navegador a calcula ("rgb(r, g, b)"). */
+  const tokenColor = (token: string) =>
+    page.evaluate((name) => {
+      const probe = document.createElement('i');
+      probe.style.color = `var(${name})`;
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    }, token);
+  /** O theme-color da página, no mesmo formato. */
+  const themeColor = async () => {
+    const hex = (await page.locator('meta[name="theme-color"]').getAttribute('content')) ?? '';
+    const [r, g, b] = [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16));
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+  await page.goto('/');
+  expect(await themeColor()).toBe(await tokenColor('--navy'));
+  for (const path of ['/privacidade/', '/nao-existe']) {
+    await page.goto(path);
+    expect(await themeColor(), path).toBe(await tokenColor('--royal'));
+  }
+});
+
+test('declara só o tema claro para o navegador não escurecer a página à força', async ({
+  page,
+}) => {
+  // mata: a página sem color-scheme (o escurecimento forçado do Android, no Chrome com "Escurecer
+  // sites", no Samsung Internet e nas WebViews de apps, recoloria fundos e textos, mas não o logo
+  // em <img>, que sumia no fundo quase preto)
+  for (const path of ['/', '/privacidade/', '/nao-existe']) {
+    await page.goto(path);
+    await expect(page.locator('meta[name="color-scheme"]'), path).toHaveAttribute(
+      'content',
+      'only light',
+    );
+  }
 });
 
 test('robots.txt libera o site', async ({ request }) => {

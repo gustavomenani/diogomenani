@@ -36,9 +36,14 @@
   line-height: 1.4;
   caret-color: var(--royal);
   appearance: none;
+
+  /* O contorno do foco já existe, transparente: ao focar, ele acende junto com a borda. */
+  outline: 2px solid transparent;
+  outline-offset: -1px;
   transition:
     border-color 0.3s,
-    background-color 0.3s;
+    background-color 0.3s,
+    outline-color 0.25s;
 }
 
 .field textarea {
@@ -59,18 +64,32 @@
   }
 }
 
-/* Foco: contorno de 2 px, visível em qualquer fundo (a sombra suave sozinha não bastava). */
+/*
+ * Foco: contorno de 2 px colado na borda do campo (o recuo de -1 px o põe por cima da borda de
+ * 1 px), visível em qualquer fundo. Afastado da borda, parecia um segundo campo solto. O recuo
+ * se repete aqui de propósito: o foco do campo também é :focus-visible, e a regra geral do foco
+ * (.page :focus-visible, em base.css, com 3 px de afastamento) vence a regra base do campo.
+ */
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   border-color: var(--royal-bright);
   background: #fff;
-  outline: 2px solid var(--royal-bright);
-  outline-offset: 2px;
+  outline-color: var(--royal-bright);
+  outline-offset: -1px;
 }
 
-/* Alto contraste (forced-colors): o contorno do foco usa a cor de destaque do sistema. */
+/*
+ * Alto contraste (forced-colors): o contorno transparente apareceria em todos os campos, então só
+ * existe no foco, com a cor de destaque do sistema.
+ */
 @media (forced-colors: active) {
+  .field input:not(:focus),
+  .field select:not(:focus),
+  .field textarea:not(:focus) {
+    outline-style: none;
+  }
+
   .field input:focus,
   .field select:focus,
   .field textarea:focus {
@@ -96,6 +115,169 @@
   margin-top: -9px;
   color: var(--royal);
   pointer-events: none;
+  transition: rotate 0.4s var(--ease);
+}
+
+/*
+ * Alto contraste: o royal declarado no próprio SVG não é recolorido (o preserve-parent-color do
+ * Chromium só troca a cor herdada) e some no tema escuro (1,4:1 sobre o preto). Sem a seta, o
+ * Assunto parece uma caixa de texto: ela acompanha o texto do campo.
+ */
+@media (forced-colors: active) {
+  .select svg {
+    color: FieldText;
+  }
+}
+
+/*
+ * Select personalizável (Chrome e Edge 135+): a lista de opções ganha o visual do formulário,
+ * cartão branco arredondado com sombra, em vez da caixa quadrada do sistema. Nos navegadores sem
+ * suporte, fica a lista nativa. O chevron continua sendo o SVG ao lado (o do navegador some).
+ */
+@supports (appearance: base-select) {
+  .select select,
+  .select select::picker(select) {
+    appearance: base-select;
+  }
+
+  .select select::picker-icon {
+    display: none;
+  }
+
+  .select:has(select:open) svg {
+    rotate: 180deg;
+  }
+
+  /*
+   * Com a lista aberta, o foco vai para a <option> e o select deixa de casar :focus: sem isto, o
+   * campo dono da lista parece inativo, e pelo teclado o contorno some e volta a cada abertura.
+   */
+  .select select:open {
+    border-color: var(--royal-bright);
+    background: #fff;
+    outline-color: var(--royal-bright);
+  }
+
+  /*
+   * Alto contraste: o :not(:focus) do campo apagaria o contorno da lista aberta, em que o foco está
+   * na opção. O :open fica fora daquela regra: um seletor desconhecido a derrubaria inteira no
+   * Firefox e no Safari.
+   */
+  @media (forced-colors: active) {
+    .field .select select:open {
+      outline-style: solid;
+      outline-color: highlight;
+    }
+  }
+
+  /*
+   * A lista abre esmaecendo de 98% do tamanho, e fecha mais rápido. A escala serve igual quando
+   * ela abre para cima ou para baixo. O display e o overlay saem por último (allow-discrete).
+   */
+  .select select::picker(select) {
+    margin-block: 6px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 24px 48px -24px var(--shadow-card);
+    opacity: 0;
+    scale: 0.98;
+    transition:
+      opacity 0.15s ease-in,
+      scale 0.15s ease-in,
+      overlay 0.15s allow-discrete,
+      display 0.15s allow-discrete;
+  }
+
+  .select select:open::picker(select) {
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity 0.2s ease-out,
+      scale 0.3s var(--ease),
+      overlay 0.3s allow-discrete,
+      display 0.3s allow-discrete;
+  }
+
+  @starting-style {
+    .select select:open::picker(select) {
+      opacity: 0;
+      scale: 0.98;
+    }
+  }
+
+  .select option {
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 8px;
+    color: var(--ink);
+    font-size: var(--fs-base);
+    line-height: 1.3;
+    cursor: pointer;
+  }
+
+  /* "Escolha uma área" é a falta de escolha: na lista, aparece apagada. */
+  .select option[value=''] {
+    color: var(--field-placeholder);
+  }
+
+  .select option:hover {
+    background: var(--mist);
+  }
+
+  /*
+   * Opção focada pelo teclado: o fundo mist sozinho quase não aparece no cartão branco (1,1:1) e
+   * some no alto contraste, onde vira a cor da tela. O contorno fica colado por dentro; o recuo
+   * explícito impede que valha o afastamento de 3 px da regra geral do foco (.page :focus-visible).
+   */
+  .select option:focus-visible {
+    background: var(--mist);
+    outline: 2px solid var(--royal-bright);
+    outline-offset: -2px;
+  }
+
+  /* No alto contraste, a cor de destaque do sistema; .field vence o .page .contact-form do foco. */
+  @media (forced-colors: active) {
+    .field .select option:focus-visible {
+      outline-color: highlight;
+    }
+  }
+
+  .select option:checked {
+    color: var(--royal);
+    font-weight: 600;
+  }
+
+  /* Sem escolha, a opção vazia continua apagada e sem ✓: ela não é uma escolha. */
+  .select option[value='']:checked {
+    color: var(--field-placeholder);
+    font-weight: 400;
+  }
+
+  /* O ✓ da opção escolhida vai para a direita, em royal-bright (o texto da opção fica em royal). */
+  .select option::checkmark {
+    order: 1;
+    margin-left: auto;
+    color: var(--royal-bright);
+  }
+
+  /* O espaço do ✓ fica (visibility, e não display): o texto não pula ao escolher. */
+  .select option[value='']::checkmark {
+    visibility: hidden;
+  }
+}
+
+/* Com movimento reduzido, o chevron vira direto, e a lista só esmaece, sem mudar de tamanho. */
+@media (prefers-reduced-motion: reduce) {
+  .select svg {
+    transition: none;
+  }
+
+  .select select::picker(select),
+  .select select:open::picker(select) {
+    scale: none;
+  }
 }
 
 .field-error {
@@ -191,10 +373,41 @@
   border-color: var(--danger);
 }
 
+/*
+ * O mesmo retorno de hover dos campos: o aceite é o último controle antes do envio. Não vale no
+ * erro, para a borda vermelha continuar, nem marcado, em que a caixa já é royal.
+ */
+@media (hover: hover) {
+  .check-field:not(.has-error) .check:hover .check-input:not(:checked) + .check-box {
+    border-color: var(--field-border-hover);
+  }
+}
+
 /* Com movimento reduzido, o ✓ do aceite aparece direto, sem crescer. */
 @media (prefers-reduced-motion: reduce) {
   .check-box svg {
     transition: none;
+  }
+}
+
+/*
+ * Abaixo de 360 px, menos respiro dentro dos campos: o placeholder do Nome ("Como podemos chamar
+ * você?") cabe inteiro, e o texto de todos os campos continua alinhado. O select mexe só na
+ * esquerda, porque a direita guarda o lugar do chevron. A reticência é a rede de segurança se a
+ * métrica da fonte variar.
+ */
+@media (width <= 359px) {
+  .field input,
+  .field textarea {
+    padding-inline: 12px;
+  }
+
+  .field select {
+    padding-left: 12px;
+  }
+
+  .field input {
+    text-overflow: ellipsis;
   }
 }
 

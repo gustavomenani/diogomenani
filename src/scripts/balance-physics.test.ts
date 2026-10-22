@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'vitest';
+import { TOPIC_IMPULSE } from './balance';
 import {
+  BALANCE,
   clampDt,
   isSettled,
   levelAngle,
+  pushBalance,
   settleTolerance,
   stepBalance,
   type BalanceState,
@@ -63,6 +66,56 @@ describe('stepBalance', () => {
     stepBalance(state, 0.016, LEVEL);
     expect(state).toEqual(REST);
   });
+});
+
+describe('pushBalance', () => {
+  const AT_LEVEL: BalanceState = { ...REST, angle: LEVEL };
+
+  test('o empurrão de um tema, a partir do repouso no nível, passa inteiro', () => {
+    expect(pushBalance(AT_LEVEL, TOPIC_IMPULSE, LEVEL)).toEqual({
+      ...AT_LEVEL,
+      angleVelocity: TOPIC_IMPULSE,
+    });
+    expect(pushBalance(AT_LEVEL, -TOPIC_IMPULSE, LEVEL).angleVelocity).toBe(-TOPIC_IMPULSE);
+  });
+
+  test('o início da entrada, sem empurrão, continua parado no desenho inclinado', () => {
+    expect(pushBalance(REST, 0, LEVEL)).toEqual(REST);
+  });
+
+  test('acima do teto (no balanço da entrada), o empurrão não aumenta a velocidade, e o teto não corta a que já existe', () => {
+    // O desenho inclinado fica a ~23° do nível, além do teto.
+    const swinging: BalanceState = { ...REST, angleVelocity: -30 };
+    expect(pushBalance(swinging, -TOPIC_IMPULSE, LEVEL).angleVelocity).toBe(-30);
+    // mata: o teto sem o Math.max com a velocidade atual (o travessão pararia no meio da entrada)
+    expect(pushBalance(swinging, TOPIC_IMPULSE, LEVEL).angleVelocity).toBeCloseTo(-6, 12);
+  });
+
+  // Seta segurada no seletor: um empurrão a cada 33 ms por 4 s, a 60 fps, e mais 2 s assentando.
+  const strategies: Record<string, (state: BalanceState) => number> = {
+    'sempre para o mesmo lado': () => 1,
+    // O pior caso: cada empurrão a favor do movimento, como balançar alguém num balanço.
+    'a favor do movimento': (state) => Math.sign(state.angleVelocity) || 1,
+  };
+  for (const [name, sideOf] of Object.entries(strategies)) {
+    test(`trocar o tema depressa, ${name}, não leva o travessão além do teto`, () => {
+      // mata: pushBalance só somando o empurrão, sem o teto (o travessão passava de 60°)
+      const dt = 1 / 60;
+      let state = AT_LEVEL;
+      let nextPush = 0;
+      let widest = 0;
+      for (let time = 0; time < 6; time += dt) {
+        if (time < 4 && time >= nextPush) {
+          state = pushBalance(state, sideOf(state) * TOPIC_IMPULSE, LEVEL);
+          nextPush += 0.033;
+        }
+        state = stepBalance(state, dt, LEVEL);
+        widest = Math.max(widest, Math.abs(state.angle - LEVEL));
+      }
+      // Uma folga de 1% para o passo de integração, que não conserva a energia à risca.
+      expect(widest).toBeLessThanOrEqual(BALANCE.maxSwing * 1.01);
+    });
+  }
 });
 
 describe('settleTolerance', () => {

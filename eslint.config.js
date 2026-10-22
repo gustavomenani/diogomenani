@@ -46,9 +46,9 @@ export default defineConfig(
       // `.map(() => <li />)` vira "retorno de tipo error". Os tipos do template são checados pelo
       // `astro check` (strictest); as demais regras no-unsafe-* continuam ativas.
       '@typescript-eslint/no-unsafe-return': 'off',
-      // role="list" em <ul> é de propósito: o VoiceOver tira a semântica de lista das listas com
-      // list-style: none. Os outros papéis redundantes continuam proibidos.
-      'astro/jsx-a11y/no-redundant-roles': ['error', { ul: ['list'] }],
+      // role="list" em <ul> e <ol> é de propósito: o VoiceOver tira a semântica de lista das listas
+      // com list-style: none. Os outros papéis redundantes continuam proibidos.
+      'astro/jsx-a11y/no-redundant-roles': ['error', { ul: ['list'], ol: ['list'] }],
     },
   },
   {

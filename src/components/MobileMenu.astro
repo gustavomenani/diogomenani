@@ -14,9 +14,14 @@ import { anchor, nav } from '../data/navigation';
       ))}
     </div>
     <div class="menu-foot">
-      <WhatsAppButton label="Agendar uma conversa" />
+      <WhatsAppButton label="Fale com um especialista" cta />
+      {/*
+        Dois blocos em linha: a frase quebra primeiro no "·" (a 320 px, "online" ficava sozinho), e
+        cada metade ainda quebra por dentro com o texto ampliado, o que um nowrap impediria.
+      */}
       <p>
-        {contact.oab} · {contact.serviceMode}
+        <span class="menu-meta">{contact.oab}</span>{' '}
+        <span class="menu-meta">· {contact.serviceMode}</span>
       </p>
     </div>
   </div>
@@ -32,6 +37,12 @@ import { anchor, nav } from '../data/navigation';
     flex-direction: column;
     padding: calc(var(--header-h) + 28px) 0 32px;
     overflow-y: auto;
+
+    /*
+     * Em tela baixa o menu rola por baixo do header fixo, opaco quando aberto: sem a folga, o link
+     * focado pelo teclado pararia sob ele (WCAG 2.4.11).
+     */
+    scroll-padding-top: var(--header-h);
     overscroll-behavior: contain;
     scrollbar-color: var(--sky-dim) transparent;
     scrollbar-width: thin;
@@ -93,6 +104,19 @@ import { anchor, nav } from '../data/navigation';
     transition-delay: calc(0.16s + var(--i) * 0.06s);
   }
 
+  /*
+   * Retorno ao ponteiro, como nos links do rodapé: o menu vale até 1079 px, também em notebook
+   * estreito e tablet com mouse. Sublinhado, e não cor com transição, que herdaria o
+   * transition-delay escalonado da entrada. O afastamento em em acompanha a serifa grande.
+   */
+  @media (hover: hover) {
+    .menu-nav a:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
+    }
+  }
+
   .menu-foot {
     display: flex;
     flex-direction: column;
@@ -113,6 +137,10 @@ import { anchor, nav } from '../data/navigation';
   .menu-foot p {
     font-size: var(--fs-sm);
     color: var(--sky);
+  }
+
+  .menu-meta {
+    display: inline-block;
   }
 
   /* Telas baixas (celular deitado): depois das regras base, para valer de fato. */
@@ -138,14 +166,33 @@ import { anchor, nav } from '../data/navigation';
     }
   }
 
+  /*
+   * Com movimento reduzido, o menu esmaece em vez de descer como cortina pela tela inteira, como o
+   * header e o botão flutuante. Links e rodapé (com a chamada do WhatsApp) entram junto com ele,
+   * sem deslize nem escalonamento; o !important vence as regras do menu aberto, mais específicas.
+   */
   @media (prefers-reduced-motion: reduce) {
-    .menu,
-    .menu-nav a {
-      transition-duration: 0.2s !important;
+    .menu {
+      clip-path: none;
+      opacity: 0;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s linear 0.2s;
     }
 
-    .menu-nav a {
+    :global(.page.is-menu-open) .menu {
+      clip-path: none;
+      opacity: 1;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s;
+    }
+
+    .menu-nav a,
+    .menu-foot {
       transform: none !important;
+      transition-duration: 0.2s !important;
+      transition-delay: 0s !important;
     }
   }
 

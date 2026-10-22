@@ -1,19 +1,26 @@
 ---
 import MobileMenu from './MobileMenu.astro';
 import ExternalLink from './ExternalLink.astro';
-import Monogram from './Monogram.astro';
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
 import { anchor, nav, sectionIds } from '../data/navigation';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
 <header class="site-header" data-header>
   <div class="wrap header-inner">
+    {/*
+      As duas versões do logo no mesmo lugar: a branca sobre o hero e o menu aberto, a azul com o
+      header claro. Só uma tem texto alternativo, então o nome do link não muda com a rolagem.
+    */}
     <a class="brand" href={anchor(sectionIds.top)}>
-      <Monogram class="brand-mark" symbol />
-      <span class="brand-text">
-        <span class="brand-name">Diogo Menani</span>{' '}
-        <span class="brand-sub">Advocacia &amp; Assessoria Jurídica</span>
-      </span>
+      <Logo
+        class="brand-logo on-dark"
+        tone="white"
+        alt="Diogo Menani — Advocacia e Assessoria Jurídica"
+        compact
+      />
+      <Logo class="brand-logo on-light" tone="blue" alt="" compact />
     </a>
     <nav class="nav" aria-label="Principal" data-nav>
       {nav.map((item) => (
@@ -21,8 +28,10 @@ import { messages, waLink } from '../lib/whatsapp';
       ))}
       <span class="nav-ind" aria-hidden="true" data-nav-ind></span>
     </nav>
-    <ExternalLink class="btn btn-header" href={waLink(messages.default)}>
-      Agendar conversa
+    {/* O leitor de tela ouve que o link leva ao WhatsApp: este botão nem tem o ícone. */}
+    <ExternalLink class="btn btn-caps btn-header" href={waLink(messages.default)}>
+      Fale com um especialista<span class="sr-only">{' pelo WhatsApp'}</span>
+      <Icon name="arrow-right" />
     </ExternalLink>
     <button
       class="menu-toggle"
@@ -31,7 +40,16 @@ import { messages, waLink } from '../lib/whatsapp';
       aria-controls="menu"
       data-menu-toggle
     >
-      <span data-menu-text>Menu</span>
+      {/*
+        O rótulo reserva a largura de "Fechar" (a cópia invisível): ao abrir o menu, o botão não
+        cresce, e o logo, que é o item flexível até 479 px, não encolhe.
+      */}
+      <span class="menu-text">
+        <span data-menu-text>Menu</span>
+        <span class="menu-text-ghost" aria-hidden="true">
+          Fechar
+        </span>
+      </span>
       <span class="menu-icon" aria-hidden="true"></span>
     </button>
   </div>
@@ -50,6 +68,13 @@ import { messages, waLink } from '../lib/whatsapp';
       color 0.5s var(--ease),
       box-shadow 0.5s var(--ease),
       transform 0.7s var(--ease);
+  }
+
+  /*
+   * Entrada: só até ela terminar (data-entered, em main.ts). Depois, trocar a preferência de
+   * movimento não a reinicia: mudar o animation-name criaria uma animação nova.
+   */
+  :global(.page:not([data-entered])) .site-header {
     animation: drop 1s var(--ease) 0.15s backwards;
   }
 
@@ -78,45 +103,37 @@ import { messages, waLink } from '../lib/whatsapp';
     min-height: var(--header-h-scrolled);
   }
 
+  /* O logo tem altura fixa; a largura sai da proporção do arquivo (atributos width e height). */
   .brand {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 14px;
     margin-right: auto;
     min-height: 44px;
   }
 
-  .brand-mark {
-    width: 44px;
-    height: auto;
-    transition: transform 0.7s var(--ease);
+  .brand-logo {
+    display: block;
+    width: auto;
+    height: 52px;
+    transition: opacity 0.5s var(--ease);
   }
 
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .brand:hover .brand-mark {
-      transform: translateY(-1px) scale(1.05);
-    }
+  /* A versão azul fica por cima da branca e aparece quando o header fica claro. */
+  .brand-logo.on-light {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    translate: 0 -50%;
+    opacity: 0;
   }
 
-  .brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
+  .site-header.is-scrolled .brand-logo.on-light {
+    opacity: 1;
   }
 
-  .brand-name {
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: var(--fs-base);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-  }
-
-  .brand-sub {
-    margin-top: 4px;
-    font-size: var(--fs-2xs);
-    letter-spacing: 0.01em;
-    opacity: 0.8;
+  .site-header.is-scrolled .brand-logo.on-dark {
+    opacity: 0;
   }
 
   .nav {
@@ -133,6 +150,7 @@ import { messages, waLink } from '../lib/whatsapp';
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    white-space: nowrap;
     opacity: 0.82;
     transition: opacity 0.3s;
   }
@@ -162,19 +180,32 @@ import { messages, waLink } from '../lib/whatsapp';
       opacity 0.4s;
   }
 
-  /* .btn.btn-header: vence o .btn da camada global pela especificidade, não pela ordem. */
+  /*
+   * .btn.btn-header: vence o .btn da camada global pela especificidade, não pela ordem. Não
+   * encolhe: o overflow: hidden do .btn zera o min-width automático do item flex, e sem isto o
+   * botão encolheria abaixo do rótulo e cortaria o texto em silêncio.
+   */
   .btn.btn-header {
     display: none;
+    flex-shrink: 0;
     min-height: 44px;
     padding: 0 20px;
-    font-size: var(--fs-md);
+    white-space: nowrap;
     background: transparent;
     color: #fff;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 55%);
   }
 
-  .btn-header::before {
+  /*
+   * O preenchimento troca de cor junto com o rótulo (o color 0.4s do .btn) quando o header muda de
+   * estado com o mouse em cima: trocado de estalo, ficava um instante branco sobre branco ou azul
+   * sobre azul. .btn.btn-header, para vencer o .btn::before de buttons.css pela especificidade.
+   */
+  .btn.btn-header::before {
     background: #fff;
+    transition:
+      transform 0.7s var(--ease),
+      background-color 0.4s var(--ease);
   }
 
   @media (hover: hover) {
@@ -211,6 +242,19 @@ import { messages, waLink } from '../lib/whatsapp';
     font-weight: 600;
     font-size: var(--fs-md);
     cursor: pointer;
+  }
+
+  .menu-text {
+    display: inline-grid;
+    justify-items: end;
+  }
+
+  .menu-text > * {
+    grid-area: 1 / 1;
+  }
+
+  .menu-text-ghost {
+    visibility: hidden;
   }
 
   .menu-icon {
@@ -253,6 +297,14 @@ import { messages, waLink } from '../lib/whatsapp';
     box-shadow: none;
   }
 
+  :global(.page.is-menu-open) .site-header .brand-logo.on-dark {
+    opacity: 1;
+  }
+
+  :global(.page.is-menu-open) .site-header .brand-logo.on-light {
+    opacity: 0;
+  }
+
   .progress {
     position: absolute;
     left: 0;
@@ -270,8 +322,16 @@ import { messages, waLink } from '../lib/whatsapp';
     opacity: 1;
   }
 
-  /* 1080 px: o mesmo ponto do DESKTOP_QUERY em src/scripts/menu.ts. */
+  /*
+   * 1080 px: o mesmo ponto do DESKTOP_QUERY em src/scripts/menu.ts. Com o espaçamento de texto do
+   * visitante (WCAG 1.4.12), o botão desce para uma segunda linha em vez de ser cortado ou de sair
+   * da tela.
+   */
   @media (width >= 1080px) {
+    .header-inner {
+      flex-wrap: wrap;
+    }
+
     .nav {
       display: flex;
     }
@@ -285,23 +345,51 @@ import { messages, waLink } from '../lib/whatsapp';
     }
   }
 
-  @media (1080px <= width <= 1199px) {
-    .brand-sub {
-      display: none;
-    }
-
+  /*
+   * Entre 1080 e 1279 px, logo, navegação e botão dividem a linha: tudo um pouco mais junto. O
+   * header completo pede ~1220 px de layout, e a barra de rolagem clássica (a do Windows) entra na
+   * largura da media query: abaixo de 1280 px ele não cabe com folga.
+   */
+  @media (1080px <= width <= 1279px) {
     .header-inner {
-      gap: 28px;
+      gap: 24px;
     }
 
     .nav {
-      gap: 24px;
+      gap: 18px;
+      font-size: var(--fs-sm);
+    }
+
+    .brand-logo {
+      height: 40px;
+    }
+
+    .btn.btn-header {
+      padding: 0 16px;
+      letter-spacing: 0.06em;
     }
   }
 
+  /*
+   * No celular, o logo e o botão do menu dividem a linha com 16 px entre eles. O logo vai até
+   * 240 px de largura e encolhe com a tela (360 px, barra de rolagem clássica), sem empurrar o botão.
+   * O link fica do tamanho do logo, como no SimpleHeader.astro: crescendo até o Menu, ele levava
+   * ao início também pelo vão vazio à direita do logo (até 86 px a 479 px), e o anel do foco
+   * contornava esse vão. O margin-right: auto da regra base continua empurrando o Menu.
+   */
   @media (width <= 479px) {
-    .brand-sub {
-      display: none;
+    .header-inner {
+      gap: 16px;
+    }
+
+    .brand {
+      flex: 0 1 240px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 100%;
+      height: auto;
     }
   }
 
@@ -314,8 +402,11 @@ import { messages, waLink } from '../lib/whatsapp';
   @media (prefers-reduced-motion: reduce) {
     /* Recolhe e volta sem deslizar. */
     .site-header {
-      animation: fade 0.5s ease-out backwards !important;
       transition-property: background-color, color, box-shadow;
+    }
+
+    :global(.page:not([data-entered])) .site-header {
+      animation: fade 0.5s ease-out backwards !important;
     }
 
     /* O indicador troca de link sem deslizar. */
@@ -323,11 +414,23 @@ import { messages, waLink } from '../lib/whatsapp';
       transition: opacity 0.4s;
     }
 
-    /* As barras viram X sem girar, e o header muda de altura sem animar. */
+    /*
+     * As barras viram X sem girar, e o header muda de altura sem animar. O logo continua
+     * esmaecendo junto com o fundo e o texto (esmaecer não é movimento): trocado de estalo, ele
+     * ficava um instante branco sobre o fundo claro, ou azul sobre o azul-noite.
+     */
     .menu-icon::before,
     .menu-icon::after,
     .header-inner {
       transition: none;
+    }
+
+    /*
+     * O preenchimento da chamada aparece sem deslizar (buttons.css), mas a troca de cor ainda
+     * esmaece com o rótulo, como o logo.
+     */
+    .btn.btn-header::before {
+      transition: background-color 0.4s var(--ease);
     }
   }
 

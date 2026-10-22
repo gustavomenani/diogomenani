@@ -17,14 +17,21 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # A suíte tem uns 900 testes de navegador nos três motores, e num runner de 2 vCPU o Playwright
+    # usa 1 worker: só ela pode levar perto de 15 min. Depois do primeiro run, ajustar para cerca de
+    # 1,5 vez a duração real.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
+        # A mesma versão que a Netlify e a Cloudflare Pages leem no build.
         with:
-          node-version: 24
+          node-version-file: .node-version
           cache: npm
       - run: npm ci
+      # Só as dependências que chegam ao site: a cadeia do Stylelint (braces) tem um alerta sem
+      # versão corrigida publicada, e é ferramenta de desenvolvimento, fora do dist/.
+      - run: npm audit --omit=dev --audit-level=high
       # Os três motores dos testes de comportamento; do Chromium, só o modo headless.
       - run: npx playwright install --with-deps --only-shell chromium firefox webkit
       # O GitHub Actions já define CI=true: o Playwright passa a proibir test.only, repete uma vez

@@ -3,17 +3,29 @@
  * Cabeçalho das páginas secundárias (aviso de privacidade e 404): a marca e a volta ao site. O
  * Header da home depende das seções, do menu e do script da página, que aqui não existem.
  */
-import Monogram from './Monogram.astro';
+import Logo from './Logo.astro';
+import { anchor, sectionIds } from '../data/navigation';
+
+/**
+ * O data-back-to-site, nos dois links do cabeçalho (a marca e a volta ao site), é o gancho do
+ * script do aviso de privacidade (privacidade.astro) e o destino dele quando o navegador não deixa
+ * fechar a aba: o formulário de contato. Os dois levam ao site, e pelos dois a aba aberta pelo
+ * formulário fecha e devolve o que foi digitado. Na 404, sem o script, valem os href.
+ */
+const backToSite = `/${anchor(sectionIds.contact)}`;
 ---
 
 <header class="simple-header is-royal">
   <div class="wrap simple-header-inner">
-    <a class="brand" href="/">
-      {/* Sem o Header, é aqui que o desenho do monograma entra na página. */}
-      <Monogram class="brand-mark" symbol />
-      <span class="brand-name">Diogo Menani</span>
+    <a class="brand" href="/" data-back-to-site={backToSite}>
+      <Logo
+        class="brand-logo"
+        tone="white"
+        alt="Diogo Menani — Advocacia e Assessoria Jurídica"
+        compact
+      />
     </a>
-    <a class="link-light" href="/">
+    <a class="link-light" href="/" data-back-to-site={backToSite}>
       Voltar ao site
     </a>
   </div>
@@ -27,26 +39,52 @@ import Monogram from './Monogram.astro';
     justify-content: space-between;
     gap: 12px 32px;
     min-height: var(--header-h);
+
+    /* Se a volta ao site descer para a linha de baixo, nenhuma das duas cola na borda. */
+    padding-block: 12px;
   }
 
   .brand {
     display: flex;
     align-items: center;
-    gap: 14px;
     min-height: 44px;
   }
 
-  .brand-mark {
-    width: 44px;
-    height: auto;
+  /*
+   * A mesma altura do logo no header da home (lá ele diminui entre 1080 e 1279 px, por dividir a
+   * linha com a navegação, que aqui não existe).
+   */
+  .brand-logo {
+    display: block;
+    width: auto;
+    height: 52px;
   }
 
-  .brand-name {
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: var(--fs-base);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+  /*
+   * No celular, como no header da home: o logo vai até 240 px de largura e encolhe com a tela,
+   * sem empurrar a volta ao site para a linha de baixo (numa linha a partir de 320 px). O link não
+   * encolhe nem quebra.
+   */
+  @media (width <= 479px) {
+    .simple-header-inner {
+      flex-wrap: nowrap;
+      column-gap: 16px;
+    }
+
+    .brand {
+      flex: 0 1 240px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 100%;
+      height: auto;
+    }
+
+    .link-light {
+      flex: none;
+      white-space: nowrap;
+    }
   }
 
   .link-light {

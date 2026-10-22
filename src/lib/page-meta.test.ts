@@ -5,8 +5,8 @@ const SITE = new URL('https://exemplo.adv.br');
 
 describe('pageUrls', () => {
   test('com o endereço do site, canonical e imagem saem absolutos', () => {
-    expect(pageUrls('/privacidade', SITE, false)).toEqual({
-      canonical: 'https://exemplo.adv.br/privacidade',
+    expect(pageUrls('/privacidade/', SITE, false)).toEqual({
+      canonical: 'https://exemplo.adv.br/privacidade/',
       ogImage: 'https://exemplo.adv.br/og.png',
     });
   });

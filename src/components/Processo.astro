@@ -7,22 +7,26 @@ import { sectionIds } from '../data/navigation';
   <div class="wrap">
     <div class="process-head">
       <h2 class="h2" id="process-title" data-reveal="rise">
-        Como funciona o atendimento
+        Como trabalhamos
       </h2>
       <p class="lede" data-reveal>
-        Do primeiro contato ao encerramento do caso, você sabe o que está sendo feito e qual é o
-        próximo passo.
+        Cada cliente recebe orientação jurídica de forma clara, estratégias bem definidas e
+        atualizações sobre seu caso, com transparência do início ao fim.
       </p>
     </div>
-    <ol class="steps" data-reveal-list>
+    {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none (e a ordem das etapas). */}
+    <ol class="steps" role="list" data-reveal-list>
       {steps.map((step, i) => (
         <li class="step" data-step>
           <span class="step-dot" aria-hidden="true"></span>
           <span class="step-num" aria-hidden="true">
+            <span class="step-label">Etapa</span>
             {String(i + 1).padStart(2, '0')}
           </span>
-          <h3 class="step-title">{step.title}</h3>
-          <p>{step.text}</p>
+          <div>
+            <h3 class="step-title">{step.title}</h3>
+            <p>{step.text}</p>
+          </div>
         </li>
       ))}
     </ol>
@@ -40,6 +44,7 @@ import { sectionIds } from '../data/navigation';
     max-width: 30em;
   }
 
+  /* Linha do tempo vertical em todas as larguras: uma etapa abaixo da outra. */
   .steps {
     /* O trilho de cada etapa atravessa este espaço até a seguinte. */
     --steps-gap: 44px;
@@ -79,6 +84,10 @@ import { sectionIds } from '../data/navigation';
     display: none;
   }
 
+  /*
+   * As duas sombras ficam nos dois estados, na mesma ordem (o anel inset e o halo): uma inset e
+   * uma externa não se interpolam, e o halo surgiria de estalo enquanto o ponto ainda cresce.
+   */
   .step-dot {
     position: absolute;
     left: 0;
@@ -87,7 +96,9 @@ import { sectionIds } from '../data/navigation';
     height: 13px;
     border-radius: 50%;
     background: var(--royal);
-    box-shadow: 0 0 0 6px rgb(var(--royal-bright-rgb) / 12%);
+    box-shadow:
+      inset 0 0 0 1px transparent,
+      0 0 0 6px rgb(var(--royal-bright-rgb) / 12%);
     transition:
       background-color 0.6s var(--ease),
       box-shadow 0.6s var(--ease),
@@ -95,11 +106,28 @@ import { sectionIds } from '../data/navigation';
   }
 
   .step-num {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
     font-family: var(--serif);
     font-weight: 500;
-    font-size: clamp(44px, 2vw + 22px, 58px);
+    font-size: clamp(40px, 1.6vw + 22px, 52px);
     line-height: 1;
+    color: var(--royal);
+    transition: color 0.7s var(--ease);
+  }
+
+  /*
+   * Cor própria, e não herdada do número, com a mesma transição: o rótulo vai do tom apagado
+   * direto ao royal. Herdando, ele acompanharia a transição do número, e o WebKit reiniciaria a
+   * dele a cada quadro.
+   */
+  .step-label {
+    font-family: var(--sans);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     color: var(--royal);
     transition: color 0.7s var(--ease);
   }
@@ -113,25 +141,35 @@ import { sectionIds } from '../data/navigation';
     color: var(--royal);
   }
 
+  /* pretty: sem uma palavra sozinha na última linha, como nos textos de abertura (.lede). */
   .step p {
     margin-top: 10px;
+    max-width: 36em;
     font-size: var(--fs-base);
     line-height: 1.6;
     color: var(--ink-soft);
+    text-wrap: pretty;
   }
 
   /*
    * Com movimento, as etapas acendem conforme a leitura avança (is-active e is-done no script).
-   * Só na tela: impressas, saem todas acesas. O número apagado ainda tem 3:1 sobre o branco.
+   * Só na tela: impressas, saem todas acesas. O número apagado ainda tem 3:1 sobre o branco (texto
+   * grande); o rótulo "Etapa", pequeno, tem cor própria, com 4,5:1.
    */
   @media screen {
     :global(.page[data-motion='on']) .step:not(.is-active) .step-num {
       color: var(--step-idle);
     }
 
+    :global(.page[data-motion='on']) .step:not(.is-active) .step-label {
+      color: var(--step-idle-label);
+    }
+
     :global(.page[data-motion='on']) .step:not(.is-active) .step-dot {
       background: #fff;
-      box-shadow: inset 0 0 0 1px var(--step-idle-ring);
+      box-shadow:
+        inset 0 0 0 1px var(--step-idle-ring),
+        0 0 0 0 rgb(var(--royal-bright-rgb) / 0%);
       transform: scale(0.85);
     }
 
@@ -140,6 +178,38 @@ import { sectionIds } from '../data/navigation';
     }
   }
 
+  /*
+   * Alto contraste: o trilho, o progresso e os pontos são fundos e sombras, que o modo trocaria pela
+   * cor da tela (e tiraria), e a linha do tempo sumiria inteira. Ficam com as cores do sistema, como
+   * as barras do menu e o ± do FAQ; o ponto apagado vira um anel.
+   */
+  @media (forced-colors: active) {
+    .step::before,
+    .step::after,
+    .step-dot {
+      forced-color-adjust: none;
+    }
+
+    .step::before {
+      background: GrayText;
+    }
+
+    .step::after {
+      background: CanvasText;
+    }
+
+    .step-dot {
+      background: CanvasText;
+      box-shadow: none;
+    }
+
+    :global(.page[data-motion='on']) .step:not(.is-active) .step-dot {
+      background: Canvas;
+      box-shadow: inset 0 0 0 1px CanvasText;
+    }
+  }
+
+  /* No desktop, o número fica numa coluna e o texto da etapa na outra, como uma linha do tempo. */
   @media (width >= 960px) {
     .process-head {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -148,36 +218,20 @@ import { sectionIds } from '../data/navigation';
     }
 
     .steps {
-      --steps-gap: 40px;
+      --steps-gap: 56px;
 
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: 980px;
     }
 
     .step {
-      padding-left: 0;
-      padding-top: 52px;
+      display: grid;
+      grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+      column-gap: 48px;
+      padding-left: 64px;
     }
 
-    .step::before,
-    .step::after {
-      left: 20px;
-      top: 6px;
-      width: calc(100% + var(--steps-gap) - 14px);
-      height: 1px;
-    }
-
-    .step::after {
-      transform-origin: left center;
-    }
-
-    .step-dot {
-      top: 0;
-    }
-  }
-
-  @media screen and (width >= 960px) {
-    :global(.page[data-motion='on']) .step:not(.is-done)::after {
-      transform: scaleX(0);
+    .step-title {
+      margin-top: 0;
     }
   }
 </style>

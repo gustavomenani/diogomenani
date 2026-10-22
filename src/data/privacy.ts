@@ -1,10 +1,10 @@
-// Aviso de privacidade (/privacidade). É um ponto de partida: o texto deve ser revisado pelo Diogo
-// antes da publicação. Os links (WhatsApp e e-mail do responsável, política do WhatsApp e ANPD)
+// Aviso de privacidade (/privacidade/). É um ponto de partida: o texto deve ser revisado pelo
+// Diogo antes da publicação. Os links (WhatsApp e e-mail do responsável, política do WhatsApp e ANPD)
 // saem como marcação na página (src/pages/privacidade.astro).
 import { contact, whatsapp } from './contact';
 
 /** Data da última revisão do aviso, como aparece na abertura. */
-export const privacyUpdated = '20 de outubro de 2026';
+export const privacyUpdated = '22 de outubro de 2026';
 
 /** Um parágrafo, ou uma lista (cada item, uma string). */
 export type PrivacyBlock = string | readonly string[];
@@ -24,7 +24,7 @@ export const privacySections: readonly PrivacySection[] = [
   {
     title: 'O que o site coleta',
     paragraphs: [
-      'O site não usa cookies, não tem ferramentas de estatística ou de publicidade e não guarda o que você digita. O formulário de contato só monta a mensagem no seu próprio navegador e abre o WhatsApp com ela pronta: nada é enviado até você tocar em enviar dentro do WhatsApp. O provedor que hospeda o site pode registrar dados técnicos de cada acesso, como o endereço IP, por segurança e para o site funcionar.',
+      'O site não usa cookies, não tem ferramentas de estatística ou de publicidade e não guarda o que você digita. O formulário de contato monta a mensagem no seu próprio navegador e abre o WhatsApp com ela pronta. O texto vai no endereço do link do WhatsApp (wa.me, um serviço da Meta) e pode ficar no histórico do navegador; ele só chega ao escritório quando você enviar a mensagem no WhatsApp. O provedor que hospeda o site pode registrar dados técnicos de cada acesso, como o endereço IP, por segurança e para o site funcionar.',
     ],
   },
   {

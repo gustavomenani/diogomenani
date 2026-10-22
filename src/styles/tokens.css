@@ -1,9 +1,17 @@
-/* Tokens da marca: azul royal e branco, Baskervville nos títulos e Hanken Grotesk no texto. */
+/* Tokens da marca: azul royal, branco e prata, Baskervville nos títulos e Hanken Grotesk no texto. */
 :root {
   /* Cores usadas com transparência guardam os canais: rgb(var(--royal-rgb) / 45%). */
   --royal-rgb: 0 22 123;
   --royal: rgb(var(--royal-rgb));
   --royal-deep: #000e52;
+
+  /*
+   * Azul-noite do alto do hero, que desce para o royal (o mesmo valor no theme-color da home, em
+   * src/pages/index.astro), e o prata em que o pé do hero termina.
+   */
+  --navy: rgb(2 10 52);
+  --silver-rgb: 223 228 238;
+  --silver: rgb(var(--silver-rgb));
   --royal-bright-rgb: 36 64 230;
   --royal-bright: rgb(var(--royal-bright-rgb));
   --ink: #0b1236;
@@ -14,8 +22,7 @@
   --line: #dde2f2;
   --line-on-royal: rgb(255 255 255 / 16%);
   --line-on-mist: #d2d8ec;
-  --danger-rgb: 180 35 24;
-  --danger: rgb(var(--danger-rgb));
+  --danger: rgb(180 35 24);
   --field-border: #8690b6;
   --field-border-hover: #5f6a96;
   --field-placeholder: #646d92;
@@ -28,6 +35,9 @@
   --step-idle: #7f8bc4;
   --step-idle-ring: #b8c1e0;
 
+  /* O rótulo "Etapa" (13 px) da etapa apagada: texto pequeno pede 4,5:1, e este dá 5,07:1 no branco. */
+  --step-idle-label: #646d92;
+
   /* Brilhos e sombra decorativos dos fundos royal e dos traços da marca. */
   --glow-rgb: 96 122 255;
   --glow-mid: rgb(58 86 230 / 18%);
@@ -36,8 +46,10 @@
   --shadow-ink: rgb(0 6 48 / 70%);
   --radius-pill: 999px;
 
-  /* Sombreado do pé do hero, sombra do cartão do formulário e traços brancos sobre o royal. */
-  --shade-rgb: 0 8 64;
+  /*
+   * Sombra do cartão do formulário e da lista do Assunto (o ::picker, em forms.css), e traços
+   * brancos sobre o royal.
+   */
   --shadow-card: rgb(0 4 36 / 85%);
   --ring-on-royal: rgb(255 255 255 / 28%);
   --underline-on-royal: rgb(255 255 255 / 35%);
@@ -46,7 +58,6 @@
    * Escala tipográfica do texto corrido e dos rótulos. Os títulos usam clamp() no próprio
    * componente; o Stylelint só aceita font-size com um destes, clamp(), inherit ou 1em.
    */
-  --fs-2xs: 12px;
   --fs-xs: 13px;
   --fs-sm: 14px;
   --fs-md: 15px;
@@ -68,7 +79,7 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
 
-  /* Revelações longas: a Têmis no hero e o retrato. */
+  /* Revelação longa: a Têmis no hero. */
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --gutter: clamp(20px, 4.4vw, 64px);
 

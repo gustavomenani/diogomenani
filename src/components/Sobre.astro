@@ -1,223 +1,94 @@
 ---
-import type { ImageMetadata } from 'astro';
-import { Image } from 'astro:assets';
+import Logo from './Logo.astro';
 import { contact } from '../data/contact';
-import { credentials } from '../data/content';
 import { sectionIds } from '../data/navigation';
-
-// Foto por convenção: salve o retrato (vertical, 4:5) em src/assets/diogo.jpg (ou .jpeg, .png,
-// .webp, em maiúsculas ou minúsculas) e ele entra no lugar do placeholder, otimizado pelo Astro.
-const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/diogo.{jpg,jpeg,png,webp}', {
-  eager: true,
-  caseSensitive: false,
-});
-const photo = Object.values(photos)[0]?.default;
-
-/**
- * Largura do retrato na tela, pelo CSS abaixo e pelo .wrap (até 1320 px, margem lateral
- * clamp(20px, 4,4vw, 64px)):
- * - até 639 px, 340 px, ou a largura útil (100vw − 40px) nas telas com menos de 380 px;
- * - de 640 a 959 px, 480 px (a coluna única sempre tem mais que isso);
- * - de 960 px em diante, a coluna de 5fr (de 12) da largura útil menos o vão de 7vw:
- *   (100vw − 2·4,4vw − 7vw)·5/12 ≈ 35,1vw até 1319 px; daí em diante o .wrap para de crescer e a
- *   coluna fica entre 447 e 464 px.
- */
-const PHOTO_SIZES = [
-  '(max-width: 379px) calc(100vw - 40px)',
-  '(max-width: 639px) 340px',
-  '(max-width: 959px) 480px',
-  '(max-width: 1319px) 35.1vw',
-  '464px',
-].join(', ');
 ---
 
 <section class="section about" id={sectionIds.about} aria-labelledby="sobre-title">
-  <div class="wrap about-grid">
-    <figure class="portrait" data-reveal="unveil">
-      <div class="portrait-frame">
-        {photo ? (
-          <Image
-            src={photo}
-            alt="Diogo Menani"
-            class="portrait-photo"
-            widths={[340, 480, 680, 960]}
-            sizes={PHOTO_SIZES}
-          />
-        ) : (
-          <div class="portrait-art">
-            <span class="glow portrait-glow" aria-hidden="true"></span>
-            <span class="portrait-ph">
-              <span class="portrait-ph-title">Foto de Diogo Menani</span>
-              <span class="portrait-ph-sub">[retrato profissional vertical, 4:5]</span>
-            </span>
-          </div>
-        )}
-      </div>
-    </figure>
-    <div class="about-copy">
-      <h2 class="h2 about-name" id="sobre-title" data-reveal="rise">
-        Diogo Menani
-      </h2>
-      <p class="about-reg" data-reveal>
-        Advogado inscrito na OAB/{contact.oabState} sob o nº {contact.oabNumber}
-      </p>
-      <div class="about-text" data-reveal>
-        <p>
-          Atuo na advocacia consultiva e contenciosa: oriento pessoas e empresas antes de decisões
-          importantes e defendo seus interesses quando o conflito já existe.
-        </p>
-        <p>
-          Meu trabalho começa pela escuta. Entendo a sua situação, explico as possibilidades em
-          linguagem simples e definimos juntos o caminho mais seguro, com transparência sobre
-          prazos, custos e riscos.
-        </p>
-      </div>
-      <dl class="creds" data-reveal-list>
-        {credentials.map((item) => (
-          <div class="cred">
-            <dt>{item.term}</dt>
-            <dd>{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
+  <div class="wrap about-inner">
+    {/*
+      O nome já está no título logo abaixo: o logo fica sem texto alternativo. Sem loading="lazy":
+      no tablet em retrato (768 a 1024 px de largura) o hero é mais baixo que a tela e este logo é
+      o LCP, e com lazy o pedido só sairia depois do layout.
+    */}
+    <Logo class="about-logo" tone="blue" alt="" data-reveal />
+    <span class="about-rule" aria-hidden="true" data-reveal="draw"></span>
+    {/*
+      Cada metade quebra inteira: o nome com a profissão numa linha, a inscrição na outra. Abaixo
+      de 390 px, a do nome se divide equilibrada ("Diogo Menani —" / "Advogado no Brasil"). O
+      espaço inseparável de "no Brasil" impede "Brasil" sozinho também sem o text-wrap: balance,
+      que só chegou no Safari 17.5 e no Chrome 114 (o piso é Safari/iOS 16.4 e Chrome 111). Spans
+      que não quebram travariam a frase inteira, que precisa quebrar com o texto ampliado.
+    */}
+    <h2 class="about-text" id="sobre-title" data-reveal>
+      <span class="about-line">Diogo Menani — Advogado no&nbsp;Brasil</span>{' '}
+      <span class="about-line">inscrito na {contact.oab}</span>
+    </h2>
   </div>
 </section>
 
 <style>
-  .about-grid {
-    display: grid;
-    gap: 64px;
-    align-items: center;
-  }
-
-  .portrait {
-    position: relative;
-    width: 100%;
-    max-width: 480px;
-  }
-
-  .portrait-frame {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--royal);
-  }
-
-  .portrait-photo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .portrait-art {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    padding: 28px;
-    transition: transform 2s var(--ease-soft);
-  }
-
-  .portrait-glow {
-    --glow-size: 90%;
-    --glow-alpha: 50%;
-
-    right: -24%;
-    top: -22%;
-  }
-
-  .portrait-ph {
-    position: relative;
-    display: grid;
-    gap: 10px;
-    justify-items: center;
-    text-align: center;
-    color: #fff;
-  }
-
-  .portrait-ph-title {
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 500;
-    font-size: clamp(24px, 1vw + 16px, 30px);
-    line-height: 1.15;
-  }
-
-  .portrait-ph-sub {
-    font-size: var(--fs-sm);
-    color: var(--sky);
-  }
-
-  /* Enquanto o retrato não foi revelado, o desenho começa ampliado e encolhe ao aparecer. */
-  :global(.page[data-motion='on']) [data-reveal='unveil']:not(.is-in) .portrait-art {
-    transform: scale(1.14);
-  }
-
-  .about-name {
-    margin-top: 6px;
-  }
-
-  .about-reg {
-    margin-top: 14px;
-    font-family: var(--serif);
-    font-style: italic;
-    font-weight: 500;
-    font-size: clamp(18px, 0.4vw + 15px, 21px);
-    color: var(--royal);
-  }
-
-  .about-text {
-    margin-top: 30px;
-    max-width: 36em;
-  }
-
-  .about-text p {
-    color: var(--ink-soft);
-  }
-
-  .about-text p + p {
-    margin-top: 1em;
-  }
-
-  .creds {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
-    column-gap: 40px;
-    margin-top: 40px;
-    border-top: 1px solid var(--line);
-  }
-
-  .cred {
-    padding: 18px 0 16px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .cred dt {
-    margin-bottom: 4px;
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    color: var(--royal);
-  }
-
-  .cred dd {
-    font-size: var(--fs-base);
-    line-height: 1.5;
-    color: var(--ink);
+  /* Seção curta: menos respiro que as outras. */
+  .about.section {
+    padding-block: 72px;
   }
 
   @media (width >= 960px) {
-    .about-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: clamp(64px, 7vw, 120px);
+    .about.section {
+      padding-block: 112px;
     }
   }
 
-  @media (width <= 639px) {
-    .portrait {
-      max-width: 340px;
+  .about-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /*
+   * Altura em pixels inteiros (a largura sai da proporção): com fração, as seções de baixo
+   * desceriam uma fração de pixel e o antialiasing delas mudaria.
+   */
+  .about-logo {
+    width: auto;
+    height: 80px;
+  }
+
+  @media (width >= 640px) {
+    .about-logo {
+      height: 128px;
     }
+  }
+
+  /* Traço royal fino e simétrico entre o logo e o texto. */
+  .about-rule {
+    display: block;
+    width: min(420px, 70%);
+    height: 2px;
+    margin: 36px 0 28px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--royal-rgb) / 0%) 0%,
+      rgb(var(--royal-rgb) / 45%) 30%,
+      var(--royal) 50%,
+      rgb(var(--royal-rgb) / 45%) 70%,
+      rgb(var(--royal-rgb) / 0%) 100%
+    );
+    transform-origin: center;
+  }
+
+  .about-text {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(21px, 0.7vw + 16px, 27px);
+    line-height: 1.35;
+    color: var(--royal);
+  }
+
+  .about-line {
+    display: inline-block;
+    text-wrap: balance;
   }
 </style>

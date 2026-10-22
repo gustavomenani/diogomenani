@@ -1,6 +1,14 @@
 /* Base da página: documento, raiz (.page), resets, foco e utilitários de tipografia. */
+
+/*
+ * A folga das rolagens no topo é a altura do header: a do token, ou a medida (--header-live, em
+ * scroll-effects.ts) quando o espaçamento de texto do visitante o faz quebrar em mais linhas.
+ * Embaixo, 12 px bastam para o anel de foco (2 px + 3 px de afastamento) não ser cortado pela
+ * borda da tela; abaixo de 1080 px, a folga cresce para passar do botão flutuante (mais abaixo).
+ */
 html {
-  scroll-padding-top: var(--header-h);
+  scroll-padding-top: max(var(--header-h), var(--header-live, 0px));
+  scroll-padding-bottom: 12px;
   scrollbar-color: var(--royal) var(--scrollbar-track);
   scrollbar-width: thin;
   -webkit-text-size-adjust: 100%;
@@ -16,7 +24,10 @@ body {
   background: #fff;
 }
 
-/* Raiz da página; também guarda os estados globais (data-motion, is-menu-open). */
+/*
+ * Raiz da página; também guarda os estados globais (data-motion, data-ready, data-entered,
+ * data-instant, data-fallback, is-menu-open).
+ */
 .page {
   position: relative;
   font-family: var(--sans);
@@ -140,7 +151,7 @@ body {
 }
 
 /*
- * Brilho radial dos fundos royal (hero, retrato, manifesto e contato). Cada componente define a
+ * Brilho radial dos fundos royal (hero, manifesto e contato). Cada componente define a
  * posição, o tamanho (--glow-size) e a força no centro (--glow-alpha).
  */
 .glow {
@@ -227,6 +238,40 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .skip-link {
     transition: none;
+  }
+}
+
+/*
+ * O módulo da página não rodou (rede, bloqueador), mas o JavaScript está ligado: o script inline
+ * do Base.astro marca data-fallback no load, e vale o mesmo que o <noscript> faz sem script. O
+ * header rola com a página (fixo e transparente, sumiria sobre as seções brancas), e o botão Menu
+ * e o formulário, que dependem do módulo, não aparecem. Os botões do WhatsApp continuam.
+ */
+.page[data-fallback] .site-header {
+  position: absolute;
+}
+
+.page[data-fallback] .menu-toggle,
+.page[data-fallback] .contact-form {
+  display: none;
+}
+
+/*
+ * Alto contraste: o modo não recolore imagens, e os fundos royal viram a cor da tela. O logo e a
+ * assinatura em arquivo (brancos, ou azuis com texto preto) sumiriam: passam a ter a cor do texto
+ * do sistema, preta na tela clara e branca na escura.
+ */
+@media (forced-colors: active) {
+  .page img[src^='/logo-'],
+  .page img[src^='/wordmark-'] {
+    filter: brightness(0);
+  }
+}
+
+@media (forced-colors: active) and (prefers-color-scheme: dark) {
+  .page img[src^='/logo-'],
+  .page img[src^='/wordmark-'] {
+    filter: brightness(0) invert(1);
   }
 }
 

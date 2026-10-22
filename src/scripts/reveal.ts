@@ -1,6 +1,10 @@
 import type { MotionMode } from './motion-mode';
+import { REVEAL_BOTTOM_MARGIN } from './scroll-math';
 
-/** Itens de uma lista entram escalonados: 90 ms entre cada um, até 540 ms. */
+/**
+ * Itens de uma lista que entram juntos na tela entram escalonados: 90 ms entre cada um, até
+ * 540 ms; o que entra sozinho começa na hora.
+ */
 const STAGGER_STEP_MS = 90;
 const STAGGER_MAX_MS = 540;
 /** Depois de revelado, o item perde o atraso para não atrasar as transições de hover. */
@@ -21,19 +25,24 @@ export interface Reveal {
   revealAll(): void;
   /** Mostra na hora, sem transição, os blocos que contêm `target` e ainda não apareceram. */
   revealAround(target: Element): void;
+  /** Mostra na hora, sem transição, o que está na tela e ainda não apareceu. */
+  revealOnScreen(): void;
 }
 
 /**
  * Revela [data-reveal] ao entrar na tela; fora do modo `on`, tudo aparece de uma vez. O que já
  * está na tela ao iniciar (recarregar no meio da página, por exemplo) aparece como estava: a
  * página inicia com as transições desligadas (withoutTransitions), e o mesmo vale para revealAll.
+ * A rolagem que o navegador devolve depois do início passa pelo revealOnScreen (main.ts).
  */
 export function initReveal(root: HTMLElement, getMode: () => MotionMode): Reveal {
+  /** Itens das listas escalonadas ([data-reveal-list]). */
+  const listItems = new WeakSet<Element>();
   for (const list of root.querySelectorAll('[data-reveal-list]')) {
-    [...list.children].filter(isRevealable).forEach((item, index) => {
+    for (const item of [...list.children].filter(isRevealable)) {
       if (!item.hasAttribute('data-reveal')) item.setAttribute('data-reveal', 'item');
-      item.style.setProperty('--d', `${Math.min(index * STAGGER_STEP_MS, STAGGER_MAX_MS)}ms`);
-    });
+      listItems.add(item);
+    }
   }
   const elements = [...root.querySelectorAll('[data-reveal]')].filter(isRevealable);
 
@@ -45,17 +54,47 @@ export function initReveal(root: HTMLElement, getMode: () => MotionMode): Reveal
 
   const observer = new IntersectionObserver(
     (entries) => {
+      // O atraso sai da ordem dentro do lote, e não da posição na lista: pelo índice, o item que
+      // a rolagem traz sozinho (cada um na sua vez, no celular) esperava parado e invisível até
+      // 540 ms. As entradas chegam na ordem dos observe(), que é a do documento.
+      const order = new Map<Element, number>();
       for (const entry of entries) {
         if (!entry.isIntersecting || !isRevealable(entry.target)) continue;
         const element = entry.target;
+        const list = element.parentElement;
+        let delay = 0;
+        if (list && listItems.has(element)) {
+          const position = order.get(list) ?? 0;
+          order.set(list, position + 1);
+          delay = Math.min(position * STAGGER_STEP_MS, STAGGER_MAX_MS);
+          // Gravado antes do is-in, no mesmo quadro: o atraso vale já para esta transição.
+          if (delay > 0) element.style.setProperty('--d', `${delay}ms`);
+        }
         element.classList.add('is-in');
         observer.unobserve(element);
-        const delay = parseFloat(element.style.getPropertyValue('--d')) || 0;
-        setTimeout(() => element.style.removeProperty('--d'), delay + STAGGER_CLEANUP_MS);
+        if (delay > 0) {
+          setTimeout(() => element.style.removeProperty('--d'), delay + STAGGER_CLEANUP_MS);
+        }
       }
     },
-    { rootMargin: '0px 0px -8% 0px', threshold: 0 },
+    { rootMargin: `0px 0px -${REVEAL_BOTTOM_MARGIN * 100}% 0px`, threshold: 0 },
   );
+
+  /**
+   * Mostra na hora, sem transição: ler o layout aplica o estado revelado ainda sem ela, e a
+   * transição volta no quadro seguinte.
+   */
+  const showNow = (list: Revealable[]) => {
+    for (const element of list) {
+      observer.unobserve(element);
+      element.style.transition = 'none';
+      show(element);
+    }
+    list[0]?.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      for (const element of list) element.style.removeProperty('transition');
+    });
+  };
 
   const revealAll = () => {
     observer.disconnect();
@@ -70,16 +109,15 @@ export function initReveal(root: HTMLElement, getMode: () => MotionMode): Reveal
         (!element.classList.contains('is-in') || element.getAnimations().length > 0),
     );
     if (unfinished.length === 0) return;
-    for (const element of unfinished) {
-      observer.unobserve(element);
-      element.style.transition = 'none';
-      show(element);
-    }
-    // Ler o layout aplica o estado revelado ainda sem transição; ela volta no quadro seguinte.
-    target.getBoundingClientRect();
-    requestAnimationFrame(() => {
-      for (const element of unfinished) element.style.removeProperty('transition');
-    });
+    showNow(unfinished);
+  };
+
+  const revealOnScreen = () => {
+    const pending = elements.filter(
+      (element) => !element.classList.contains('is-in') && isOnScreen(element),
+    );
+    if (pending.length === 0) return;
+    showNow(pending);
   };
 
   if (getMode() === 'on') {
@@ -93,5 +131,5 @@ export function initReveal(root: HTMLElement, getMode: () => MotionMode): Reveal
     revealAll();
   }
 
-  return { revealAll, revealAround };
+  return { revealAll, revealAround, revealOnScreen };
 }

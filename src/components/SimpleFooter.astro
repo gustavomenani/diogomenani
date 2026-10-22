@@ -7,7 +7,9 @@ import { contact } from '../data/contact';
 import { privacyPath } from '../data/site';
 
 const year = new Date().getFullYear();
-const current = Astro.url.pathname.replace(/\/$/, '') === privacyPath;
+/** Sem a barra final: o dev e o preview servem a página nas duas formas. */
+const withoutSlash = (path: string) => path.replace(/\/$/, '');
+const current = withoutSlash(Astro.url.pathname) === withoutSlash(privacyPath);
 ---
 
 <footer class="simple-footer is-royal">

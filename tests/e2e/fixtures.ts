@@ -2,29 +2,56 @@ import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
 
 /** Link do WhatsApp do escritório, sem mensagem. */
-export const WA = 'https://wa.me/5518997017249';
+export const WA = 'https://wa.me/5518997017246';
 
 /** Link do WhatsApp com mensagem pronta, no formato que o site gera. */
 export const wa = (text: string): string => `${WA}?text=${encodeURIComponent(text)}`;
 
+/**
+ * Inscrição na OAB e e-mail do escritório, copiados à mão como o WA: comparados com a própria
+ * fonte (src/data/contact.ts), os testes passariam com qualquer valor.
+ */
+export const OAB = 'OAB/SP 546.508';
+export const EMAIL = 'diogomenani@gmail.com';
+
 /** Mensagens fixas do site, copiadas à mão para os testes não dependerem do código que testam. */
 export const MESSAGES = {
-  default: 'Olá, Dr. Diogo! Gostaria de agendar uma conversa.',
-  topic: (area: string) => `Olá, Dr. Diogo! Gostaria de agendar uma conversa sobre ${area}.`,
-  area: (area: string) => `Olá, Dr. Diogo! Gostaria de conversar sobre ${area}.`,
-  unlistedCase: 'Olá, Dr. Diogo! Gostaria de saber se você pode me ajudar com um caso.',
+  default: 'Olá! Gostaria de falar com um especialista.',
+  topic: (subject: string) => `Olá! Gostaria de falar com um especialista sobre ${subject}.`,
+  unlistedCase: 'Olá! Gostaria de saber se vocês podem me ajudar com um caso.',
 } as const;
 
-/** Rola até `top` sem a animação de `scroll-behavior: smooth`. */
+/**
+ * Nome acessível do botão de envio do formulário: o envio abre o WhatsApp em outra aba, e o aviso
+ * vem no fim, como nos links.
+ */
+export const SUBMIT = 'Enviar pelo WhatsApp (abre em outra aba)';
+
+/** Espaçamento de texto do WCAG 1.4.12, como o aplicaria uma extensão do navegador. */
+export const TEXT_SPACING = `
+  * { line-height: 1.5 !important; letter-spacing: 0.12em !important;
+      word-spacing: 0.16em !important; }
+  p { margin-bottom: 2em !important; }
+`;
+
+/**
+ * Rola até `top` sem a animação de `scroll-behavior: smooth`. Antes, espera um quadro: até o
+ * quadro seguinte ao load, a rolagem conta como a volta da rolagem do recarregar (main.ts), e a
+ * página ficaria como se tivesse aberto na posição nova, sem animar e sem recolher o header. Logo
+ * depois do `goto`, que volta no load, um quadro basta: o do listener de load foi pedido antes e
+ * roda primeiro.
+ */
 export async function jumpTo(page: Page, top: number): Promise<void> {
-  await page.evaluate((y) => {
+  await page.evaluate(async (y) => {
+    await new Promise(requestAnimationFrame);
     window.scrollTo({ top: y, behavior: 'instant' });
   }, top);
 }
 
-/** Leva o elemento com o id dado para o topo da tela, sem animação. */
+/** Leva o elemento com o id dado para o topo da tela, sem animação, depois de um quadro (jumpTo). */
 export async function jumpToSection(page: Page, id: string): Promise<void> {
-  await page.evaluate((sectionId) => {
+  await page.evaluate(async (sectionId) => {
+    await new Promise(requestAnimationFrame);
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'instant' });
   }, id);
 }
@@ -53,14 +80,19 @@ export async function countHiddenReveals(page: Page): Promise<number> {
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'];
 
 /**
- * Violações do axe em formato legível ("regra: alvo, alvo"), com a interface já assentada:
- * durante as animações de entrada a opacidade baixa falsearia o contraste.
+ * Espera a interface assentar: as fontes carregadas e nenhuma animação em andamento. Durante as
+ * animações de entrada, a opacidade baixa falsearia o contraste.
  */
-export async function axeViolations(page: Page): Promise<string[]> {
+export async function settle(page: Page): Promise<void> {
   await page.evaluate(() => document.fonts.ready.then(() => undefined));
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => animation.playState !== 'running'),
   );
+}
+
+/** Violações do axe em formato legível ("regra: alvo, alvo"), com a interface já assentada. */
+export async function axeViolations(page: Page): Promise<string[]> {
+  await settle(page);
   const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
   return results.violations.map(
     (violation) =>

@@ -1,13 +1,6 @@
 import type { APIRoute } from 'astro';
+import { robotsTxt } from '../lib/seo-files';
 
-/**
- * `/robots.txt`: libera o site inteiro. O endereço do sitemap precisa ser absoluto, então a linha
- * `Sitemap:` só sai com o `site` do astro.config.mjs.
- */
-export const GET: APIRoute = ({ site }) => {
-  const lines = ['User-agent: *', 'Allow: /'];
-  if (site) lines.push('', `Sitemap: ${new URL('/sitemap.xml', site).href}`);
-  return new Response(`${lines.join('\n')}\n`, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  });
-};
+/** `/robots.txt`, que libera o site inteiro; o texto sai de `lib/seo-files.ts`. */
+export const GET: APIRoute = ({ site }) =>
+  new Response(robotsTxt(site), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });

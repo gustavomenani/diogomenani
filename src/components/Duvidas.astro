@@ -29,7 +29,7 @@ import { sectionIds } from '../data/navigation';
                 aria-controls={`faq-p${n}`}
                 data-faq-btn
               >
-                <span>{item.question}</span>
+                <span class="faq-question">{item.question}</span>
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
@@ -83,6 +83,12 @@ import { sectionIds } from '../data/navigation';
     color: var(--royal);
   }
 
+  /* balance, como nos títulos (.h2): sem "separar?" ou "honorários?" sozinho na segunda linha. */
+  .faq-question {
+    text-wrap: balance;
+    transition: color 0.3s var(--ease);
+  }
+
   /* Ícone de mais/menos: o traço vertical (::after) gira até sumir quando a pergunta abre. */
   .faq-icon {
     position: relative;
@@ -119,16 +125,31 @@ import { sectionIds } from '../data/navigation';
     transform: rotate(90deg);
   }
 
-  @media (hover: hover) {
-    .faq-btn:hover .faq-icon {
-      box-shadow: inset 0 0 0 1px var(--royal);
-    }
-  }
-
   .faq-item.is-open .faq-icon {
     background: var(--royal);
     color: #fff;
     box-shadow: inset 0 0 0 1px var(--royal);
+  }
+
+  /*
+   * O hover vale com a pergunta aberta e fechada: o anel do ícone sozinho não mudava nada na
+   * aberta, que já tem o anel royal, e na fechada era 1 px num círculo de 38. A pergunta clareia
+   * para o royal-bright (7:1 no branco), como os links; aberto, o círculo royal cheio clareia
+   * também, como o botão flutuante e a chamada do header.
+   */
+  @media (hover: hover) {
+    .faq-btn:hover .faq-question {
+      color: var(--royal-bright);
+    }
+
+    .faq-btn:hover .faq-icon {
+      box-shadow: inset 0 0 0 1px var(--royal);
+    }
+
+    .faq-item.is-open .faq-btn:hover .faq-icon {
+      background: var(--royal-bright);
+      box-shadow: inset 0 0 0 1px var(--royal-bright);
+    }
   }
 
   .faq-item.is-open .faq-icon::after {
@@ -162,11 +183,12 @@ import { sectionIds } from '../data/navigation';
     overflow: hidden;
   }
 
-  /* 62 px à direita: o ícone (38) mais o espaço (24), para o texto não correr sob ele. */
+  /* pretty: sem uma palavra sozinha na última linha, como nos textos de abertura (.lede). */
   .faq-panel-inner p {
-    padding: 0 62px 28px 0;
+    padding: 0 0 28px;
     max-width: 40em;
     color: var(--ink-soft);
+    text-wrap: pretty;
     transition:
       opacity 0.35s ease,
       transform 0.6s var(--ease);
@@ -181,9 +203,21 @@ import { sectionIds } from '../data/navigation';
     transition-delay: 0.1s;
   }
 
+  /*
+   * A partir de 640 px, 62 px à direita (o ícone, 38, mais o espaço, 24): a resposta termina na
+   * mesma borda da pergunta acima. No celular, o recuo só estreitaria a coluna (258 px a 360), já
+   * que o ícone fica na linha da pergunta, e não ao lado da resposta.
+   */
+  @media (width >= 640px) {
+    .faq-panel-inner p {
+      padding-right: 62px;
+    }
+  }
+
+  /* Piso de 310 px, o mesmo da .areas-grid (Areas.astro): as colunas das duas seções batem. */
   @media (width >= 960px) {
     .faq-grid {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      grid-template-columns: minmax(310px, 4fr) minmax(0, 7fr);
       gap: clamp(48px, 6vw, 104px);
     }
   }

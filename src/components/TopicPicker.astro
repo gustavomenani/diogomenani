@@ -4,7 +4,7 @@ import { messages, waLink } from '../lib/whatsapp';
 ---
 
 <fieldset class="topic" data-topic>
-  <legend class="topic-label">Sobre o que você quer conversar?</legend>
+  <legend class="topic-label">Como podemos ajudar?</legend>
   <div class="chips">
     {areas.map((area) => (
       <span class="chip-option">
@@ -15,7 +15,7 @@ import { messages, waLink } from '../lib/whatsapp';
           id={`tema-${area.id}`}
           value={area.id}
           data-cta={area.topic.cta}
-          data-href={waLink(messages.topic(area.name))}
+          data-href={waLink(messages.topic(area.subject))}
         />
         <label class="chip" for={`tema-${area.id}`}>
           {area.topic.label}
@@ -28,6 +28,10 @@ import { messages, waLink } from '../lib/whatsapp';
 <style>
   .topic {
     margin-top: 34px;
+  }
+
+  /* Entrada só até ela terminar (data-entered, em main.ts), como as do Hero.astro. */
+  :global(.page:not([data-entered])) .topic {
     animation: fade-up 1s var(--ease) 0.78s backwards;
   }
 
@@ -46,6 +50,19 @@ import { messages, waLink } from '../lib/whatsapp';
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+  }
+
+  /*
+   * A fileira dos quatro chips pede ~616 px. Nestas faixas só cabem três, e "Consumidor" ficaria
+   * sozinho na segunda linha, logo acima do botão principal: duas colunas fecham em 2+2, como no
+   * celular. Cada chip fica com a própria largura (start), e o rádio continua só sobre ele.
+   */
+  @media (520px <= width <= 679px), (960px <= width <= 1199px) {
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(2, max-content);
+      justify-items: start;
+    }
   }
 
   .chip-option {
@@ -122,10 +139,19 @@ import { messages, waLink } from '../lib/whatsapp';
       background: Highlight;
       color: HighlightText;
     }
+
+    /*
+     * O forced-color-adjust: none acima também tira o contorno do foco do modo: o #fff sumia na
+     * tela branca dos temas claros, e o Tab cai justo no chip escolhido. CanvasText é a cor do
+     * texto do tema: o anel aparece no claro e no escuro.
+     */
+    .chip-input:checked:focus-visible + .chip {
+      outline-color: CanvasText;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .topic {
+    :global(.page:not([data-entered])) .topic {
       animation: fade 0.5s ease-out backwards !important;
     }
   }

@@ -1,70 +1,50 @@
-// Conteúdo das seções: áreas de atuação, credenciais, etapas, manifesto, compromissos e dúvidas.
-// Itens entre [colchetes] ainda precisam ser confirmados com o Diogo.
+// Conteúdo das seções: áreas de atuação, etapas, manifesto, compromissos e dúvidas.
 import { contact } from './contact';
 
-export type AreaId = 'familia' | 'consumidor' | 'contratos' | 'trabalho' | 'imoveis' | 'empresas';
+export type AreaId = 'familia-internacional' | 'vistos' | 'previdenciario' | 'consumidor';
 
 export interface PracticeArea {
   id: AreaId;
   name: string;
   description: string;
+  /** Assunto na mensagem do WhatsApp: "Gostaria de falar com um especialista sobre …". */
+  subject: string;
   /** Tema no seletor do topo da página: rótulo do chip e texto que o botão principal assume. */
   topic: { label: string; cta: string };
 }
 
-/** Áreas de atuação (sugestões a confirmar). Cada uma abre o WhatsApp com o nome da área. */
+/** Áreas de atuação. Cada uma abre o WhatsApp com o assunto da área. */
 export const areas = [
   {
-    id: 'familia',
-    name: 'Família e Sucessões',
-    description: 'Divórcio, guarda, pensão alimentícia, inventário e planejamento sucessório.',
-    topic: { label: 'Família', cta: 'Conversar sobre família' },
+    id: 'familia-internacional',
+    name: 'Família Internacional',
+    description: 'Questões de família que envolvem mais de um país.',
+    subject: 'família internacional',
+    topic: { label: 'Família internacional', cta: 'Fale sobre família' },
+  },
+  {
+    id: 'vistos',
+    name: 'Vistos Americanos',
+    description: 'B1/B2 (turismo), F1 (estudantes) e J1 (programas de intercâmbio específicos).',
+    subject: 'vistos americanos',
+    topic: { label: 'Vistos americanos', cta: 'Fale sobre vistos' },
+  },
+  {
+    id: 'previdenciario',
+    name: 'Previdenciário',
+    description:
+      'Salário-maternidade, BPC/LOAS, auxílio-acidente, aposentadorias e demais áreas previdenciárias.',
+    subject: 'direito previdenciário',
+    topic: { label: 'Previdenciário', cta: 'Fale sobre previdência' },
   },
   {
     id: 'consumidor',
-    name: 'Direito do Consumidor',
-    description:
-      'Cobranças indevidas, negativação, problemas com bancos, companhias aéreas e planos de saúde.',
-    topic: { label: 'Consumidor', cta: 'Conversar sobre consumo' },
-  },
-  {
-    id: 'contratos',
-    name: 'Contratos e Direito Civil',
-    description:
-      'Elaboração e revisão de contratos, indenizações, cobranças e responsabilidade civil.',
-    topic: { label: 'Contratos', cta: 'Conversar sobre contratos' },
-  },
-  {
-    id: 'trabalho',
-    name: 'Direito do Trabalho',
-    description: 'Orientação e defesa em rescisões, verbas trabalhistas e relações de emprego.',
-    topic: { label: 'Trabalho', cta: 'Conversar sobre trabalho' },
-  },
-  {
-    id: 'imoveis',
-    name: 'Direito Imobiliário',
-    description: 'Compra e venda, locação, usucapião e regularização de imóveis.',
-    topic: { label: 'Imóveis', cta: 'Conversar sobre imóveis' },
-  },
-  {
-    id: 'empresas',
-    name: 'Assessoria para Empresas',
-    description: 'Contratos, prevenção de litígios e acompanhamento jurídico contínuo do negócio.',
-    topic: { label: 'Empresas', cta: 'Conversar sobre empresas' },
+    name: 'Consumidor',
+    description: 'Direito do passageiro aéreo.',
+    subject: 'direito do consumidor',
+    topic: { label: 'Consumidor', cta: 'Fale sobre consumo' },
   },
 ] as const satisfies readonly PracticeArea[];
-
-export interface Credential {
-  term: string;
-  value: string;
-}
-
-export const credentials = [
-  { term: 'Formação', value: '[Bacharel em Direito, instituição e ano]' },
-  { term: 'Especialização', value: '[Pós-graduação, área e instituição]' },
-  { term: 'Na advocacia desde', value: '[Ano]' },
-  { term: 'Atendimento', value: `Presencial em ${contact.city} e online` },
-] as const satisfies readonly Credential[];
 
 export interface Step {
   title: string;
@@ -74,11 +54,11 @@ export interface Step {
 export const steps = [
   {
     title: 'Primeira conversa',
-    text: 'Você conta o que está acontecendo, no escritório ou por videochamada. Esclareço as primeiras dúvidas e indico os documentos necessários.',
+    text: 'Você conta o que está acontecendo, no escritório ou por videochamada. Esclarecemos as primeiras dúvidas e indicamos os documentos necessários.',
   },
   {
     title: 'Análise do caso',
-    text: 'Estudo documentos, prazos e riscos para apresentar os caminhos possíveis, com prós e contras de cada um.',
+    text: 'Estudamos documentos, prazos e riscos para apresentar os caminhos possíveis, com prós e contras de cada um.',
   },
   {
     title: 'Proposta e contrato',
@@ -141,7 +121,7 @@ export const faq = [
   },
   {
     question: 'Como são definidos os honorários?',
-    answer: `Consideram a complexidade e a duração estimada do caso, com base na tabela de honorários da OAB/${contact.oabState}. Tudo é apresentado antes de começar e formalizado em contrato.`,
+    answer: `Consideramos a complexidade e a duração estimada do caso, com base na tabela de honorários da OAB/${contact.oabState}. Tudo é apresentado antes de começar e formalizado em contrato.`,
   },
   {
     question: 'O que eu contar fica em sigilo?',

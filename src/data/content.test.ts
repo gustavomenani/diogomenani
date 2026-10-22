@@ -1,15 +1,14 @@
 import { expect, test } from 'vitest';
 import { contact } from './contact';
-import { areas, commitments, credentials, faq } from './content';
+import { areas, commitments, faq } from './content';
 
 test('cada área tem um id único (os temas do seletor viram ids no HTML)', () => {
   const ids = areas.map((area) => area.id);
   expect(new Set(ids).size).toBe(ids.length);
 });
 
-test('a credencial de atendimento usa a cidade do contato', () => {
-  const atendimento = credentials.find((item) => item.term === 'Atendimento');
-  expect(atendimento?.value).toContain(contact.city);
+test('o assunto de cada área continua a frase da mensagem (começa em minúscula)', () => {
+  for (const area of areas) expect(area.subject).toMatch(/^[a-zà-ú]/);
 });
 
 test('a resposta sobre honorários cita a seccional da OAB do contato', () => {

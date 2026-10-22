@@ -4,13 +4,21 @@ import Icon from './Icon.astro';
 import { areas } from '../data/content';
 import { sectionIds } from '../data/navigation';
 import { messages, waLink } from '../lib/whatsapp';
+
+/*
+ * Os compostos com hífen ("salário-maternidade", "auxílio-acidente") não quebram no hífen: sem
+ * isso, de 330 a 390 px, "auxílio-" ficava no fim de uma linha e "acidente" no começo da outra, a
+ * mesma quebra que o aviso de privacidade já evita em "e-mail" (NOWRAP, em privacidade.astro). O
+ * grupo faz o split devolver os compostos nas posições ímpares; o texto não muda.
+ */
+const HYPHENATED = /(\p{L}+-\p{L}+)/u;
 ---
 
 <section class="section areas" id={sectionIds.areas} aria-labelledby="atuacao-title">
   <div class="wrap areas-grid">
     <div class="areas-head">
       <h2 class="h2" id="atuacao-title" data-reveal="rise">
-        Áreas de atuação
+        Onde podemos ajudar
       </h2>
       <p class="lede" data-reveal>
         Atuação consultiva, para prevenir problemas e orientar decisões, e contenciosa, para
@@ -19,22 +27,35 @@ import { messages, waLink } from '../lib/whatsapp';
       <p class="areas-note" data-reveal>
         Não encontrou o seu caso?{' '}
         <ExternalLink class="link" href={waLink(messages.unlistedCase)}>
-          Envie uma mensagem
+          Envie uma mensagem<span class="sr-only">{' pelo WhatsApp'}</span>
         </ExternalLink>{' '}
-        e eu digo se posso ajudar.
+        e respondemos se podemos ajudar.
       </p>
     </div>
     {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
     <ul class="area-list" role="list" data-reveal-list>
-      {areas.map((area) => (
+      {areas.map((area, i) => (
         <li class="area">
-          <ExternalLink class="area-link" href={waLink(messages.area(area.name))}>
-            <span class="area-body">
-              <span class="area-name">{area.name}</span>
-              <span class="area-desc">{area.description}</span>
-            </span>
+          {/*
+            O nome da área é um título (h3), como as etapas e as dúvidas: entra na estrutura de
+            títulos que leitores de tela e buscadores percorrem. O <a> aceita conteúdo de bloco.
+            O leitor de tela ouve também o destino, o WhatsApp.
+          */}
+          <ExternalLink class="area-link" href={waLink(messages.topic(area.subject))}>
+            <div class="area-body">
+              <span class="area-num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 class="area-name">{area.name}</h3>
+              <span class="area-desc">
+                {area.description
+                  .split(HYPHENATED)
+                  .map((piece, j) => (j % 2 ? <span class="nowrap">{piece}</span> : piece))}
+              </span>
+            </div>
             <span class="area-go">
-              Conversar <Icon name="arrow-up-right" />
+              Conversar<span class="sr-only">{' pelo WhatsApp'}</span>
+              <Icon name="arrow-up-right" />
             </span>
           </ExternalLink>
         </li>
@@ -58,10 +79,12 @@ import { messages, waLink } from '../lib/whatsapp';
     max-width: 30em;
   }
 
+  /* pretty: sem uma palavra sozinha na última linha, como nos textos de abertura (.lede). */
   .areas-note {
     margin-top: 22px;
     font-size: var(--fs-base);
     color: var(--ink-soft);
+    text-wrap: pretty;
   }
 
   .area-list {
@@ -100,6 +123,16 @@ import { messages, waLink } from '../lib/whatsapp';
     transition: transform 0.7s var(--ease);
   }
 
+  .area-num {
+    display: block;
+    margin-bottom: 6px;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--royal-bright);
+    transition: color 0.5s var(--ease);
+  }
+
   .area-name {
     display: block;
     font-family: var(--serif);
@@ -117,7 +150,12 @@ import { messages, waLink } from '../lib/whatsapp';
     font-size: var(--fs-base);
     line-height: 1.55;
     color: var(--ink-soft);
+    text-wrap: pretty;
     transition: color 0.5s var(--ease);
+  }
+
+  .nowrap {
+    white-space: nowrap;
   }
 
   .area-go {
@@ -136,7 +174,20 @@ import { messages, waLink } from '../lib/whatsapp';
     transition: transform 0.7s var(--ease);
   }
 
+  /*
+   * O anel do foco acompanha o fundo arredondado, por fora dele. Na caixa do link, os lados
+   * corriam por dentro do preenchimento (2,1:1 sobre o royal) e o alto e o pé saíam para fora:
+   * dois quadros desencontrados. O .page faz vencer a regra geral do foco (.page :focus-visible).
+   * Abaixo de ~750 px, o anel passa da margem lateral e os lados dele ficam cortados na borda da
+   * tela: ficam o alto, o pé e o preenchimento.
+   */
+  :global(.page) .area-link:focus-visible {
+    outline: none;
+  }
+
   .area-link:focus-visible::before {
+    outline: 2px solid var(--royal-bright);
+    outline-offset: 3px;
     transform: scaleY(1);
   }
 
@@ -144,6 +195,7 @@ import { messages, waLink } from '../lib/whatsapp';
     transform: translate3d(14px, 0, 0);
   }
 
+  .area-link:focus-visible .area-num,
   .area-link:focus-visible .area-name,
   .area-link:focus-visible .area-desc,
   .area-link:focus-visible .area-go {
@@ -160,6 +212,7 @@ import { messages, waLink } from '../lib/whatsapp';
       transform: translate3d(14px, 0, 0);
     }
 
+    .area-link:hover .area-num,
     .area-link:hover .area-name,
     .area-link:hover .area-desc,
     .area-link:hover .area-go {
@@ -181,14 +234,26 @@ import { messages, waLink } from '../lib/whatsapp';
     }
   }
 
+  /*
+   * Piso de 310 px na coluna do título (o mesmo da .faq-grid, em Duvidas.astro, para as duas
+   * seções continuarem alinhadas): na entrada das duas colunas, de 960 a 974 px, o 4fr dava ~297
+   * px, "Onde podemos" não cabia e o título quebrava em três linhas, uma palavra por linha. A
+   * partir de ~1000 px o 4fr já passa do piso, e nada muda.
+   */
   @media (width >= 960px) {
     .areas-grid {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      grid-template-columns: minmax(310px, 4fr) minmax(0, 7fr);
       gap: clamp(48px, 6vw, 104px);
       align-items: start;
     }
+  }
 
-    /* Gruda abaixo do header (já encolhido pela rolagem), com 48 px de folga. */
+  /*
+   * Gruda abaixo do header (já encolhido pela rolagem), com 48 px de folga, só quando o bloco cabe
+   * na tela: são 120 px de topo e ~340 px de bloco. Numa janela baixa, ele ficaria preso com o link
+   * "Envie uma mensagem" abaixo da borda, e o foco do teclado sumiria (a rolagem não o alcança).
+   */
+  @media (width >= 960px) and (height >= 560px) {
     .areas-head {
       position: sticky;
       top: calc(var(--header-h-scrolled) + 48px);

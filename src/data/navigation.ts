@@ -4,7 +4,7 @@ export const sectionIds = {
   main: 'conteudo',
   about: 'sobre',
   areas: 'atuacao',
-  process: 'como-trabalho',
+  process: 'como-trabalhamos',
   faq: 'duvidas',
   contact: 'contato',
 } as const;
@@ -25,7 +25,7 @@ export function anchor(id: SectionId): string {
 export const nav: readonly NavLink[] = [
   { id: sectionIds.about, label: 'Sobre' },
   { id: sectionIds.areas, label: 'Atuação' },
-  { id: sectionIds.process, label: 'Como trabalho' },
+  { id: sectionIds.process, label: 'Como trabalhamos' },
   { id: sectionIds.faq, label: 'Dúvidas' },
   { id: sectionIds.contact, label: 'Contato' },
 ];
@@ -33,7 +33,7 @@ export const nav: readonly NavLink[] = [
 /** Navegação do rodapé, com rótulos por extenso. */
 export const footerNav: readonly NavLink[] = [
   { id: sectionIds.about, label: 'Sobre' },
-  { id: sectionIds.areas, label: 'Áreas de atuação' },
-  { id: sectionIds.process, label: 'Como trabalho' },
+  { id: sectionIds.areas, label: 'Onde podemos ajudar' },
+  { id: sectionIds.process, label: 'Como trabalhamos' },
   { id: sectionIds.faq, label: 'Dúvidas frequentes' },
 ];

@@ -34,7 +34,7 @@ test('Esc fecha e devolve o foco ao botão', async ({ page }) => {
 
 test('Tab no último item volta ao botão', async ({ page }) => {
   await openMenu(page);
-  await menuLink(page, 'Agendar uma conversa (abre em outra aba)').focus();
+  await menuLink(page, 'Fale com um especialista pelo WhatsApp (abre em outra aba)').focus();
   await page.keyboard.press('Tab');
   await expect(toggle(page)).toBeFocused();
 });
@@ -44,6 +44,16 @@ test('clicar num link fecha o menu e navega', async ({ page }) => {
   await menuLink(page, 'Dúvidas').click();
   await expect(toggle(page)).toHaveAttribute('aria-expanded', 'false');
   await expect(page).toHaveURL(/#duvidas$/);
+});
+
+test('com mouse, o link sob o ponteiro ganha o sublinhado', async ({ page }) => {
+  // mata: o :hover dos links do menu (MobileMenu.astro). O menu vale até 1079 px, também em
+  // notebook estreito e tablet com mouse, e era o único grupo de links sem retorno ao ponteiro
+  await openMenu(page);
+  const link = menuLink(page, 'Dúvidas');
+  await expect(link).toHaveCSS('text-decoration-line', 'none');
+  await link.hover();
+  await expect(link).toHaveCSS('text-decoration-line', 'underline');
 });
 
 test('trava a rolagem só enquanto está aberto', async ({ page }) => {
@@ -91,9 +101,8 @@ test('voltar no histórico com o menu aberto o fecha', async ({ page }) => {
   await openMenu(page);
   await menuLink(page, 'Dúvidas').click();
   await expect(page).toHaveURL(/#duvidas$/);
-  // Descer até a seção recolhe o header: uma subida curta o traz de volta, como faria quem lê.
-  // Antes, a rolagem até a âncora assenta logo abaixo do header (84 px), igual em duas leituras
-  // seguidas: subir no meio dela a deixaria terminar por cima da subida.
+  // A descida até a âncora não recolhe o header (scroll-effects.ts), e o botão do menu continua à
+  // mostra depois que a rolagem assenta logo abaixo dele (84 px), igual em duas leituras seguidas.
   let previousTop = Number.NaN;
   await expect
     .poll(async () => {
@@ -105,9 +114,6 @@ test('voltar no histórico com o menu aberto o fecha', async ({ page }) => {
       return settled;
     })
     .toBe(true);
-  await page.evaluate(() => {
-    window.scrollBy({ top: -40, behavior: 'instant' });
-  });
   await expect(page.locator('[data-header]')).not.toHaveClass(/is-tucked/);
   await openMenu(page);
   await page.goBack();
@@ -202,4 +208,41 @@ test.describe('tela baixa', () => {
       await browser.close();
     }
   });
+});
+
+test.describe('tela muito baixa (zoom alto, celular deitado)', () => {
+  for (const viewport of [
+    { width: 320, height: 180 },
+    { width: 568, height: 320 },
+  ]) {
+    test(`a ${viewport.width}×${viewport.height}, o link focado pelo teclado não some sob o header`, async ({
+      page,
+      browserName,
+    }) => {
+      test.skip(
+        browserName === 'webkit',
+        'no Safari o Tab não passa por links (padrão da plataforma)',
+      );
+      // mata: o scroll-padding-top do menu (ele rola por baixo do header fixo, opaco quando aberto)
+      await page.setViewportSize(viewport);
+      await openMenu(page);
+      await menuLink(page, 'Fale com um especialista pelo WhatsApp (abre em outra aba)').focus();
+      const headerBottom = await page
+        .locator('[data-header]')
+        .evaluate((header) => header.getBoundingClientRect().bottom);
+      // Pelo menos metade de cada link fica abaixo do header (WCAG 2.4.11). O Chromium para a
+      // rolagem logo abaixo dele; o Firefox não rola um link que já cabe na área rolável, mesmo
+      // em parte sob a folga, mas nenhum some inteiro (sem a folga, alguns sumiam inteiros).
+      for (const name of ['Contato', 'Dúvidas', 'Como trabalhamos', 'Atuação', 'Sobre']) {
+        await page.keyboard.press('Shift+Tab');
+        const link = menuLink(page, name);
+        await expect(link).toBeFocused();
+        const { bottom, height } = await link.evaluate((element) => {
+          const rect = element.getBoundingClientRect();
+          return { bottom: rect.bottom, height: rect.height };
+        });
+        expect(bottom - headerBottom, name).toBeGreaterThanOrEqual(height / 2);
+      }
+    });
+  }
 });

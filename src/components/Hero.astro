@@ -21,8 +21,8 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <h1 class="hero-title" id="hero-title">
-        {/* Nome e cidade antes do título: também abrem o nome acessível do h1. */}
-        <span class="hero-kicker">Diogo Menani · Advogado em {contact.city}</span>{' '}
+        {/* O nome antes do título: também abre o nome acessível do h1. */}
+        <span class="hero-kicker">Diogo Menani · Advogado</span>{' '}
         {/* O texto para leitores de tela vai inteiro; as palavras animadas ficam aria-hidden. */}
         <span class="sr-only">{TITLE_LINES.join(' ')}</span>
         {titleWords.map((words, lineIndex) => (
@@ -43,34 +43,43 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       </h1>
       <span class="hero-rule" aria-hidden="true"></span>
       <p class="hero-lead">
-        Advocacia e assessoria jurídica para pessoas e empresas, em {contact.city} e online. Você
-        entende cada etapa do seu caso e decide com segurança.
+        Assessoria jurídica completa para Vistos Americanos, família internacional, previdenciário e
+        consumidor.
       </p>
       <TopicPicker />
       <div class="hero-actions">
-        <WhatsAppButton label="Agendar uma conversa" data-wa-cta />
+        <WhatsAppButton label="Fale com um especialista" cta data-wa-cta />
         <a class="link-light" href={anchor(sectionIds.process)}>
-          Como funciona o atendimento
+          Como trabalhamos
         </a>
       </div>
     </div>
   </div>
+  <div class="wrap hero-facts">
+    {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
+    <ul class="facts" role="list">
+      <li>{contact.oab}</li>
+      <li>{contact.serviceMode}</li>
+    </ul>
+  </div>
+  {/*
+    A Têmis vem por último no HTML: são uns 25 KB de SVG inline, e, antes da faixa de
+    informações, empurravam a faixa para uma segunda leva da rede. O hero pintava sem ela e
+    crescia depois, e a figura (presa ao pé do hero) e o texto pulavam, com CLS de até 0,15 no
+    celular. A ordem na tela não muda: a figura é absoluta, com z-index 1, e a faixa tem z-index 2.
+  */}
   <div class="hero-figure" aria-hidden="true" data-figure>
     <div class="hero-figure-inner">
       <Themis />
     </div>
   </div>
-  <div class="wrap hero-facts">
-    <ul class="facts">
-      <li>{contact.oab}</li>
-      <li>{contact.city}</li>
-      <li>{contact.serviceMode}</li>
-    </ul>
-  </div>
 </section>
 
 <style>
   .hero {
+    /* Altura do degradê para o prata no pé do hero, abaixo da faixa de informações (px inteiros). */
+    --hero-fade: 88px;
+
     position: relative;
     isolation: isolate;
     display: flex;
@@ -80,25 +89,40 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     overflow: clip;
   }
 
+  /* Azul-noite no alto, que clareia para o royal na diagonal até o pé do hero. */
   .hero-bg {
     position: absolute;
     inset: 0;
     z-index: -2;
-    background: var(--royal);
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy) 18%, var(--royal) 72%);
   }
 
-  .hero-bg::after {
+  /*
+   * Degradê para o prata no pé do hero, por cima da Têmis: a base dela se dissolve no claro, e o
+   * hero emenda com a seção branca de baixo.
+   */
+  .hero::after {
     content: '';
     position: absolute;
     inset: auto 0 0;
-    height: 45%;
-    background: linear-gradient(to top, rgb(var(--shade-rgb) / 50%), rgb(var(--shade-rgb) / 0%));
+    z-index: 1;
+    height: var(--hero-fade);
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--silver-rgb) / 0%) 0%,
+      rgb(var(--silver-rgb) / 8%) 22%,
+      rgb(var(--silver-rgb) / 32%) 46%,
+      rgb(var(--silver-rgb) / 72%) 70%,
+      rgb(var(--silver-rgb) / 94%) 88%,
+      #fff 100%
+    );
+    pointer-events: none;
   }
 
   /* O brilho do hero tem uma parada a mais no meio e se apaga antes da borda do círculo. */
   .hero-glow {
     --glow-size: min(1040px, 92vw);
-    --glow-alpha: 46%;
+    --glow-alpha: 34%;
 
     right: -6%;
     top: -14%;
@@ -108,6 +132,14 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       var(--glow-mid) 48%,
       rgb(var(--royal-rgb) / 0%) 74%
     );
+  }
+
+  /*
+   * As animações de entrada valem só até terminarem (data-entered, em main.ts): depois, trocar a
+   * preferência de movimento não as reinicia, porque mudar o animation-name criaria uma animação
+   * nova. Sem elas, cada parte fica no estado final, o mesmo em que a entrada termina.
+   */
+  :global(.page:not([data-entered])) .hero-glow {
     animation: fade 2.6s ease-out 0.25s backwards;
   }
 
@@ -139,7 +171,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
    * baixo desceriam uma fração de pixel, e o antialiasing delas mudaria.
    */
   .hero-kicker {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 14px;
     margin-bottom: 18px;
     font-family: var(--sans);
     font-weight: 600;
@@ -148,7 +182,19 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--sky);
+  }
+
+  :global(.page:not([data-entered])) .hero-kicker {
     animation: fade-up 1s var(--ease) 0.08s backwards;
+  }
+
+  /* Traço antes do sobretítulo, que desce do branco para o prata. */
+  .hero-kicker::before {
+    content: '';
+    flex: none;
+    width: 32px;
+    height: 1px;
+    background: linear-gradient(90deg, #fff, var(--silver));
   }
 
   .hero-title .line {
@@ -167,6 +213,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   /* Cada palavra sobe 60 ms depois da anterior, com um passo extra entre as linhas. */
   .hero-title .w > span {
     display: inline-block;
+  }
+
+  :global(.page:not([data-entered])) .hero-title .w > span {
     animation: rise 1.15s var(--ease) backwards;
     animation-delay: calc(0.18s + (var(--word) + var(--row)) * 0.06s);
   }
@@ -188,6 +237,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     );
     filter: drop-shadow(0 0 7px var(--rule-glow));
     transform-origin: left center;
+  }
+
+  :global(.page:not([data-entered])) .hero-rule {
     animation: draw 1.5s var(--ease) 0.62s backwards;
   }
 
@@ -207,6 +259,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       )
       0 50% / 96px 18px no-repeat;
     opacity: 0;
+  }
+
+  :global(.page:not([data-entered])) .hero-rule::after {
     animation: spark 1.6s var(--ease-io) 0.62s backwards;
   }
 
@@ -216,6 +271,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     line-height: 1.6;
     color: var(--sky);
     text-wrap: pretty;
+  }
+
+  :global(.page:not([data-entered])) .hero-lead {
     animation: fade-up 1s var(--ease) 0.7s backwards;
   }
 
@@ -225,7 +283,27 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     align-items: center;
     gap: 16px 30px;
     margin-top: 26px;
+  }
+
+  :global(.page:not([data-entered])) .hero-actions {
     animation: fade-up 1s var(--ease) 0.86s backwards;
+  }
+
+  /*
+   * Nestas faixas, o link "Como trabalhamos" cabe ao lado do botão com uns rótulos de tema e com
+   * outros não (o botão vai de 269 a 334 px, e o rótulo padrão é o mais largo): trocar o tema fazia
+   * o link pular de linha e o hero mudar 60 px de altura ou, a partir de 960 px, com o texto
+   * centralizado, o título descer 30 px, num quadro só. Empilhadas sempre (como quase toda a faixa
+   * já ficava com o rótulo padrão), as ações têm a mesma altura com qualquer rótulo. As faixas vão
+   * até onde o botão padrão e o link cabem lado a lado também com a barra de rolagem à mostra (a
+   * fina do base.css tem ~10 px; a clássica, nos navegadores sem scrollbar-width, 17 px), com uns
+   * pixels de folga.
+   */
+  @media (480px <= width <= 583px), (960px <= width <= 1023px) {
+    .hero-actions {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   .hero-figure {
@@ -242,13 +320,19 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     width: 100%;
     height: 100%;
     mask-repeat: no-repeat;
+  }
+
+  :global(.page:not([data-entered])) .hero-figure-inner {
     animation: figure-unveil 2.3s var(--ease-soft) 0.05s backwards;
   }
 
   .hero-facts {
     position: relative;
     z-index: 2;
-    padding-bottom: 30px;
+    padding-bottom: calc(var(--hero-fade) + 8px);
+  }
+
+  :global(.page:not([data-entered])) .hero-facts {
     animation: fade 1.1s ease-out 1s backwards;
   }
 
@@ -275,13 +359,24 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     padding-right: 0;
   }
 
+  @media (width >= 960px) {
+    .hero {
+      --hero-fade: 120px;
+    }
+  }
+
   @media (960px <= width <= 1199px) {
     .hero-copy {
       max-width: 56%;
     }
   }
 
-  @media (width <= 959px) {
+  /*
+   * "< 960", e não "<= 959": com zoom ou escala de tela (125% no Windows, por exemplo), a largura
+   * pode ser fracionária, e entre 959 e 960 px nenhuma das duas faixas valia: a Têmis aparecia
+   * opaca por cima dos temas e o hero crescia uns 150 px.
+   */
+  @media (width < 960px) {
     .hero {
       min-height: 0;
       padding-top: 120px;
@@ -291,14 +386,21 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       padding-bottom: 40px;
     }
 
+    /*
+     * O translate em % usa a largura da própria figura: a mesma fração dela (~68%) fica na tela de
+     * 320 a 959 px. O right em %, medido pelo hero, empurrava mais a figura quanto mais larga a
+     * tela, e no tablet sobravam só a tocha e meio prato na borda. É a propriedade translate, e não
+     * transform, porque o paralaxe (scroll-effects.ts) grava o transform no mesmo elemento.
+     */
     .hero-figure {
-      right: -34%;
+      right: 0;
+      translate: 32% 0;
       height: min(68%, 580px);
       opacity: 0.17;
     }
 
     .hero-facts {
-      padding-bottom: 26px;
+      padding-bottom: calc(var(--hero-fade) + 4px);
     }
 
     .facts li {
@@ -309,13 +411,13 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-title .w > span,
-    .hero-kicker,
-    .hero-lead,
-    .hero-actions,
-    .hero-facts,
-    .hero-figure-inner,
-    .hero-rule {
+    :global(.page:not([data-entered])) .hero-title .w > span,
+    :global(.page:not([data-entered])) .hero-kicker,
+    :global(.page:not([data-entered])) .hero-lead,
+    :global(.page:not([data-entered])) .hero-actions,
+    :global(.page:not([data-entered])) .hero-facts,
+    :global(.page:not([data-entered])) .hero-figure-inner,
+    :global(.page:not([data-entered])) .hero-rule {
       animation: fade 0.5s ease-out backwards !important;
     }
 
@@ -330,8 +432,9 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       padding-top: 48px;
     }
 
-    .hero-figure-inner,
-    .hero-title .w > span {
+    /* Com o mesmo prefixo da versão reduzida, para vencê-la também no papel. */
+    :global(.page:not([data-entered])) .hero-figure-inner,
+    :global(.page:not([data-entered])) .hero-title .w > span {
       animation: none !important;
     }
   }

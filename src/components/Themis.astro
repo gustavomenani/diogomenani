@@ -4,6 +4,15 @@
  * e mantém os pratos na vertical, girando cada um em torno do ponto onde está pendurado.
  */
 import { THEMIS_SHAPE_ID, themis } from '../data/brand';
+import { levelAngle } from '../scripts/balance-physics';
+
+/** O mesmo ângulo de nível que o balance.ts calcula: os dois pratos na mesma altura. */
+const level = levelAngle(
+  { x: themis.hangL[0], y: themis.hangL[1] },
+  { x: themis.hangR[0], y: themis.hangR[1] },
+);
+/** Ponto de giro em px do desenho (o viewBox começa em 0 0), para o transform-origin do CSS. */
+const origin = (point: readonly number[]) => `--origin:${point.map((n) => `${n}px`).join(' ')}`;
 ---
 
 <svg class="themis" viewBox={themis.viewBox} focusable="false">
@@ -16,12 +25,18 @@ import { THEMIS_SHAPE_ID, themis } from '../data/brand';
   </defs>
   <g id={THEMIS_SHAPE_ID} fill="url(#themis-fill)">
     <path d={themis.body}></path>
-    <g data-beam data-pivot={themis.pivot.join(' ')}>
+    {/* As variáveis ficam em cada grupo, e não no <svg>: o <use> do rodapé clona só o
+         #themis-shape, e o clone também precisa delas. */}
+    <g
+      data-beam
+      data-pivot={themis.pivot.join(' ')}
+      style={`--level:${level}deg;${origin(themis.pivot)}`}
+    >
       <path d={themis.beam}></path>
-      <g data-pan-l data-pivot={themis.hangL.join(' ')}>
+      <g data-pan-l data-pivot={themis.hangL.join(' ')} style={origin(themis.hangL)}>
         <path d={themis.panL}></path>
       </g>
-      <g data-pan-r data-pivot={themis.hangR.join(' ')}>
+      <g data-pan-r data-pivot={themis.hangR.join(' ')} style={origin(themis.hangR)}>
         <path d={themis.panR}></path>
       </g>
     </g>
@@ -33,5 +48,29 @@ import { THEMIS_SHAPE_ID, themis } from '../data/brand';
     width: 100%;
     height: 100%;
     overflow: visible;
+  }
+
+  /* O desenho vem inclinado, e só o módulo da página nivela a balança. No modo reduzido, a pose
+     final já sai na primeira pintura: sem isto, o travessão girava ~23° num quadro só quando o
+     módulo chegava, com a figura já à mostra (rede lenta), ou ficava torto sem o módulo. O
+     transform do CSS vence o atributo, e o settle() do balance.ts grava a mesma pose. Com
+     movimento, a entrada continua partindo do desenho inclinado. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-beam],
+    [data-pan-l],
+    [data-pan-r] {
+      transform-box: view-box;
+      transform-origin: var(--origin);
+    }
+
+    [data-beam] {
+      transform: rotate(var(--level));
+    }
+
+    /* Os pratos herdam o --level do travessão e giram ao contrário: ficam na vertical. */
+    [data-pan-l],
+    [data-pan-r] {
+      transform: rotate(calc(-1 * var(--level)));
+    }
   }
 </style>

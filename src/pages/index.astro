@@ -11,14 +11,18 @@ import Processo from '../components/Processo.astro';
 import Sobre from '../components/Sobre.astro';
 import { sectionIds } from '../data/navigation';
 import { site } from '../data/site';
-import { legalService } from '../lib/structured-data';
+import { structuredData } from '../lib/structured-data';
+
+/** Cor da barra do navegador: o azul-noite do alto do hero (--navy em tokens.css). */
+const HERO_TOP = '#020A34';
 ---
 
 <Base
   title={site.title}
   description={site.description}
   path="/"
-  structuredData={legalService(Astro.site)}
+  structuredData={structuredData(Astro.site)}
+  themeColor={HERO_TOP}
 >
   <Header />
   <main id={sectionIds.main}>

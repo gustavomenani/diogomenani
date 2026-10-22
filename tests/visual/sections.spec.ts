@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { test, expect, jumpTo, type Locator, type Page } from '../e2e/fixtures';
+import { test, expect, jumpTo, SUBMIT, type Locator, type Page } from '../e2e/fixtures';
 
 // Regressão visual com movimento reduzido: tudo já aparece revelado. Da rolagem só dependem o
 // header e o botão flutuante (escondidos nas seções, com capturas próprias) e o título grudado
@@ -23,7 +23,7 @@ const SECTIONS: Section[] = [
   { name: 'inicio', locate: (page) => page.locator('#inicio') },
   { name: 'sobre', locate: (page) => page.locator('#sobre') },
   { name: 'atuacao', locate: (page) => page.locator('#atuacao') },
-  { name: 'como-trabalho', locate: (page) => page.locator('#como-trabalho') },
+  { name: 'como-trabalhamos', locate: (page) => page.locator('#como-trabalhamos') },
   { name: 'manifesto', locate: (page) => page.getByRole('region', { name: 'Compromissos' }) },
   { name: 'duvidas', locate: (page) => page.locator('#duvidas') },
   { name: 'contato', locate: (page) => page.locator('#contato') },
@@ -88,7 +88,7 @@ test.describe('estados em 1440 px', { tag: '@visual' }, () => {
   test.use({ viewport: DESKTOP, reducedMotion: 'reduce' });
 
   test('erros do formulário', async ({ page }) => {
-    await page.getByRole('button', { name: 'Enviar pelo WhatsApp', exact: true }).click();
+    await page.getByRole('button', { name: SUBMIT, exact: true }).click();
     await expect(page.getByText('Revise os campos destacados para continuar.')).toBeVisible();
     await expect(page.locator('#contato')).toHaveScreenshot('contato-erros-1440.png', HIDE_FIXED);
   });
@@ -97,6 +97,8 @@ test.describe('estados em 1440 px', { tag: '@visual' }, () => {
     const second = page.getByRole('button', { name: 'O atendimento pode ser totalmente online?' });
     await second.click();
     await expect(second).toHaveAttribute('aria-expanded', 'true');
+    // A captura é do estado aberto, e não do hover: o mouse sai de cima da pergunta.
+    await page.mouse.move(0, 0);
     await expect(page.locator('#duvidas')).toHaveScreenshot(
       'duvidas-segunda-aberta-1440.png',
       HIDE_FIXED,

@@ -9,7 +9,7 @@ import { serializeJsonLd } from '../lib/structured-data';
 interface Props {
   title: string;
   description: string;
-  /** Caminho da página no site ('/', '/privacidade'): canonical e og:url. */
+  /** Caminho da página no site ('/', '/privacidade/'): canonical e og:url. */
   path: string;
   /** Tira a página dos buscadores (a 404). */
   noindex?: boolean;
@@ -17,9 +17,15 @@ interface Props {
   structuredData?: object;
   /**
    * Liga o movimento e o módulo da página (padrão). As páginas secundárias (aviso de privacidade
-   * e 404) passam `false`: sem script nenhum, a raiz fica em `pending`, em que tudo aparece.
+   * e 404) passam `false`: sem o script do movimento e sem o módulo, a raiz fica em `pending`, em
+   * que tudo aparece. O aviso tem só o script da volta ao site, no privacidade.astro.
    */
   interactive?: boolean;
+  /**
+   * Cor da barra do navegador no celular, a do topo da página para as duas emendarem: royal por
+   * padrão (aviso de privacidade e 404, de cabeçalho royal); a home passa o azul-noite do hero.
+   */
+  themeColor?: string;
 }
 
 const {
@@ -29,6 +35,7 @@ const {
   noindex = false,
   structuredData,
   interactive = true,
+  themeColor = '#00167B',
 } = Astro.props;
 
 // Sem o `site` do astro.config.mjs (ou com noindex, no caso do canonical), essas tags não saem.
@@ -46,7 +53,7 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
     {canonical && <link rel="canonical" href={canonical} />}
     {/* Prévia do link no WhatsApp e nas redes. */}
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={site.name} />
+    <meta property="og:site_name" content={site.shortName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:locale" content={site.locale} />
@@ -58,23 +65,36 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={site.ogImageAlt} />
         <meta name="twitter:image" content={ogImage} />
+        {/* O X não usa o og:image:alt como alternativa: a descrição da imagem vai repetida. */}
+        <meta name="twitter:image:alt" content={site.ogImageAlt} />
       </Fragment>
     )}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#00167B" />
+    <meta name="theme-color" content={themeColor} />
     {/*
-      PNG para os navegadores que não usam o favicon SVG; a tela de início do iOS pede o próprio
-      ícone, quadrado e opaco (o sistema arredonda os cantos). Gerados por npm run generate:images.
+      Só há tema claro. O "only" impede que o escurecimento forçado do Android (Chrome com
+      "Escurecer sites", Samsung Internet no tema escuro, WebViews de apps) recolora a página: o
+      logo é <img> e não é recolorido, e o texto preto e o monograma azul dele sumiriam no fundo
+      quase preto. Não muda o alto contraste (forced-colors), que segue o sistema.
+    */}
+    <meta name="color-scheme" content="only light" />
+    {/*
+      PNG para os navegadores que não usam o favicon SVG, e o de 96 px para o Google Search, que
+      não aceita SVG e pede ícones de mais de 48 px; a tela de início do iOS pede o próprio ícone,
+      quadrado e opaco (o sistema arredonda os cantos). O /favicon.ico, que navegadores e robôs
+      pedem direto, não precisa de <link>. Gerados por npm run generate:images.
     */}
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    {/* Só as variantes normais têm preload: a itálica aparece apenas na seção Sobre. */}
+    {/* Só há variantes normais; o filtro garante que uma itálica, se voltar, não entre no preload. */}
     <Font cssVariable="--font-baskervville" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-hanken" preload={[{ style: 'normal' }]} />
     {/*
       Sem script: o header rola com a página (fixo, ficaria branco sobre as seções brancas), e o
-      botão Menu e o formulário, que dependem de script, não aparecem.
+      botão Menu e o formulário, que dependem de script, não aparecem. Com script, mas sem o
+      módulo da página, vale o mesmo pelo data-fallback (base.css).
     */}
     <noscript>
       <style>
@@ -96,7 +116,9 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
     <div class="page" data-page data-motion="pending">
       {/*
         Decide o modo de movimento antes da primeira pintura (motion-mode.ts). Se o módulo da
-        página não rodar (rede, erro), devolve no load o modo sem script, em que tudo aparece.
+        página não rodar (rede, erro), devolve no load o modo sem script, em que tudo aparece, e
+        marca data-fallback: o header rola com a página e o Menu e o formulário somem (base.css).
+        Mexer neste script exige trocar o hash dele na CSP (vercel.json e public/_headers).
       */}
       {interactive && <script is:inline>
         (() => {
@@ -105,6 +127,7 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
           root.dataset.motion = reduce ? 'reduced' : 'on';
           addEventListener('load', () => {
             if ('ready' in root.dataset) return;
+            root.dataset.fallback = '';
             root.setAttribute('data-instant', '');
             root.dataset.motion = 'pending';
             root.getBoundingClientRect();

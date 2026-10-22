@@ -20,7 +20,6 @@ interface ContactItem {
 const items: readonly ContactItem[] = [
   { icon: 'whatsapp', label: 'WhatsApp', value: whatsapp.display, href: waLink(), external: true },
   { icon: 'mail', label: 'E-mail', value: contact.email.label, href: contact.email.href },
-  { icon: 'map-pin', label: 'Escritório', value: contact.address },
   { icon: 'clock', label: 'Horário', value: contact.hours },
 ];
 ---
@@ -30,14 +29,15 @@ const items: readonly ContactItem[] = [
   <div class="wrap contact-grid">
     <div class="contact-copy">
       <h2 class="h2" id="contact-title" data-reveal="rise">
-        Vamos conversar sobre o seu caso?
+        Fale com um especialista
       </h2>
+      {/* Espaço inseparável depois do "O": sem ele, o artigo ficava sozinho no fim da linha a 390, 414 e 1024 px. */}
       <p class="lede" data-reveal>
-        Conte brevemente o que está acontecendo. O retorno é feito em horário comercial, pelo canal
-        que você preferir.
+        Conte brevemente o que está acontecendo. O&nbsp;retorno é feito em horário comercial, pelo
+        canal que você preferir.
       </p>
       <div class="contact-cta" data-reveal>
-        <WhatsAppButton label="Conversar pelo WhatsApp" />
+        <WhatsAppButton label="Conversar pelo WhatsApp" data-contact-cta />
       </div>
       {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
       <ul class="contact-list" role="list" data-reveal-list>
@@ -106,7 +106,9 @@ const items: readonly ContactItem[] = [
     border-top: 1px solid var(--line-on-royal);
   }
 
+  /* O position: relative ancora o alvo de toque do link (a.cl-value::after). */
   .contact-list li {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 16px;
@@ -149,6 +151,17 @@ const items: readonly ContactItem[] = [
     text-underline-offset: 0.28em;
     text-decoration-color: var(--underline-on-royal);
     transition: text-decoration-color 0.3s;
+  }
+
+  /*
+   * A linha toda (o ícone de 44 px, o rótulo e o valor) é o alvo do link: só o texto dava 25 px
+   * de altura no celular, abaixo dos 44 px dos outros alvos de contato do site. Na tela nada muda,
+   * e o anel do foco continua no próprio link. O Horário, sem link, não vira alvo.
+   */
+  a.cl-value::after {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
 
   @media (hover: hover) {

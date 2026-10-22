@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, type Locator } from './fixtures';
 
 test.use({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
 
@@ -47,19 +47,61 @@ test('clicar de novo fecha a pergunta', async ({ page }) => {
   await expect(page.getByText(FIRST_ANSWER)).toBeHidden();
 });
 
+test('com o mouse em cima, a pergunta clareia, aberta ou fechada', async ({ page }) => {
+  // mata: o hover só no anel do ícone (Duvidas.astro): na pergunta aberta, que já tem o anel royal,
+  // nada mudava, e na fechada mudava 1 px de anel
+  const bright = 'rgb(36, 64, 230)';
+  for (const name of [QUESTIONS[1], QUESTIONS[0]]) {
+    const button = page.getByRole('button', { name });
+    await button.hover();
+    await expect(button.locator('.faq-question'), name).toHaveCSS('color', bright);
+  }
+  // Na aberta (a primeira), o círculo royal cheio clareia também.
+  await expect(page.getByRole('button', { name: QUESTIONS[0] }).locator('.faq-icon')).toHaveCSS(
+    'background-color',
+    bright,
+  );
+});
+
 test('na impressão todas as respostas aparecem', async ({ page }) => {
   await page.emulateMedia({ media: 'print' });
   for (const answer of [
     FIRST_ANSWER,
     SECOND_ANSWER,
     'Documento de identidade, comprovante de residência',
-    'Consideram a complexidade e a duração estimada do caso',
+    'Consideramos a complexidade e a duração estimada do caso',
     'Sim. O sigilo profissional é um dever do advogado',
   ]) {
     await expect(page.getByText(answer)).toBeVisible();
     // toBeVisible ignora opacidade: no papel, a resposta precisa estar opaca.
     await expect(page.getByText(answer)).toHaveCSS('opacity', '1');
   }
+});
+
+/** Borda direita do conteúdo (sem o padding) e borda direita da caixa do elemento. */
+const rightEdges = (element: Locator) =>
+  element.evaluate((node) => {
+    const right = node.getBoundingClientRect().right;
+    return { content: right - parseFloat(getComputedStyle(node).paddingRight), box: right };
+  });
+
+for (const width of [320, 360, 390]) {
+  test(`a ${width} px, a resposta usa a largura toda da coluna`, async ({ page }) => {
+    // mata: o recuo de 62 px à direita da resposta no celular (Duvidas.astro): o ícone fica na
+    // linha da pergunta, e o recuo só estreitava a coluna (258 px a 360)
+    await page.setViewportSize({ width, height: 800 });
+    const answer = await rightEdges(page.getByText(FIRST_ANSWER));
+    const question = await rightEdges(page.getByRole('button', { name: QUESTIONS[0] }));
+    expect(answer.content).toBeCloseTo(question.box, 0);
+  });
+}
+
+test('a partir de 640 px, a resposta termina antes da coluna do ícone', async ({ page }) => {
+  // O ícone (38) mais o espaço (24): a resposta acaba na borda do texto da pergunta acima.
+  await page.setViewportSize({ width: 640, height: 800 });
+  const answer = await rightEdges(page.getByText(FIRST_ANSWER));
+  const question = await rightEdges(page.getByRole('button', { name: QUESTIONS[0] }));
+  expect(answer.content).toBeLessThanOrEqual(question.box - 62 + 0.5);
 });
 
 test.describe('impressão com movimento', () => {

@@ -1,0 +1,30 @@
+---
+/**
+ * O logo (monograma, divisória e assinatura), servido como arquivo por
+ * src/pages/logo-[file].svg.ts. `tone="blue"` vai sobre fundo claro; `tone="white"`, sobre o azul.
+ * `compact` é a versão para alturas pequenas, com a linha de baixo legível.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { logoLayouts, type LogoTone } from '../data/brand';
+import { logoPath } from '../lib/logo';
+
+type Props = Omit<HTMLAttributes<'img'>, 'src' | 'width' | 'height'> & {
+  tone: LogoTone;
+  /** Vazio quando o nome já está escrito ao lado (ou em outra versão do logo no mesmo lugar). */
+  alt: string;
+  compact?: boolean;
+};
+
+const { tone, alt, compact = false, ...attrs } = Astro.props;
+const variant = compact ? 'compact' : 'full';
+const { width, height } = logoLayouts[variant];
+---
+
+<img
+  src={logoPath(tone, variant)}
+  alt={alt}
+  width={width}
+  height={height}
+  decoding="async"
+  {...attrs}
+/>

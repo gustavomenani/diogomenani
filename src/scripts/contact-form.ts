@@ -6,9 +6,20 @@ type Control = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 /** O botão de envio fica bloqueado por este tempo, para evitar envios repetidos. */
 const SUBMIT_COOLDOWN_MS = 1800;
+/**
+ * O wa.me só preenche o texto: o envio de verdade acontece no WhatsApp, pelo visitante. O aviso de
+ * enviado diz esse passo numa frase que continua certa depois do intervalo (sem "abrindo…", que
+ * pareceria carregar para sempre, e sem uma segunda frase, que o aria-live anunciaria de novo).
+ */
 const STATUS = {
   invalid: 'Revise os campos destacados para continuar.',
-  sent: 'Mensagem pronta. Abrindo o WhatsApp…',
+  sent: 'Mensagem pronta. Confirme o envio no WhatsApp.',
+  /**
+   * Ao chegar ao maxlength da mensagem: colado, o texto além dele é cortado pelo navegador sem
+   * aviso, e o WhatsApp receberia o relato pela metade. O número vem do próprio campo.
+   */
+  limit: (max: number) =>
+    `A mensagem chegou ao limite de ${max.toLocaleString('pt-BR')} caracteres. O que passar disso fica de fora.`,
 } as const;
 
 function controlOf<T extends Control>(
@@ -94,11 +105,28 @@ export function initContactForm(root: HTMLElement): void {
     if (document.activeElement === phone) phone.setSelectionRange(masked.caret, masked.caret);
   };
 
+  // No limite da mensagem, o status avisa (o aria-live o anuncia uma vez: regravar o mesmo texto a
+  // cada edição no limite o anunciaria de novo); abaixo dele de novo, o aviso sai. Se ainda houver
+  // campos marcados, volta o aviso de erros (a mesma regra de onEdit): sem ele, os campos
+  // continuavam destacados com o status vazio.
+  const limitText = message.maxLength > 0 ? STATUS.limit(message.maxLength) : '';
+  const checkMessageLimit = () => {
+    if (!limitText) return;
+    const showing = status?.textContent === limitText;
+    if (message.value.length >= message.maxLength) {
+      if (!showing) showStatus(limitText, true);
+    } else if (showing) {
+      const pending = form.querySelector('[aria-invalid="true"]') !== null;
+      showStatus(pending ? STATUS.invalid : '', pending);
+    }
+  };
+
   form.addEventListener('input', (event) => {
     // Durante a composição (IME), o texto ainda é do teclado: a máscara espera o fim dela.
     const input = event instanceof InputEvent ? event : undefined;
     if (event.target === phone && !input?.isComposing) applyPhoneMask(input?.inputType);
     onEdit(event.target);
+    if (event.target === message) checkMessageLimit();
   });
   phone.addEventListener('compositionend', () => {
     applyPhoneMask();

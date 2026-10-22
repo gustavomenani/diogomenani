@@ -14,6 +14,12 @@ export const BALANCE = {
   maxDt: 0.034,
   /** Movimento (px) abaixo do qual a balança é considerada parada: um décimo de pixel na tela. */
   settleArc: 0.1,
+  /**
+   * Maior desvio (graus) do travessão, a partir do nível, que os empurrões somados podem dar:
+   * trocar o tema depressa (setas no seletor) não gira a balança além disso, e o prato não chega
+   * ao corpo da Têmis. Um empurrão sozinho, a partir do repouso, leva o travessão a uns 4°.
+   */
+  maxSwing: 13,
 } as const;
 
 export interface Point {
@@ -53,6 +59,22 @@ export function stepBalance(state: BalanceState, dt: number, level: number): Bal
   const pansVelocity = state.pansVelocity + pansAcceleration * dt;
   const pans = state.pans + pansVelocity * dt;
   return { angle, angleVelocity, pans, pansVelocity };
+}
+
+/**
+ * Soma o empurrão à velocidade do travessão sem deixar a amplitude passar de `BALANCE.maxSwing`.
+ * A amplitude sai da energia da mola, com desvio e velocidade juntos: sem amortecimento, o
+ * travessão com desvio x e velocidade v chega a √(x² + v²/k), e o amortecimento só a diminui.
+ * Acima do teto (no balanço da entrada, que parte do desenho inclinado, a ~23° do nível), o
+ * empurrão não aumenta a velocidade, e o teto não corta a que o travessão já tem: zerá-la
+ * pararia a balança no meio do movimento. Contra o movimento, o empurrão ainda freia.
+ */
+export function pushBalance(state: BalanceState, impulse: number, level: number): BalanceState {
+  const offset = state.angle - level;
+  const limit = Math.sqrt(BALANCE.beamStiffness * Math.max(0, BALANCE.maxSwing ** 2 - offset ** 2));
+  const cap = Math.max(limit, Math.abs(state.angleVelocity));
+  const angleVelocity = Math.min(cap, Math.max(-cap, state.angleVelocity + impulse));
+  return { ...state, angleVelocity };
 }
 
 /**

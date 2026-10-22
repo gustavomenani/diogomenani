@@ -30,15 +30,41 @@ function afterDigit(text: string, count: number): number {
 }
 
 /**
+ * '00' antes do país: o prefixo internacional da Europa e do Brasil, e o jeito como muita gente que
+ * mora fora escreve o próprio número. Nenhum DDD começa com 0.
+ */
+const DIAL_PREFIX = /^(\s*)00\s*(?=[1-9])/;
+
+/**
+ * Troca o prefixo 00 pelo +, e o número segue o caminho do +. Sem isso, os zeros saíam como zeros
+ * à esquerda do DDD e o número de fora virava um número brasileiro falso: 00351 912 345 678 ficava
+ * (35) 19123-4567. O cursor desconta os caracteres que saíram; dentro do 00, vai para depois do +.
+ */
+function dialPrefixToPlus(text: string, caret: number): { text: string; caret: number } {
+  const match = DIAL_PREFIX.exec(text);
+  if (!match) return { text, caret };
+  const [prefix, indent = ''] = match;
+  const plus = indent.length + 1;
+  return {
+    text: `${indent}+${text.slice(prefix.length)}`,
+    caret: caret >= prefix.length ? caret - prefix.length + plus : Math.min(caret, plus),
+  };
+}
+
+/**
  * Aplica a máscara ao que foi digitado ou colado e reposiciona o cursor: editar no meio do
  * número não o joga para o fim. Dígitos de largura total (teclados asiáticos) viram comuns; o +55
- * e os zeros à esquerda do DDD saem; com o + de outro país, o número fica como foi digitado.
- * `inputType` é o do evento de input: 'insertText' é a digitação de um caractere; colar e o
- * preenchimento automático chegam com outro.
+ * e os zeros à esquerda do DDD saem; com o + (ou o 00) de outro país, o número fica como foi
+ * digitado. `inputType` é o do evento de input: 'insertText' é a digitação de um caractere; colar e
+ * o preenchimento automático chegam com outro.
  */
 export function maskPhone(value: string, caret: number, inputType?: string): MaskedPhone {
-  const typed = value.normalize('NFKC');
-  const typedCaret = value.slice(0, caret).normalize('NFKC').length;
+  const normalized = value.normalize('NFKC');
+  const normalizedCaret = value.slice(0, caret).normalize('NFKC').length;
+  // O 0 e o 00 sozinhos ficam: podem ser o começo do prefixo internacional, e a digitação nunca
+  // chegaria a ele se o zero sumisse a cada tecla.
+  if (/^\s*00?\s*$/.test(normalized)) return { value: normalized, caret: normalizedCaret };
+  const { text: typed, caret: typedCaret } = dialPrefixToPlus(normalized, normalizedCaret);
   const allDigits = typed.replace(/\D/g, '');
   const international = typed.trimStart().startsWith('+');
   // Outro país, ou o próprio +55 ainda sendo digitado: nada a formatar por enquanto.

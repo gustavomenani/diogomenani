@@ -26,7 +26,7 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
       <svg class="footer-themis" viewBox={themis.viewBox} aria-hidden="true" focusable="false">
         <use href={`#${THEMIS_SHAPE_ID}`}></use>
       </svg>
-      {/* O monograma reaproveita o <symbol> que o header desenha. */}
+      {/* O header mostra o logo em arquivo: é aqui que o desenho do monograma entra na página. */}
       <Monogram class="footer-mark" data-reveal />
       <span class="footer-rule" aria-hidden="true" data-reveal="draw"></span>
       {/* A assinatura vem de arquivo (src/pages/wordmark-[part].svg.ts): fica fora do HTML. */}
@@ -72,7 +72,6 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
           <li>
             <a href={contact.email.href}>{contact.email.label}</a>
           </li>
-          <li>{contact.address}</li>
         </ul>
       </div>
       <div class="footer-col">
@@ -93,9 +92,10 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
       <p>
         © {year} Diogo Menani. {contact.oab}.
       </p>
+      {/* Espaço inseparável depois do "nº": sem ele, o "nº" ficava no fim da linha. */}
       <p class="footer-legal">
         Conteúdo de caráter informativo, em conformidade com o Código de Ética e Disciplina da OAB e
-        o Provimento nº 205/2021 do CFOAB.
+        o Provimento nº&nbsp;205/2021 do CFOAB.
       </p>
       <div class="footer-links">
         <a class="footer-link" href={privacyPath}>
@@ -196,7 +196,7 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
     gap: 10px;
   }
 
-  /* Um e-mail ou endereço longo quebra em qualquer ponto em vez de sair da tela. */
+  /* Um e-mail longo quebra em qualquer ponto em vez de sair da tela. */
   .footer-col li,
   .footer-col p {
     font-size: var(--fs-md);
@@ -205,8 +205,13 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
     overflow-wrap: anywhere;
   }
 
+  /*
+   * Fora da linha de base: com o ícone na frente, o inline-flex alinharia pela borda de baixo do
+   * SVG, e as linhas de Redes ficariam 4 px mais altas que as das colunas ao lado.
+   */
   .footer-col a {
     display: inline-flex;
+    vertical-align: top;
     align-items: center;
     gap: 10px;
     opacity: 0.88;

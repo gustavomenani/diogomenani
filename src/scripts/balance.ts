@@ -2,6 +2,7 @@ import {
   clampDt,
   isSettled,
   levelAngle,
+  pushBalance,
   settleTolerance,
   stepBalance,
   type BalanceState,
@@ -11,7 +12,10 @@ import type { MotionMode } from './motion-mode';
 
 /** A balança começa a se equilibrar logo depois da entrada da Têmis. */
 const SWING_DELAY_MS = 950;
-/** Empurrão (graus/s) dado na balança a cada tema escolhido no seletor. */
+/**
+ * Empurrão (graus/s) dado na balança a cada tema escolhido no seletor. Passa inteiro a partir do
+ * repouso; somado a outros, para no teto de `BALANCE.maxSwing` (pushBalance).
+ */
 export const TOPIC_IMPULSE = 24;
 
 export interface Balance {
@@ -88,7 +92,7 @@ export function initBalance(root: HTMLElement, getMode: () => MotionMode): Balan
 
   const swing = (impulse = 0) => {
     if (getMode() === 'reduced') return;
-    state = { ...state, angleVelocity: state.angleVelocity + impulse };
+    state = pushBalance(state, impulse, level);
     if (!frame) {
       // Mede a cada balanço, porque o tamanho da figura muda com a janela. Escondida, ela não
       // tem escala na tela e vale a do desenho (1 px por unidade): o raio fica em ~81 px.

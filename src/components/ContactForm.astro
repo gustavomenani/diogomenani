@@ -4,6 +4,7 @@ import Field from './Field.astro';
 import Icon from './Icon.astro';
 import { areas } from '../data/content';
 import { privacyPath } from '../data/site';
+import { NEW_TAB_NOTE } from '../lib/links';
 import { messages, waLink } from '../lib/whatsapp';
 ---
 
@@ -11,8 +12,12 @@ import { messages, waLink } from '../lib/whatsapp';
   O formulário depende de JavaScript por design: o script valida e monta a mensagem.
   Obrigatórios com aria-required, não required: o required liga a validação nativa, e o
   leitor de tela anunciaria o campo como inválido antes de qualquer envio.
+  method="dialog", e não post: fora de um <dialog>, o envio nativo não sai do navegador. Se o
+  módulo da página ainda não chegou, não carregou ou o script do formulário falhou, nome,
+  telefone e relato não vão para o servidor (como promete o aviso de privacidade) e o texto
+  fica nos campos. O evento submit continua chegando ao script.
 */}
-<form class="contact-form" method="post" data-contact-form data-reveal novalidate>
+<form class="contact-form" method="dialog" data-contact-form data-reveal novalidate>
   <h3 class="form-title">Prefere escrever?</h3>
   <p class="form-sub">Preencha os campos e a mensagem chega pronta no WhatsApp.</p>
   <div class="fields">
@@ -22,7 +27,7 @@ import { messages, waLink } from '../lib/whatsapp';
         name="nome"
         type="text"
         autocomplete="name"
-        placeholder="Como posso chamar você?"
+        placeholder="Como podemos chamar você?"
         aria-required="true"
       />
     </Field>
@@ -61,6 +66,10 @@ import { messages, waLink } from '../lib/whatsapp';
       </div>
     </Field>
     <Field id="f-msg" label="Mensagem" error="Escreva uma mensagem curta sobre o seu caso.">
+      {/*
+        O limite deixa curto o link do wa.me, que leva o texto codificado, e a mensagem legível na
+        conversa. O navegador corta em silêncio o texto colado além dele: o script avisa no status.
+      */}
       <textarea
         id="f-msg"
         name="mensagem"
@@ -93,14 +102,19 @@ import { messages, waLink } from '../lib/whatsapp';
         Para continuar, confirme o uso dos dados.
       </p>
     </div>
+    {/*
+      O envio abre o WhatsApp em outra aba (window.open): o leitor de tela ouve o mesmo aviso dos
+      links que abrem outra aba (ExternalLink.astro).
+    */}
     <button class="btn btn-royal btn-block" type="submit">
       <Icon name="whatsapp" />
       <span class="btn-label">Enviar pelo WhatsApp</span>
+      <span class="sr-only">{` ${NEW_TAB_NOTE}`}</span>
     </button>
     <p class="form-status" role="status" aria-live="polite" data-form-status></p>
-    {/* O envio troca o destino pela mensagem montada; sem ela, vale a de agendamento. */}
-    <ExternalLink class="form-fallback" href={waLink(messages.default)} data-form-fallback>
-      Se o WhatsApp não abriu, toque aqui para enviar a mensagem.
+    {/* O envio troca o destino pela mensagem montada; sem ela, vale a mensagem padrão. */}
+    <ExternalLink class="link form-fallback" href={waLink(messages.default)} data-form-fallback>
+      Se o WhatsApp não abriu, use este link para enviar a mensagem.
     </ExternalLink>
   </div>
 </form>
@@ -123,10 +137,12 @@ import { messages, waLink } from '../lib/whatsapp';
     color: var(--royal);
   }
 
+  /* pretty: sem "WhatsApp." sozinho na última linha (a 1024 e a 1080 px), como na .lede. */
   .form-sub {
     margin-top: 8px;
     font-size: var(--fs-md);
     color: var(--ink-soft);
+    text-wrap: pretty;
   }
 
   .fields {
@@ -143,21 +159,40 @@ import { messages, waLink } from '../lib/whatsapp';
     color: var(--royal);
   }
 
+  /*
+   * Vazio, o status sai do fluxo da grade: a reserva dele somava o gap da .fields e deixava o pé do
+   * cartão com quase o dobro do respiro do topo. Absoluto, e não display: none, ele continua na
+   * árvore de acessibilidade, e o aria-live segue anunciando. O aviso só chega depois de um envio
+   * ou de digitar, então o cartão crescer não conta como CLS (o link de reserva já faz o mesmo no
+   * envio certo).
+   */
+  .form-status:empty {
+    position: absolute;
+    margin: 0;
+  }
+
   .form-status.is-error {
     color: var(--danger);
   }
 
+  /* A cor, o sublinhado e o hover vêm do .link (buttons.css), como nos outros links de texto. */
   .form-fallback {
     display: none;
     justify-self: start;
     font-size: var(--fs-sm);
-    font-weight: 600;
-    color: var(--royal-bright);
-    text-decoration: underline;
-    text-underline-offset: 0.24em;
   }
 
   .form-fallback.is-shown {
     display: inline-block;
+  }
+
+  /*
+   * Abaixo de 360 px, menos respiro dos lados: o botão de envio cabe numa linha (buttons.css), e o
+   * placeholder do Nome, inteiro no campo, com o respiro menor dos campos (forms.css).
+   */
+  @media (width <= 359px) {
+    .contact-form {
+      padding-inline: 16px;
+    }
   }
 </style>

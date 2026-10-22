@@ -16,8 +16,9 @@ import { messages, waLink } from '../lib/whatsapp';
 
 <style>
   /*
-   * Botão flutuante (só abaixo de 1080px): aparece depois do hero e some perto do contato. Fica no
-   * HTML do rodapé, mas fixo na tela.
+   * Botão flutuante (só abaixo de 1080px): aparece depois do hero, ou assim que o botão principal
+   * do hero passa por baixo do header, e some perto do contato e do rodapé (isFabVisible, em
+   * src/scripts/scroll-math.ts). Fica no HTML do rodapé, mas fixo na tela.
    */
   .fab {
     position: fixed;
@@ -65,13 +66,31 @@ import { messages, waLink } from '../lib/whatsapp';
       visibility 0s;
   }
 
+  /*
+   * Encolhe ao apertar, como .btn e .chip: no celular, onde o botão existe, não há hover que
+   * confirme o toque. Depois do .is-visible, para vencer o transform: none dele.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .fab.is-visible:active {
+      transform: scale(0.96);
+    }
+  }
+
+  /*
+   * Com o menu aberto, some esmaecendo. Sem a transição própria valeria a de .is-visible
+   * (visibility sem atraso), e o botão, que fica acima da cortina, sumiria de estalo antes de ela
+   * chegar até ele.
+   */
   :global(.page.is-menu-open) .fab {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    transition:
+      opacity 0.3s ease,
+      visibility 0s linear 0.3s;
   }
 
-  /* No desktop (DESKTOP_QUERY em src/scripts/menu.ts) o header já mostra o botão de agendar. */
+  /* No desktop (DESKTOP_QUERY em src/scripts/menu.ts) o header já mostra o botão do WhatsApp. */
   @media (width >= 1080px) {
     .fab {
       display: none;
@@ -112,10 +131,25 @@ import { messages, waLink } from '../lib/whatsapp';
     }
   }
 
+  /*
+   * Sem deslize, o atraso de 0,8 s do visibility (que espera o transform da regra base) só deixava
+   * o botão invisível e ainda focável por quase 1 s depois de sumir. Aqui o visibility acompanha o
+   * fim do esmaecimento. A regra do menu aberto, mais específica, mantém a transição própria dela.
+   */
   @media (prefers-reduced-motion: reduce) {
     .fab {
-      transition-duration: 0.2s !important;
       transform: none !important;
+      transition:
+        opacity 0.2s ease,
+        background-color 0.2s,
+        visibility 0s linear 0.2s;
+    }
+
+    .fab.is-visible {
+      transition:
+        opacity 0.2s ease,
+        background-color 0.2s,
+        visibility 0s;
     }
   }
 

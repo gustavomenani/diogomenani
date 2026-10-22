@@ -16,8 +16,7 @@ const SUMMARY = 'Como o site de Diogo Menani trata os dados de quem entra em con
  * abrem em outra aba; o e-mail abre o programa de e-mail.
  */
 const LINKS = [
-  // O número não quebra no hífen.
-  { text: whatsapp.display, href: waLink(), external: true, nowrap: true },
+  { text: whatsapp.display, href: waLink(), external: true },
   { text: contact.email.label, href: contact.email.href, external: false },
   {
     text: 'política de privacidade do WhatsApp',
@@ -31,8 +30,13 @@ const LINKS = [
   },
 ] as const;
 
-/** Termo que não quebra no hífen: "e-" no fim de uma linha e "mail" no começo da outra. */
-const NOWRAP = 'e-mail';
+/**
+ * Termos que não quebram: "e-mail" no hífen ("e-" no fim de uma linha e "mail" no começo da outra),
+ * a inscrição na OAB entre a sigla e o número, o número do WhatsApp no hífen e a referência da LGPD
+ * ("Lei" no fim de uma linha e "nº 13.709/2018" na outra, a 360 e a 390 px). Link ou não, o pedaço
+ * fica sem quebra: é o único lugar para dizer isso.
+ */
+const NOWRAP: readonly string[] = ['e-mail', contact.oab, whatsapp.display, 'Lei nº 13.709/2018'];
 
 // Um link cuja frase saiu do texto sumiria em silêncio: o build para.
 const fullText = privacySections.flatMap((section) => section.paragraphs.flat()).join('\n');
@@ -43,12 +47,12 @@ for (const link of LINKS) {
 }
 
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-/** As frases dos links e o termo sem quebra; o grupo faz o split devolver o que achou. */
+/** As frases dos links e os termos sem quebra; o grupo faz o split devolver o que achou. */
 const TERMS = new RegExp(
-  `(${[...LINKS.map(({ text }) => text), NOWRAP].map(escapeRegExp).join('|')})`,
+  `(${[...LINKS.map(({ text }) => text), ...NOWRAP].map(escapeRegExp).join('|')})`,
 );
 
-/** O texto em pedaços: texto corrido, links e o termo sem quebra. */
+/** O texto em pedaços: texto corrido, links e os termos sem quebra. */
 function pieces(text: string) {
   return text
     .split(TERMS)
@@ -56,7 +60,7 @@ function pieces(text: string) {
     .map((piece) => ({
       text: piece,
       link: LINKS.find((item) => item.text === piece),
-      nowrap: piece === NOWRAP,
+      nowrap: NOWRAP.includes(piece),
     }));
 }
 ---
@@ -68,6 +72,30 @@ function pieces(text: string) {
   interactive={false}
 >
   <SimpleHeader />
+  {/*
+    O formulário abre o aviso em outra aba, para não perder o que foi digitado, e o "Voltar ao
+    site" e o logo dessa aba levavam a uma home nova, com os campos vazios (no celular, sem as abas
+    à vista, parecia que o relato tinha sumido). Quando a aba nasceu de um link do site (uma entrada só no
+    histórico, o caso em que o navegador deixa o script fechá-la, e o referrer do próprio site), o
+    clique fecha a aba e devolve a pessoa à que ficou aberta, com o formulário preenchido. Se o
+    navegador recusar, leva ao formulário nesta mesma aba. Fora desse caso, ou com uma tecla que
+    abre o link noutra aba, vale o href. É inline, e não um módulo, porque o Astro embutiria um
+    módulo tão pequeno de qualquer jeito: mexer neste script exige trocar o hash dele na CSP
+    (vercel.json e public/_headers).
+  */}
+  <script is:inline>
+    (() => {
+      document.querySelectorAll('[data-back-to-site]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          if (history.length !== 1 || !document.referrer.startsWith(`${location.origin}/`)) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          window.close();
+          if (!window.closed) location.assign(link.getAttribute('data-back-to-site') || '/');
+        });
+      });
+    })();
+  </script>
   <main id={sectionIds.main} class="privacy">
     <div class="wrap privacy-inner">
       <h1 class="h2">Aviso de privacidade</h1>
@@ -80,31 +108,21 @@ function pieces(text: string) {
           {section.paragraphs.map((block) => {
             const rich = (text: string) =>
               pieces(text).map(({ text: piece, link, nowrap }) => {
-                if (link && 'nowrap' in link) {
-                  // No span, que é deste template: o estilo escopado não chega ao <a> do componente.
-                  return (
-                    <span class="nowrap">
-                      <ExternalLink class="link" href={link.href}>
-                        {piece}
-                      </ExternalLink>
-                    </span>
-                  );
-                }
-                if (link?.external) {
-                  return (
+                // O pedaço numa função, e não num valor: o ESLint vê o JSX do Astro sem tipo.
+                const node = () =>
+                  link?.external ? (
                     <ExternalLink class="link" href={link.href}>
                       {piece}
                     </ExternalLink>
-                  );
-                }
-                if (link) {
-                  return (
+                  ) : link ? (
                     <a class="link" href={link.href}>
                       {piece}
                     </a>
+                  ) : (
+                    piece
                   );
-                }
-                return nowrap ? <span class="nowrap">{piece}</span> : piece;
+                // No span, que é deste template: o estilo escopado não chega ao <a> do componente.
+                return nowrap ? <span class="nowrap">{node()}</span> : node();
               });
             if (typeof block !== 'string') {
               return (
@@ -141,12 +159,14 @@ function pieces(text: string) {
     margin-top: clamp(36px, 2vw + 24px, 52px);
   }
 
+  /* balance, como no .h2: a 320 px, sem "usados" sozinho em "Para que os dados são usados". */
   .privacy-section h2 {
     font-family: var(--serif);
     font-weight: 500;
     font-size: clamp(24px, 0.6vw + 20px, 30px);
     line-height: 1.2;
     color: var(--royal);
+    text-wrap: balance;
   }
 
   .privacy-section p,

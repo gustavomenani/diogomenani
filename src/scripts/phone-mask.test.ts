@@ -114,8 +114,9 @@ describe('maskPhone', () => {
   });
 
   test('mais de um zero à esquerda do DDD também sai', () => {
+    // Separados por espaço, os zeros não são o prefixo internacional 00.
     // mata: /^0*/ virando /^0?/ em maskPhone
-    expect(atEnd('0018 99701-7249')).toBe('(18) 99701-7249');
+    expect(atEnd('0 018 99701-7249')).toBe('(18) 99701-7249');
   });
 
   test('com +55, o zero antes do DDD também sai', () => {
@@ -132,6 +133,38 @@ describe('maskPhone', () => {
   test('número com + e código de outro país fica como foi digitado', () => {
     expect(maskPhone('+351 912 345 678', 9)).toEqual({ value: '+351 912 345 678', caret: 9 });
     expect(atEnd('+1 (555) 123-4567')).toBe('+1 (555) 123-4567');
+  });
+
+  test('com o prefixo internacional 00, o número de outro país fica com o + no lugar dele', () => {
+    // mata: o 00 lido como zeros à esquerda do DDD ("(35) 19123-4567", um número brasileiro falso)
+    const paste = (value: string) => maskPhone(value, value.length, 'insertFromPaste').value;
+    expect(paste('00351 912 345 678')).toBe('+351 912 345 678');
+    expect(paste('001 305 555 0123')).toBe('+1 305 555 0123');
+    expect(paste('00 33 6 12 34 56 78')).toBe('+33 6 12 34 56 78');
+    expect(atEnd('0049 30 123456')).toBe('+49 30 123456');
+  });
+
+  test('com 00 e o 55, o número ganha a máscara nacional', () => {
+    expect(maskPhone('0055 18 99701-7249', 18, 'insertFromPaste')).toEqual({
+      value: '(18) 99701-7249',
+      caret: 15,
+    });
+    expect(atEnd('00 55 (018) 99701-7249')).toBe('(18) 99701-7249');
+  });
+
+  test('a troca do 00 pelo + desconta o zero a mais do cursor', () => {
+    // Cursor logo depois de "912": no valor novo, no mesmo lugar, um caractere antes.
+    expect(maskPhone('00351 912 345 678', 9)).toEqual({ value: '+351 912 345 678', caret: 8 });
+    // Cursor entre os dois zeros: logo depois do +.
+    expect(maskPhone('00351 912 345 678', 1)).toEqual({ value: '+351 912 345 678', caret: 1 });
+  });
+
+  test('digitando, o 0 e o 00 ficam como estão, e o país seguinte troca o 00 pelo +', () => {
+    expect(maskPhone('0', 1, 'insertText')).toEqual({ value: '0', caret: 1 });
+    expect(maskPhone('00', 2, 'insertText')).toEqual({ value: '00', caret: 2 });
+    expect(maskPhone('003', 3, 'insertText')).toEqual({ value: '+3', caret: 2 });
+    // Com um dígito depois do 0 que não é outro 0, o zero sai como antes (zero do DDD).
+    expect(maskPhone('01', 2, 'insertText')).toEqual({ value: '1', caret: 1 });
   });
 
   test('o + e o 55 ainda sendo digitados ficam como estão', () => {

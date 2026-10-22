@@ -3,31 +3,30 @@ import { buildContactMessage, messages, waLink } from './whatsapp';
 
 describe('waLink', () => {
   test('sem texto aponta para a conversa do escritório', () => {
-    expect(waLink()).toBe('https://wa.me/5518997017249');
+    expect(waLink()).toBe('https://wa.me/5518997017246');
   });
 
   test('um caractere inválido (metade de um emoji) vira � em vez de travar o link', () => {
-    expect(waLink('Oi \uD83D')).toBe('https://wa.me/5518997017249?text=Oi%20%EF%BF%BD');
+    expect(waLink('Oi \uD83D')).toBe('https://wa.me/5518997017246?text=Oi%20%EF%BF%BD');
   });
 
   test('com texto envia a mensagem codificada para a URL', () => {
     expect(waLink(messages.default)).toBe(
-      'https://wa.me/5518997017249?text=Ol%C3%A1%2C%20Dr.%20Diogo!%20Gostaria%20de%20agendar%20uma%20conversa.',
+      'https://wa.me/5518997017246?text=Ol%C3%A1!%20Gostaria%20de%20falar%20com%20um%20especialista.',
     );
   });
 });
 
 describe('messages', () => {
-  test('o tema escolhido entra na mensagem de agendamento', () => {
-    expect(messages.topic('Direito do Consumidor')).toBe(
-      'Olá, Dr. Diogo! Gostaria de agendar uma conversa sobre Direito do Consumidor.',
+  test('o assunto da área entra na mensagem para o especialista', () => {
+    expect(messages.topic('vistos americanos')).toBe(
+      'Olá! Gostaria de falar com um especialista sobre vistos americanos.',
     );
   });
 
-  test('a área escolhida entra na mensagem de conversa', () => {
-    expect(messages.area('Direito Imobiliário')).toBe(
-      'Olá, Dr. Diogo! Gostaria de conversar sobre Direito Imobiliário.',
-    );
+  test('nenhuma mensagem fala em agendar consulta', () => {
+    const texts = [messages.default, messages.topic('consumo'), messages.unlistedCase];
+    for (const text of texts) expect(text).not.toMatch(/agend|consulta/i);
   });
 });
 
@@ -38,11 +37,11 @@ describe('buildContactMessage', () => {
         name: ' Ana ',
         phone: '(18) 99701-7249',
         email: ' ana@x.com ',
-        subject: 'Direito do Trabalho',
+        subject: 'Previdenciário',
         message: ' Fui demitida. ',
       }),
     ).toBe(
-      'Olá, Dr. Diogo! Meu nome é Ana. Assunto: Direito do Trabalho. Fui demitida. (WhatsApp: (18) 99701-7249, e-mail: ana@x.com)',
+      'Olá! Meu nome é Ana. Assunto: Previdenciário. Fui demitida. (WhatsApp: (18) 99701-7249, e-mail: ana@x.com)',
     );
   });
 
@@ -55,7 +54,7 @@ describe('buildContactMessage', () => {
         subject: '',
         message: 'Fui demitida.',
       }),
-    ).toBe('Olá, Dr. Diogo! Meu nome é Ana. Fui demitida. (WhatsApp: (18) 99701-7249)');
+    ).toBe('Olá! Meu nome é Ana. Fui demitida. (WhatsApp: (18) 99701-7249)');
   });
 
   test('nome terminado em ponto não ganha ponto duplicado', () => {
@@ -67,7 +66,21 @@ describe('buildContactMessage', () => {
         subject: '',
         message: 'Oi.',
       }),
-    ).toBe('Olá, Dr. Diogo! Meu nome é Ana S. Oi. (WhatsApp: (18) 99701-7249)');
+    ).toBe('Olá! Meu nome é Ana S. Oi. (WhatsApp: (18) 99701-7249)');
+  });
+
+  test('relato sem pontuação final ganha ponto antes dos dados de contato', () => {
+    expect(
+      buildContactMessage({
+        name: 'Ana Souza',
+        phone: '(18) 99701-7249',
+        email: '',
+        subject: 'Vistos Americanos',
+        message: 'Tive meu visto negado',
+      }),
+    ).toBe(
+      'Olá! Meu nome é Ana Souza. Assunto: Vistos Americanos. Tive meu visto negado. (WhatsApp: (18) 99701-7249)',
+    );
   });
 
   test('e-mail só com espaços conta como não informado', () => {
@@ -79,6 +92,6 @@ describe('buildContactMessage', () => {
         subject: '',
         message: 'Oi.',
       }),
-    ).toBe('Olá, Dr. Diogo! Meu nome é Ana. Oi. (WhatsApp: (18) 99701-7249)');
+    ).toBe('Olá! Meu nome é Ana. Oi. (WhatsApp: (18) 99701-7249)');
   });
 });

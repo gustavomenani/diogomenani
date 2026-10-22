@@ -8,13 +8,15 @@ import { messages, waLink } from '../lib/whatsapp';
 type Props = Omit<HTMLAttributes<'a'>, 'href' | 'target' | 'rel'> & {
   /** Texto do botão. */
   label: string;
+  /** Chamada principal: caixa alta espaçada e seta depois do texto. */
+  cta?: boolean;
 };
 
-const { label, class: className, ...attrs } = Astro.props;
+const { label, cta = false, class: className, ...attrs } = Astro.props;
 ---
 
 <ExternalLink
-  class={['btn btn-light', className].filter(Boolean).join(' ')}
+  class={['btn btn-light', cta && 'btn-caps', className].filter(Boolean).join(' ')}
   href={waLink(messages.default)}
   {...attrs}
 >
@@ -22,4 +24,10 @@ const { label, class: className, ...attrs } = Astro.props;
   <span class="btn-label" data-wa-label>
     {label}
   </span>
+  {/*
+    Na chamada, o destino só aparece no ícone, que o leitor de tela não lê: ele ouve "pelo
+    WhatsApp" depois do rótulo. Fica fora do [data-wa-label], que o seletor de tema reescreve.
+  */}
+  {cta && <span class="sr-only">{' pelo WhatsApp'}</span>}
+  {cta && <Icon name="arrow-right" />}
 </ExternalLink>

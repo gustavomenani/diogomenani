@@ -94,11 +94,13 @@ const words = manifesto.split(' ');
     color: #fff;
   }
 
+  /* pretty: sem uma palavra sozinha na última linha, como nos textos de abertura (.lede). */
   .commitment dd {
     max-width: 30em;
     font-size: var(--fs-base);
     line-height: 1.6;
     color: var(--sky);
+    text-wrap: pretty;
   }
 
   @media print {

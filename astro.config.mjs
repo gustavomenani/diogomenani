@@ -35,6 +35,12 @@ export default defineConfig({
   // Todo o CSS vai embutido no HTML: é uma página só, e a primeira pintura não espera um segundo
   // arquivo (em 4G lento, ~0,7 s antes).
   build: { inlineStylesheets: 'always' },
+  // Navegadores-alvo do CSS (os da spec da rodada 2: Chrome, Edge e Firefox recentes e
+  // Safari/iOS 16.4+). O Astro fixa o build em 'esnext', e sem isto o Lightning CSS minifica sem
+  // alvo nenhum: junta text-decoration com a espessura e a cor num atalho que o Safari só aceita
+  // a partir do 26.2 (antes disso a declaração inteira cai e o link perde o sublinhado) e tira os
+  // prefixos -webkit-mask-*.
+  vite: { build: { cssTarget: ['chrome111', 'edge111', 'firefox114', 'safari16.4', 'ios16.4'] } },
   // Fontes servidas pelo próprio site. O Astro gera os @font-face, os preloads do <Font> e
   // fallbacks com métricas ajustadas (o texto não pula quando a fonte chega).
   fonts: [
@@ -50,11 +56,6 @@ export default defineConfig({
             src: ['./src/assets/fonts/baskervville-normal-latin.woff2'],
             weight: '400 700',
             style: 'normal',
-          },
-          {
-            src: ['./src/assets/fonts/baskervville-italic-latin.woff2'],
-            weight: '400 700',
-            style: 'italic',
           },
         ],
       },
