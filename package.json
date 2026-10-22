@@ -28,7 +28,7 @@
     "verify": "npm run format:check && npm run lint && npm run check && npm run test && npm run build && npm run validate:html && playwright test"
   },
   "dependencies": {
-    "astro": "^7.4.0"
+    "astro": "^7.4.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
