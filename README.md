@@ -128,7 +128,7 @@ Fora da camada global:
 
 ### Configuração (raiz)
 
-- `astro.config.mjs`: escopo dos estilos (`:where`), CSS embutido no HTML (`inlineStylesheets`), navegadores-alvo do CSS (`vite.build.cssTarget`: Chrome e Edge 111+, Firefox 114+ e Safari/iOS 16.4+), fontes e o domínio do site (`site`, comentado até o domínio existir).
+- `astro.config.mjs`: escopo dos estilos (`:where`), CSS embutido no HTML (`inlineStylesheets`), navegadores-alvo do CSS (`vite.build.cssTarget`: Chrome e Edge 111+, Firefox 114+ e Safari/iOS 16.4+), fontes e o domínio do site (`site`: `https://menaniadvocacia.com.br`, sem www).
 - `tsconfig.json`: TypeScript `strictest`.
 - `.node-version`: a linha do Node.js (24) do CI e do build na Netlify e na Cloudflare Pages.
 - `eslint.config.js`, `stylelint.config.mjs`, `.prettierrc.json` e `.prettierignore`, `.htmlvalidate.mjs`, `.editorconfig` e `.gitattributes`: regras de código, CSS, formatação, HTML e editor.
@@ -156,9 +156,11 @@ O que aparece em vários pontos da página (telefone, OAB, nomes das áreas) vem
 
 Os testes conferem o conteúdo atual (textos, mensagens e número do WhatsApp, perguntas, áreas). Ao mudar conteúdo, ajuste os testes que citam o texto antigo (em `tests/` e nos `*.test.ts`) e gere de novo os snapshots da regressão visual.
 
-## O que ainda falta preencher
+## Domínio e e-mail
 
-Nenhum texto da página está mais entre `[colchetes]` (o `npm run check:launch` reprova se algum voltar). Falta o domínio: quando o site tiver um, informe-o em `site` no `astro.config.mjs`: sem ele, não saem o canonical, a imagem de prévia dos links (`og:image`), o `url` e o `WebSite` do JSON-LD nem as páginas do sitemap.
+O domínio é `menaniadvocacia.com.br`, já em `site` no `astro.config.mjs`: o canonical, a imagem de prévia dos links, o JSON-LD, o `sitemap.xml` e o `robots.txt` saem com ele. Na Vercel (Settings → Domains), adicione `menaniadvocacia.com.br` e `www.menaniadvocacia.com.br`, com o www redirecionando para o endereço sem www, e cadastre no DNS do Registro.br os registros que a Vercel mostrar.
+
+Quando a caixa de e-mail do domínio existir, troque o `diogomenani@gmail.com` em `src/data/contact.ts` (contato, rodapé e aviso de privacidade saem dali), o `EMAIL` de `tests/e2e/fixtures.ts` e a data em `src/data/privacy.ts`.
 
 ## Qualidade e testes
 
@@ -182,8 +184,8 @@ Em outro sistema operacional, o mesmo comando cria os snapshots daquele sistema.
 
 ## Antes de publicar
 
-1. Preencha os dados do Diogo no lugar dos placeholders `[…]`.
-2. Defina `site` em `astro.config.mjs` (o domínio final). Sem ele, não há canonical, `og:image` absoluta nem `Sitemap:`.
+1. Confira que nenhum texto voltou a ter placeholders `[…]`.
+2. Confira o `site` em `astro.config.mjs` (o domínio final). Sem ele, não há canonical, `og:image` absoluta nem `Sitemap:`.
 3. Gere as imagens de novo se a marca mudar: `npm run generate:images`.
 4. Rode `npm run check:launch` até sair "Pronto para publicar.". Ele gera o build e lista, com o arquivo, cada placeholder, o domínio de exemplo `seudominio`, o LinkedIn genérico e a falta de canonical na home.
 5. Revise o aviso de privacidade com o Diogo: o texto é um ponto de partida, não parecer jurídico.
