@@ -1,6 +1,6 @@
 # Diogo Menani — Advocacia & Assessoria Jurídica
 
-Landing page do escritório: uma página estática em [Astro](https://astro.build) 7 com TypeScript. Todo contato vai para o WhatsApp: os botões abrem a conversa com uma mensagem pronta, e o formulário monta a mensagem com o que a pessoa escreveu.
+Landing page do escritório: uma página estática em [Astro](https://astro.build) 7 com TypeScript. Todo contato vai para o WhatsApp (os botões abrem a conversa com uma mensagem pronta) ou para o e-mail; o site não tem formulário.
 
 ## Requisitos
 
@@ -60,41 +60,39 @@ docs/superpowers/          especificações e planos de cada rodada (os já exec
 
 Seções, na ordem da página. O CSS de cada uma fica no `<style>` do próprio arquivo.
 
-- `Header.astro`: barra fixa com o logo (versão branca sobre o hero, azul com o header claro), a navegação e o botão "Fale com um especialista"; no celular, o menu de tela cheia.
+- `Header.astro`: barra fixa com o logo (versão branca sobre o hero, azul com o header claro), a navegação e o botão "Fale conosco"; no celular, o menu de tela cheia.
 - `Hero.astro`: abertura (`#inicio`), com o título, o seletor de tema que troca o botão principal e a Têmis.
 - `Sobre.astro`: apresentação curta (`#sobre`): o logo e a inscrição na OAB.
 - `Areas.astro`: "Onde podemos ajudar", as áreas de atuação (`#atuacao`), cada uma com o próprio link do WhatsApp.
 - `Processo.astro`: "Como trabalhamos" e as etapas numa linha do tempo vertical (`#como-trabalhamos`).
 - `Manifesto.astro`: a frase de compromisso e a lista de compromissos.
 - `Duvidas.astro`: perguntas frequentes (`#duvidas`).
-- `Contato.astro`: canais de contato e o formulário que monta a mensagem (`#contato`).
+- `Contato.astro`: "Fale conosco", o botão do WhatsApp e os canais de contato (`#contato`).
 - `Footer.astro`: rodapé, com marca, navegação, contatos, redes sociais, OAB, aviso legal, o link do aviso de privacidade e o botão flutuante (fixo na tela, mas dentro do landmark do rodapé).
 - `WhatsAppFab.astro`: botão flutuante do WhatsApp, no celular e no tablet; mora no `Footer.astro`.
 
 Peças usadas pelas seções:
 
 - `WhatsAppButton.astro`: botão padrão do WhatsApp (rótulo por prop; sempre com a mensagem padrão). Com `cta`, vira a chamada principal: caixa alta e seta no fim.
-- `Field.astro`: campo do formulário com rótulo, controle e mensagem de erro.
 - `Icon.astro`: ícone pelo nome.
 - `Logo.astro`: o logo, como `<img>` do arquivo gerado por `pages/logo-[file].svg.ts`; `tone="blue"` sobre fundo claro, `tone="white"` sobre o azul, e `compact` para alturas pequenas (o header), com a linha de baixo legível.
 - `Monogram.astro`: o monograma DM em SVG inline (rodapé).
 - `Themis.astro`: a Têmis em SVG, com a balança articulada.
 - `MobileMenu.astro`: o menu de tela cheia do celular; mora no `Header.astro`, com o próprio CSS.
 - `TopicPicker.astro`: o seletor de tema (chips) do `Hero.astro`.
-- `ContactForm.astro`: o formulário que monta a mensagem do WhatsApp; mora no `Contato.astro`.
 - `ExternalLink.astro`: link que abre em outra aba; avisa o leitor de tela com "(abre em outra aba)", que na tela não aparece. Todo link para fora do site usa ele.
-- `SimpleHeader.astro` e `SimpleFooter.astro`: cabeçalho e rodapé das páginas secundárias (aviso de privacidade e 404), que não têm o script da página. No aviso, aberto em outra aba pelo formulário, um script inline (`privacidade.astro`) faz o "Voltar ao site" e o logo fecharem essa aba e devolverem a pessoa ao formulário preenchido.
+- `SimpleHeader.astro` e `SimpleFooter.astro`: cabeçalho e rodapé das páginas secundárias (aviso de privacidade e 404), que não têm o script da página.
 
 ### `src/data/` e `src/lib/`
 
-- `data/contact.ts`: WhatsApp, OAB, e-mail, horário, modo de atendimento e redes sociais.
-- `data/content.ts`: áreas de atuação (com o assunto da mensagem e o tema do seletor), etapas, manifesto, compromissos e perguntas frequentes.
+- `data/contact.ts`: WhatsApp, OAB, e-mail, horário, modo de atendimento e redes sociais do escritório (Instagram, TikTok e Facebook), que também vão no `sameAs` do JSON-LD.
+- `data/content.ts`: áreas de atuação, em ordem alfabética (com o assunto da mensagem e o tema do seletor), etapas, manifesto, compromissos e perguntas frequentes.
 - `data/navigation.ts`: ids das seções (as âncoras) e os links do menu e do rodapé.
 - `data/site.ts`: título, descrição e prévia dos links (Open Graph), as páginas do sitemap e o endereço do aviso de privacidade (`privacyPath`).
 - `data/privacy.ts`: o texto do aviso de privacidade e a data da última revisão.
 - `data/icons.ts`: desenhos dos ícones (Tabler Icons; licença em `data/MIT-tabler-icons.txt`).
 - `data/brand.ts`: vetores do monograma, do nome e da Têmis, e as medidas e cores das duas versões do logo. Não precisa mexer.
-- `lib/whatsapp.ts`: mensagens prontas, links `wa.me` e a mensagem que o formulário monta.
+- `lib/whatsapp.ts`: mensagens prontas e links `wa.me`.
 - `lib/links.ts`: atributos de link que abre em outra aba e o aviso para o leitor de tela.
 - `lib/structured-data.ts`: os dados estruturados que os buscadores leem (JSON-LD `Organization`, com o Diogo como `member`, e, com `site`, o `WebSite`, que dá o nome acima do resultado) e o texto deles para o `<script>`.
 - `lib/page-meta.ts`: os endereços absolutos do `<head>` (canonical, `og:url` e a imagem de prévia), que só saem com `site`.
@@ -106,14 +104,13 @@ Peças usadas pelas seções:
 
 `main.ts` liga tudo na raiz `[data-page]`, cada recurso isolado: um erro num deles não derruba os outros. Cada recurso tem o seu módulo. A lógica pura fica em arquivos próprios, com testes unitários ao lado (`*.test.ts`).
 
-- `motion-mode.ts`: modo de movimento (`on`, `static` ou `reduced`) e a troca de modo sem animar. Um script inline no `Base.astro` grava `on` ou `reduced` em `data-motion` antes da primeira pintura (e, se o módulo da página não rodar, volta a `pending`, em que tudo aparece, e marca `data-fallback`: o header rola com a página e o botão Menu e o formulário somem, como sem JavaScript); o `main.ts` confirma o modo, acompanha a preferência do sistema e marca `data-ready` (que liga os estados escondidos das revelações) e `data-entered` (o fim das animações de entrada).
+- `motion-mode.ts`: modo de movimento (`on`, `static` ou `reduced`) e a troca de modo sem animar. Um script inline no `Base.astro` grava `on` ou `reduced` em `data-motion` antes da primeira pintura (e, se o módulo da página não rodar, volta a `pending`, em que tudo aparece, e marca `data-fallback`: o header rola com a página e o botão Menu some, como sem JavaScript); o `main.ts` confirma o modo, acompanha a preferência do sistema e marca `data-ready` (que liga os estados escondidos das revelações) e `data-entered` (o fim das animações de entrada).
 - `reveal.ts`: revela o conteúdo ao entrar na tela.
 - `focus-visibility.ts`: o foco do teclado mostra na hora o bloco ainda escondido e não fica sob o header nem sob o botão flutuante.
 - `balance.ts` e `balance-physics.ts`: a balança da Têmis e a física dela.
 - `topic-picker.ts`: seletor de tema do hero.
 - `menu.ts`: menu mobile, que abre pelo botão e fecha com Esc (de qualquer ponto), num link, ao voltar no histórico ou ao virar desktop, com o foco no lugar certo.
 - `faq.ts`: abre e fecha as respostas.
-- `contact-form.ts`, `contact-validation.ts` e `phone-mask.ts`: formulário de contato, regras de validação e máscara do telefone.
 - `scroll-effects.ts` e `scroll-math.ts`: o que depende da rolagem (header, barra de progresso, parallax, link ativo, etapas, manifesto e botão flutuante).
 
 ### `src/styles/`
@@ -123,7 +120,6 @@ Peças usadas pelas seções:
 - `tokens.css`: cores, famílias tipográficas, escala de tamanhos de texto (`--fs-*`, a única que o Stylelint aceita em `font-size`, além de `clamp()` nos títulos), camadas (`--z-*`), curvas de animação e medidas.
 - `base.css`: reset, raiz `.page`, foco, contêiner, seções, títulos, brilho radial (`.glow`), skip link e `.sr-only`.
 - `buttons.css`: botões e links de ação.
-- `forms.css`: campos do formulário.
 - `motion.css`: sistema de revelação e keyframes.
 
 Fora da camada global:
@@ -137,7 +133,7 @@ Fora da camada global:
 - `.node-version`: a linha do Node.js (24) do CI e do build na Netlify e na Cloudflare Pages.
 - `eslint.config.js`, `stylelint.config.mjs`, `.prettierrc.json` e `.prettierignore`, `.htmlvalidate.mjs`, `.editorconfig` e `.gitattributes`: regras de código, CSS, formatação, HTML e editor.
 - `vitest.config.ts` e `playwright.config.ts`: testes unitários e testes no navegador.
-- `vercel.json` (e `public/_headers`, para Netlify e Cloudflare Pages, com os mesmos valores): cabeçalhos de segurança em todas as respostas (CSP, HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options` e COOP), cache longo dos assets com hash no nome (`/_astro/`), um dia de cache para o logo e a assinatura (`/logo-*` e `/wordmark-*`, de nome fixo) e, na Vercel, o redirecionamento para a URL com barra (`trailingSlash`), a que o build gera (`privacidade/index.html`). A CSP libera os scripts inline do `Base.astro` e do `privacidade.astro` pelo hash: mexer num deles exige trocar o `sha256-…` nos dois arquivos, e o teste "hash do script inline está na CSP" reprova se esquecer. O HSTS fica sem `includeSubDomains` e sem `preload` até o domínio final existir e todos os subdomínios dele terem HTTPS.
+- `vercel.json` (e `public/_headers`, para Netlify e Cloudflare Pages, com os mesmos valores): cabeçalhos de segurança em todas as respostas (CSP, HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options` e COOP), cache longo dos assets com hash no nome (`/_astro/`), um dia de cache para o logo e a assinatura (`/logo-*` e `/wordmark-*`, de nome fixo) e, na Vercel, o redirecionamento para a URL com barra (`trailingSlash`), a que o build gera (`privacidade/index.html`). A CSP libera o script inline do `Base.astro` pelo hash: mexer nele exige trocar o `sha256-…` nos dois arquivos, e o teste "hash do script inline está na CSP" reprova se esquecer. O HSTS fica sem `includeSubDomains` e sem `preload` até o domínio final existir e todos os subdomínios dele terem HTTPS.
 
 ## Onde editar cada conteúdo
 
@@ -170,13 +166,15 @@ Quando o site tiver domínio, informe-o em `site` no `astro.config.mjs`: sem ele
 
 ## Qualidade e testes
 
-`npm run verify` roda, nesta ordem: formatação (Prettier), lint (ESLint e Stylelint), tipos (`astro check`), testes unitários (Vitest), build, validação do HTML gerado (html-validate) e testes no navegador (Playwright). Os testes no navegador rodam em três motores, Chromium, Firefox e WebKit (o do Safari), e cobrem links e mensagens do WhatsApp, seletor de tema, menu, FAQ, formulário, header, botão flutuante, animações, resiliência do script, fontes, privacidade (nenhuma requisição a terceiros) e acessibilidade: axe (WCAG 2.2 AA) mais o que ele não confere, como o que o leitor de tela anuncia nos campos, o foco no alto contraste e a cor da seleção.
+`npm run verify` roda, nesta ordem: formatação (Prettier), lint (ESLint e Stylelint), tipos (`astro check`), testes unitários (Vitest), build, validação do HTML gerado (html-validate) e testes no navegador (Playwright). Os testes no navegador rodam em três motores, Chromium, Firefox e WebKit (o do Safari), e cobrem links e mensagens do WhatsApp, seletor de tema, menu, FAQ, header, botão flutuante, animações, resiliência do script, fontes, privacidade (nenhuma requisição a terceiros) e acessibilidade: axe (WCAG 2.2 AA) mais o que ele não confere, como o nome acessível do título e dos links que abrem outra aba, o foco sob o header e a cor da seleção.
 
-O CI (`.github/workflows/ci.yml`) roda o `npm run verify` em cada push na `main`, em cada pull request e sob demanda (Actions → CI → Run workflow). Antes, o `npm audit --omit=dev --audit-level=high` reprova uma dependência de produção com vulnerabilidade alta (as de desenvolvimento ficam de fora: não chegam ao `dist/`). Quando um teste falha, os traces ficam guardados como artefato `test-results`. O Dependabot (`.github/dependabot.yml`) abre toda semana pull requests com as atualizações do npm e das actions.
+O CI (`.github/workflows/ci.yml`) roda o `npm run verify` em cada push na `main`, em cada pull request e sob demanda (Actions → CI → Run workflow). Ele roda dentro da imagem oficial do Playwright, que já traz os navegadores e as bibliotecas do sistema, na mesma versão do `package-lock.json`. Antes, o `npm audit --omit=dev --audit-level=high` reprova uma dependência de produção com vulnerabilidade alta (as de desenvolvimento ficam de fora: não chegam ao `dist/`). Quando um teste falha, os traces ficam guardados como artefato `test-results`. O Dependabot (`.github/dependabot.yml`) abre toda semana um pull request com as versões menores e as correções do npm, um para cada versão maior e os das actions; os majors do TypeScript e do `@types/node` ficam de fora (o motivo está no arquivo).
+
+Os testes que amostram quadro a quadro a troca do rótulo do botão principal (`tests/e2e/topic.spec.ts`) pulam, com o motivo no relatório, quando a fase que precisavam ver coube inteira entre dois quadros: no WebKit do CI, que roda sem GPU, um quadro chega a levar 160 ms durante a troca. Com quadros curtos, como na máquina de desenvolvimento, eles julgam normalmente.
 
 ### Regressão visual
 
-`tests/visual/sections.spec.ts` captura cada seção em 390×844 e 1440×900 com movimento reduzido, além do header rolado, do menu aberto, do botão flutuante, dos erros do formulário e do FAQ com a segunda pergunta aberta. O ano do copyright fica coberto, para a captura não falhar na virada do ano. Os snapshots ficam em `tests/visual/__screenshots__/win32/` e foram gerados no Windows: como cada sistema renderiza as fontes de um jeito, a suíte roda só localmente (no `test:e2e`, no `verify` e no `test:visual`), fica fora do CI e, fora do Windows, roda sem comparar imagens.
+`tests/visual/sections.spec.ts` captura cada seção em 390×844 e 1440×900 com movimento reduzido, além do header rolado, do menu aberto, do botão flutuante e do FAQ com a segunda pergunta aberta. O ano do copyright fica coberto, para a captura não falhar na virada do ano. Os snapshots ficam em `tests/visual/__screenshots__/win32/` e foram gerados no Windows: como cada sistema renderiza as fontes de um jeito, a suíte roda só localmente (no `test:e2e`, no `verify` e no `test:visual`), fica fora do CI e, fora do Windows, roda sem comparar imagens.
 
 Depois de uma mudança visual intencional, gere os snapshots de novo e revise as imagens antes do commit:
 

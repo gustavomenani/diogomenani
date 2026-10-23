@@ -4,10 +4,10 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 /** Nome de cada área e o assunto que ela põe na mensagem. */
 const AREAS = [
-  ['Família Internacional', 'família internacional'],
-  ['Vistos Americanos', 'vistos americanos'],
-  ['Previdenciário', 'direito previdenciário'],
   ['Consumidor', 'direito do consumidor'],
+  ['Família Internacional', 'família internacional'],
+  ['Previdenciário', 'direito previdenciário'],
+  ['Vistos Americanos', 'vistos americanos'],
 ] as const;
 
 test.beforeEach(async ({ page }) => {
@@ -22,7 +22,7 @@ test('CTAs padrão abrem o WhatsApp com a mensagem para o especialista', async (
   expect(expected).toBe(wa(MESSAGES.default));
   const ctas = [
     page.locator('[data-header]').getByRole('link', {
-      name: 'Fale com um especialista pelo WhatsApp (abre em outra aba)',
+      name: 'Fale conosco pelo WhatsApp (abre em outra aba)',
       exact: true,
     }),
     page.locator('[data-wa-cta]'),
@@ -33,7 +33,7 @@ test('CTAs padrão abrem o WhatsApp com a mensagem para o especialista', async (
     // O menu do celular fica fechado (inert, e display:none a 1440px): includeHidden acha o link,
     // e expectExternalLink só lê atributos.
     page.locator('[data-menu]').getByRole('link', {
-      name: 'Fale com um especialista pelo WhatsApp (abre em outra aba)',
+      name: 'Fale conosco pelo WhatsApp (abre em outra aba)',
       exact: true,
       includeHidden: true,
     }),
@@ -54,7 +54,7 @@ test('os links que abrem o WhatsApp dizem isso no nome, e não só no ícone', a
   // mata: o "pelo WhatsApp" (sr-only) fora do header, da chamada do hero ou das áreas
   const cta = page.locator('[data-wa-cta]');
   await expect(cta).toHaveAccessibleName(
-    'Fale com um especialista pelo WhatsApp (abre em outra aba)',
+    'Fale com o Dr. Diogo Menani pelo WhatsApp (abre em outra aba)',
   );
   for (const [name] of AREAS) {
     await expect(

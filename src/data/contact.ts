@@ -20,10 +20,10 @@ export const contact = {
   oab: `OAB/${oabState} ${oabNumber}`,
   email: { label: 'diogomenani@gmail.com', href: 'mailto:diogomenani@gmail.com' },
   hours: '[Segunda a sexta, das 9h às 18h]',
-  serviceMode: 'Atendimento presencial e online',
+  serviceMode: 'Atendimento somente online',
 } as const;
 
-export type SocialIcon = Extract<IconName, 'instagram'>;
+export type SocialIcon = Extract<IconName, 'instagram' | 'tiktok' | 'facebook'>;
 
 export interface SocialLink {
   label: string;
@@ -31,26 +31,26 @@ export interface SocialLink {
   icon: SocialIcon;
   /** Nome acessível quando o texto visível sozinho não diz de quem é o perfil. */
   ariaLabel?: string;
-  /**
-   * De quem é o perfil. No JSON-LD, o do escritório vai no sameAs do escritório e o pessoal no da
-   * pessoa: o sameAs diz que o endereço é a mesma entidade, e o perfil do Diogo não é o escritório.
-   */
-  owner: 'office' | 'person';
 }
 
+/** Perfis do escritório: todos entram no sameAs do JSON-LD. */
 export const social: readonly SocialLink[] = [
   {
-    label: '@menani.advocacia',
+    label: 'Instagram',
     href: 'https://www.instagram.com/menani.advocacia/',
     icon: 'instagram',
     ariaLabel: 'Instagram do escritório: @menani.advocacia',
-    owner: 'office',
   },
   {
-    label: '@diogomenani',
-    href: 'https://www.instagram.com/diogomenani/',
-    icon: 'instagram',
-    ariaLabel: 'Instagram de Diogo Menani: @diogomenani',
-    owner: 'person',
+    label: 'TikTok',
+    href: 'https://www.tiktok.com/@menani.advocacia',
+    icon: 'tiktok',
+    ariaLabel: 'TikTok do escritório: @menani.advocacia',
+  },
+  {
+    label: 'Facebook',
+    href: 'https://www.facebook.com/menani.advocacia/',
+    icon: 'facebook',
+    ariaLabel: 'Facebook do escritório: menani.advocacia',
   },
 ];

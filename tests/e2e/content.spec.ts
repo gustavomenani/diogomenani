@@ -10,20 +10,32 @@ test.describe('página inicial', () => {
     await page.goto('/');
   });
 
-  test('o hero tem o texto de apoio aprovado', async ({ page }) => {
+  test('o hero tem o título e o texto de apoio aprovados', async ({ page }) => {
+    await expect(page.locator('#inicio .hero-title .sr-only')).toHaveText(
+      'Defesa dos seus direitos com ética e responsabilidade',
+    );
     await expect(page.locator('#inicio .hero-lead')).toHaveText(
       'Assessoria jurídica completa para Vistos Americanos, família internacional, previdenciário e consumidor.',
     );
   });
 
-  test('o Sobre traz o nome, a profissão e a inscrição na OAB', async ({ page }) => {
-    await expect(page.locator('#sobre h2')).toHaveText(
-      'Diogo Menani — Advogado no Brasil inscrito na OAB/SP 546.508',
+  test('as chamadas têm os rótulos aprovados', async ({ page }) => {
+    await expect(page.locator('[data-header] .btn-header')).toHaveText(/^Fale conosco/);
+    await expect(page.locator('[data-wa-cta] [data-wa-label]')).toHaveText(
+      'Fale com o Dr. Diogo Menani',
     );
   });
 
-  test('a inscrição na OAB aparece no hero e no rodapé', async ({ page }) => {
-    await expect(page.locator('#inicio .facts')).toContainText(OAB);
+  test('o Sobre traz o nome, a profissão e a inscrição na OAB', async ({ page }) => {
+    await expect(page.locator('#sobre h2')).toHaveText(
+      'Diogo Menani - Advogado no Brasil inscrito na OAB/SP 546.508',
+    );
+  });
+
+  test('a inscrição na OAB e o atendimento só online aparecem no hero; a OAB, também no rodapé', async ({
+    page,
+  }) => {
+    await expect(page.locator('#inicio .facts li')).toHaveText([OAB, 'Atendimento somente online']);
     await expect(page.getByRole('contentinfo')).toContainText(OAB);
   });
 
@@ -43,25 +55,41 @@ test.describe('página inicial', () => {
     ]);
   });
 
-  test('as áreas têm os números 01–04, os nomes e as descrições aprovados', async ({ page }) => {
+  test('as áreas, em ordem alfabética, têm os números 01–04, os nomes e as descrições aprovados', async ({
+    page,
+  }) => {
     const section = page.locator('#atuacao');
     await expect(section.locator('.area-num')).toHaveText(['01', '02', '03', '04']);
     await expect(section.locator('.area-name')).toHaveText([
-      'Família Internacional',
-      'Vistos Americanos',
-      'Previdenciário',
       'Consumidor',
+      'Família Internacional',
+      'Previdenciário',
+      'Vistos Americanos',
     ]);
     await expect(section.locator('.area-desc')).toHaveText([
-      'Questões de família que envolvem mais de um país.',
-      'B1/B2 (turismo), F1 (estudantes) e J1 (programas de intercâmbio específicos).',
-      'Salário-maternidade, BPC/LOAS, auxílio-acidente, aposentadorias e demais áreas previdenciárias.',
       'Direito do passageiro aéreo.',
+      'Questões de família que envolvem mais de um país.',
+      'Salário-maternidade, BPC/LOAS, auxílio-acidente, aposentadorias e demais áreas previdenciárias.',
+      'B1/B2 (turismo), F1 (estudantes) e J1 (programas de intercâmbio específicos).',
     ]);
   });
 
-  test('o contato tem o título aprovado', async ({ page }) => {
-    await expect(page.locator('#contact-title')).toHaveText('Fale com um especialista');
+  test('o contato tem o título aprovado e não tem formulário', async ({ page }) => {
+    await expect(page.locator('#contact-title')).toHaveText('Fale conosco');
+    await expect(page.locator('#contato form')).toHaveCount(0);
+  });
+
+  test('as redes são só as do escritório: Instagram, TikTok e Facebook', async ({ page }) => {
+    const footer = page.getByRole('contentinfo');
+    const hrefs = await footer
+      .locator('a[href*="instagram.com"], a[href*="tiktok.com"], a[href*="facebook.com"]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+    expect(hrefs).toEqual([
+      'https://www.instagram.com/menani.advocacia/',
+      'https://www.tiktok.com/@menani.advocacia',
+      'https://www.facebook.com/menani.advocacia/',
+    ]);
+    await expect(page.locator('a[href*="diogomenani" i]:not([href^="mailto:"])')).toHaveCount(0);
   });
 });
 

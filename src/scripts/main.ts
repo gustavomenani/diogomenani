@@ -1,5 +1,4 @@
 import { initBalance, TOPIC_IMPULSE } from './balance';
-import { initContactForm } from './contact-form';
 import { initFaq } from './faq';
 import { initFocusVisibility } from './focus-visibility';
 import { initMenu } from './menu';
@@ -42,7 +41,7 @@ function tryInit(name: string, init: () => void): boolean {
 
 /**
  * Liga o comportamento da página: revelações, foco do teclado, balança da Têmis, seletor de tema,
- * menu mobile, FAQ, formulário de contato e efeitos de rolagem. `root` é a raiz [data-page].
+ * menu mobile, FAQ e efeitos de rolagem. `root` é a raiz [data-page].
  * O que a inicialização muda (modo, blocos já na tela, header, etapas) aparece direto no estado
  * certo, sem animar. No fim, ainda sem transições, a raiz ganha data-ready: ele liga os estados
  * escondidos das revelações (motion.css), e o que ficou fora da tela some sem animar. Sem ele, o
@@ -105,9 +104,6 @@ function startPage(root: HTMLElement): void {
     });
   });
   const menu = attempt('menu', () => initMenu(root), { isOpen: () => false });
-  tryInit('formulário', () => {
-    initContactForm(root);
-  });
   const scroll = attempt(
     'efeitos de rolagem',
     () => initScrollEffects(root, { getMode, isMenuOpen: () => menu.isOpen() }),

@@ -34,7 +34,7 @@ test('Esc fecha e devolve o foco ao botão', async ({ page }) => {
 
 test('Tab no último item volta ao botão', async ({ page }) => {
   await openMenu(page);
-  await menuLink(page, 'Fale com um especialista pelo WhatsApp (abre em outra aba)').focus();
+  await menuLink(page, 'Fale conosco pelo WhatsApp (abre em outra aba)').focus();
   await page.keyboard.press('Tab');
   await expect(toggle(page)).toBeFocused();
 });
@@ -226,7 +226,7 @@ test.describe('tela muito baixa (zoom alto, celular deitado)', () => {
       // mata: o scroll-padding-top do menu (ele rola por baixo do header fixo, opaco quando aberto)
       await page.setViewportSize(viewport);
       await openMenu(page);
-      await menuLink(page, 'Fale com um especialista pelo WhatsApp (abre em outra aba)').focus();
+      await menuLink(page, 'Fale conosco pelo WhatsApp (abre em outra aba)').focus();
       const headerBottom = await page
         .locator('[data-header]')
         .evaluate((header) => header.getBoundingClientRect().bottom);

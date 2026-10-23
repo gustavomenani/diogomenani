@@ -1,4 +1,12 @@
-import { test, expect, jumpTo, jumpToSection, type Locator, type Page } from './fixtures';
+import {
+  test,
+  expect,
+  jumpTo,
+  jumpToSection,
+  pageReady,
+  type Locator,
+  type Page,
+} from './fixtures';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -203,6 +211,8 @@ test.describe('com movimento reduzido', () => {
 
   test('o header também recolhe ao descer, sem deslizar', async ({ page }) => {
     await page.goto('/');
+    // Com o data-instant ainda na raiz, transition: none passaria sem testar nada.
+    await pageReady(page);
     await expect(header(page)).not.toHaveCSS('transition-property', /transform/);
     await jumpTo(page, 1400);
     await expect(header(page)).toHaveClass(/is-tucked/);

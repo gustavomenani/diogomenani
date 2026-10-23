@@ -15,13 +15,13 @@ import { sectionIds } from '../data/navigation';
     <span class="about-rule" aria-hidden="true" data-reveal="draw"></span>
     {/*
       Cada metade quebra inteira: o nome com a profissão numa linha, a inscrição na outra. Abaixo
-      de 390 px, a do nome se divide equilibrada ("Diogo Menani —" / "Advogado no Brasil"). O
+      de 390 px, a do nome se divide equilibrada ("Diogo Menani -" / "Advogado no Brasil"). O
       espaço inseparável de "no Brasil" impede "Brasil" sozinho também sem o text-wrap: balance,
       que só chegou no Safari 17.5 e no Chrome 114 (o piso é Safari/iOS 16.4 e Chrome 111). Spans
       que não quebram travariam a frase inteira, que precisa quebrar com o texto ampliado.
     */}
     <h2 class="about-text" id="sobre-title" data-reveal>
-      <span class="about-line">Diogo Menani — Advogado no&nbsp;Brasil</span>{' '}
+      <span class="about-line">Diogo Menani - Advogado no&nbsp;Brasil</span>{' '}
       <span class="about-line">inscrito na {contact.oab}</span>
     </h2>
   </div>

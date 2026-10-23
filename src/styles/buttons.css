@@ -64,20 +64,6 @@
   background: var(--btn-light-fill);
 }
 
-.btn-royal {
-  background: var(--royal);
-  color: #fff;
-  box-shadow: 0 18px 36px -18px rgb(var(--royal-rgb) / 75%);
-}
-
-.btn-royal::before {
-  background: var(--royal-bright);
-}
-
-.btn-block {
-  width: 100%;
-}
-
 /* Chamada principal em caixa alta espaçada, com a seta no fim. */
 .btn-caps {
   font-size: var(--fs-sm);
@@ -91,11 +77,11 @@
 }
 
 /*
- * Em telas estreitas, a chamada em caixa alta não cabe numa linha da pílula (a 360 px pedia 334 px
- * de 320): o respiro e o espaçamento das letras afrouxam antes de o rótulo quebrar. Abaixo de
- * 360 px, os outros botões também ("Conversar pelo WhatsApp", "Enviar pelo WhatsApp").
+ * Em telas estreitas, a chamada em caixa alta não cabe numa linha da pílula ("Fale com o Dr. Diogo
+ * Menani" pedia 248 px de 232 a 390 px): o respiro e o espaçamento das letras afrouxam antes de o
+ * rótulo quebrar. Abaixo de 360 px, os outros botões também ("Conversar pelo WhatsApp").
  */
-@media (width <= 389px) {
+@media (width <= 429px) {
   .btn-caps {
     padding-inline: 20px;
     gap: 10px;
@@ -114,11 +100,6 @@
     font-size: var(--fs-xs);
     letter-spacing: 0.04em;
   }
-}
-
-.btn.is-loading {
-  pointer-events: none;
-  opacity: 0.85;
 }
 
 .link {

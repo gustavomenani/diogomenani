@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test as base, expect, type Locator, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 
 /** Link do WhatsApp do escritório, sem mensagem. */
 export const WA = 'https://wa.me/5518997017246';
@@ -20,12 +20,6 @@ export const MESSAGES = {
   topic: (subject: string) => `Olá! Gostaria de falar com um especialista sobre ${subject}.`,
   unlistedCase: 'Olá! Gostaria de saber se vocês podem me ajudar com um caso.',
 } as const;
-
-/**
- * Nome acessível do botão de envio do formulário: o envio abre o WhatsApp em outra aba, e o aviso
- * vem no fim, como nos links.
- */
-export const SUBMIT = 'Enviar pelo WhatsApp (abre em outra aba)';
 
 /** Espaçamento de texto do WCAG 1.4.12, como o aplicaria uma extensão do navegador. */
 export const TEXT_SPACING = `
@@ -61,6 +55,17 @@ export async function nextFrames(page: Page, count = 2): Promise<void> {
   await page.evaluate(async (frames) => {
     for (let i = 0; i < frames; i++) await new Promise(requestAnimationFrame);
   }, count);
+}
+
+/**
+ * Espera o início da página terminar: o módulo marcou data-ready e o quadro seguinte tirou o
+ * data-instant (motion-mode.ts). Até lá as transições estão desligadas de propósito, e quem lê o
+ * estilo calculado logo depois do goto vê `transition: none`. Numa máquina rápida, o goto já volta
+ * depois desse quadro; no WebKit do CI (Linux, sem GPU), o quadro chega bem depois.
+ */
+export async function pageReady(page: Page): Promise<void> {
+  await expect(page.locator('[data-page]')).toHaveAttribute('data-ready', '');
+  await expect(page.locator('[data-page][data-instant]')).toHaveCount(0);
 }
 
 /**
@@ -107,32 +112,5 @@ export async function expectExternalLink(link: Locator, href: string): Promise<v
   await expect(link).toHaveAttribute('rel', 'noopener');
 }
 
-interface Fixtures {
-  /** URLs passadas a `window.open`, que é trocado por um registro: nenhuma janela abre. */
-  openedUrls: () => Promise<string[]>;
-}
-
-/** Troca `window.open` por um registro das URLs pedidas. */
-function stubWindowOpen(): void {
-  const opened: string[] = [];
-  Object.defineProperty(window, '__openedUrls', { value: opened });
-  window.open = (url?: string | URL) => {
-    opened.push(String(url));
-    return null;
-  };
-}
-
-export const test = base.extend<Fixtures>({
-  openedUrls: async ({ page }, use) => {
-    // Vale para as próximas navegações e também para a página já aberta: fixtures pedidas só
-    // pelo corpo do teste são montadas depois do beforeEach, que pode já ter navegado.
-    await page.addInitScript(stubWindowOpen);
-    await page.evaluate(stubWindowOpen);
-    await use(() =>
-      page.evaluate(() => (window as unknown as { __openedUrls: string[] }).__openedUrls),
-    );
-  },
-});
-
-export { expect };
+export { test, expect };
 export type { Locator, Page };

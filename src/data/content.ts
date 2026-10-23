@@ -13,21 +13,21 @@ export interface PracticeArea {
   topic: { label: string; cta: string };
 }
 
-/** Áreas de atuação. Cada uma abre o WhatsApp com o assunto da área. */
+/** Áreas de atuação, em ordem alfabética. Cada uma abre o WhatsApp com o assunto da área. */
 export const areas = [
+  {
+    id: 'consumidor',
+    name: 'Consumidor',
+    description: 'Direito do passageiro aéreo.',
+    subject: 'direito do consumidor',
+    topic: { label: 'Consumidor', cta: 'Fale sobre consumo' },
+  },
   {
     id: 'familia-internacional',
     name: 'Família Internacional',
     description: 'Questões de família que envolvem mais de um país.',
     subject: 'família internacional',
     topic: { label: 'Família internacional', cta: 'Fale sobre família' },
-  },
-  {
-    id: 'vistos',
-    name: 'Vistos Americanos',
-    description: 'B1/B2 (turismo), F1 (estudantes) e J1 (programas de intercâmbio específicos).',
-    subject: 'vistos americanos',
-    topic: { label: 'Vistos americanos', cta: 'Fale sobre vistos' },
   },
   {
     id: 'previdenciario',
@@ -38,11 +38,11 @@ export const areas = [
     topic: { label: 'Previdenciário', cta: 'Fale sobre previdência' },
   },
   {
-    id: 'consumidor',
-    name: 'Consumidor',
-    description: 'Direito do passageiro aéreo.',
-    subject: 'direito do consumidor',
-    topic: { label: 'Consumidor', cta: 'Fale sobre consumo' },
+    id: 'vistos',
+    name: 'Vistos Americanos',
+    description: 'B1/B2 (turismo), F1 (estudantes) e J1 (programas de intercâmbio específicos).',
+    subject: 'vistos americanos',
+    topic: { label: 'Vistos americanos', cta: 'Fale sobre vistos' },
   },
 ] as const satisfies readonly PracticeArea[];
 
@@ -54,7 +54,7 @@ export interface Step {
 export const steps = [
   {
     title: 'Primeira conversa',
-    text: 'Você conta o que está acontecendo, no escritório ou por videochamada. Esclarecemos as primeiras dúvidas e indicamos os documentos necessários.',
+    text: 'Você conta o que está acontecendo por videochamada. Esclarecemos as primeiras dúvidas e indicamos os documentos necessários.',
   },
   {
     title: 'Análise do caso',
@@ -107,17 +107,17 @@ export const faq = [
   {
     question: 'Como funciona a primeira conversa?',
     answer:
-      'É o momento de entender a sua situação e esclarecer as primeiras dúvidas, no escritório ou por videochamada. Ao final, você sabe quais são os caminhos possíveis e quais documentos reunir.',
+      'É o momento de entender a sua situação e esclarecer as primeiras dúvidas, por videochamada. Ao final, você sabe quais são os caminhos possíveis e quais documentos reunir.',
   },
   {
     question: 'O atendimento pode ser totalmente online?',
     answer:
-      'Sim. Reuniões podem ser feitas por videochamada, documentos são enviados digitalmente e os processos eletrônicos permitem acompanhar cada etapa à distância.',
+      'Sim, o atendimento é somente online. As reuniões são por videochamada, os documentos são enviados digitalmente e os processos eletrônicos permitem acompanhar cada etapa à distância.',
   },
   {
     question: 'Quais documentos devo separar?',
     answer:
-      'Documento de identidade, comprovante de residência e tudo o que se relaciona ao caso: contratos, mensagens, notificações e comprovantes. Na dúvida, traga o que tiver; a triagem é feita junto com você.',
+      'Documento de identidade, comprovante de residência e tudo o que se relaciona ao caso: contratos, mensagens, notificações e comprovantes. Na dúvida, envie o que tiver; a triagem é feita junto com você.',
   },
   {
     question: 'Como são definidos os honorários?',

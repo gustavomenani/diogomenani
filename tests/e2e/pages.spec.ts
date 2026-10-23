@@ -6,7 +6,6 @@ import {
   expectExternalLink,
   EMAIL,
   OAB,
-  SUBMIT,
   WA,
   type Locator,
   type Page,
@@ -23,13 +22,9 @@ const PRIVACY_SECTIONS = [
   'Seus direitos',
 ] as const;
 
-/**
- * Os scripts inline de cada página, por um trecho do código: o aviso tem só o da volta ao site
- * (privacidade.astro), e a 404, nenhum.
- */
 const PAGES = [
-  { name: 'aviso de privacidade', path: '/privacidade/', inlineScripts: ['data-back-to-site'] },
-  { name: '404', path: '/nao-existe', inlineScripts: [] },
+  { name: 'aviso de privacidade', path: '/privacidade/' },
+  { name: '404', path: '/nao-existe' },
 ] as const;
 
 /** Erros de script e requisições a outras origens enquanto a página carrega. */
@@ -120,7 +115,7 @@ test.describe('aviso de privacidade', () => {
       }
       return found;
     });
-    expect(terms).toEqual(['nowrap', 'nowrap']);
+    expect(terms).toEqual(['nowrap', 'nowrap', 'nowrap', 'nowrap']);
   });
 
   test('a inscrição na OAB não quebra entre a sigla e o número', async ({ page }) => {
@@ -175,44 +170,7 @@ test.describe('aviso de privacidade', () => {
     { label: '"Voltar ao site"', name: 'Voltar ao site' },
     { label: 'o logo', name: 'Diogo Menani — Advocacia e Assessoria Jurídica' },
   ]) {
-    test(`aberto pelo formulário, ${label} fecha a aba e o que foi digitado continua lá`, async ({
-      page,
-    }) => {
-      // mata: o script da volta ao site (privacidade.astro) e o gancho dele nos dois links do
-      // SimpleHeader.astro: a aba do aviso ia para uma home nova, com os campos vazios, e o relato
-      // ficava na outra aba
-      await page.goto('/');
-      const fields = [
-        [page.getByLabel('Nome', { exact: true }), 'Ana Souza'],
-        [page.getByLabel('Mensagem', { exact: true }), 'Fui demitida sem receber as verbas.'],
-      ] as const;
-      for (const [field, value] of fields) await field.fill(value);
-      const opening = page.waitForEvent('popup');
-      await page
-        .getByRole('link', { name: 'aviso de privacidade (abre em outra aba)', exact: true })
-        .click();
-      const notice = await opening;
-      await notice.waitForLoadState();
-      expect(new URL(notice.url()).pathname).toBe('/privacidade/');
-      const closing = notice.waitForEvent('close');
-      // O Firefox fecha a aba antes de o clique terminar, e o Playwright acusa a página fechada.
-      await notice
-        .getByRole('banner')
-        .getByRole('link', { name, exact: true })
-        .click()
-        .catch((error: unknown) => {
-          if (!notice.isClosed()) throw error;
-        });
-      await closing;
-      expect(notice.isClosed()).toBe(true);
-      for (const [field, value] of fields) await expect(field).toHaveValue(value);
-    });
-
-    test(`aberto direto ou na mesma aba, ${label} é um link comum para o início`, async ({
-      page,
-    }) => {
-      // Sem o referrer do site (direto) ou com mais de uma entrada no histórico (pelo rodapé, na
-      // mesma aba), a aba não fecha: o link leva ao início.
+    test(`${label} leva ao início, também depois de voltar pelo rodapé`, async ({ page }) => {
       const pathname = () => new URL(page.url()).pathname;
       await page.goto('/privacidade/');
       const back = page.getByRole('banner').getByRole('link', { name, exact: true });
@@ -272,7 +230,7 @@ test.describe('404', () => {
   });
 });
 
-for (const { name, path, inlineScripts } of PAGES) {
+for (const { name, path } of PAGES) {
   test.describe(name, () => {
     test('sem erro de script, sem requisição a terceiros e sem o módulo da página', async ({
       page,
@@ -280,13 +238,9 @@ for (const { name, path, inlineScripts } of PAGES) {
       const { errors, thirdParty } = await load(page, path);
       expect(errors).toEqual([]);
       expect(thirdParty).toEqual([]);
-      // Além do JSON-LD, se houver, só o script da volta ao site, no aviso: nem o script inline de
-      // movimento nem o módulo da página. O código vem do textContent: o texto que o Playwright lê
-      // deixa o conteúdo do <script> de fora.
-      const scripts = page.locator('script:not([type="application/ld+json"])');
-      expect(await scripts.evaluateAll((nodes) => nodes.map((node) => node.textContent))).toEqual(
-        inlineScripts.map((code) => expect.stringContaining(code)),
-      );
+      // Além do JSON-LD, se houver, nenhum script: nem o inline de movimento nem o módulo da
+      // página.
+      await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(0);
       await expect(page.locator('script[src], script[type="module"]')).toHaveCount(0);
       await expect(page.locator('[data-page]')).toHaveAttribute('data-motion', 'pending');
       // O skip link tem destino.
@@ -332,14 +286,11 @@ for (const { name, path, inlineScripts } of PAGES) {
   });
 }
 
-test('enviar o formulário não grava cookie nem nada no navegador', async ({ page, openedUrls }) => {
+test('usar a página não grava cookie nem nada no navegador', async ({ page }) => {
   await page.goto('/');
-  await page.getByLabel('Nome', { exact: true }).fill('Ana Souza');
-  await page.getByLabel('WhatsApp', { exact: true }).fill('18997017249');
-  await page.getByLabel('Mensagem', { exact: true }).fill('Fui demitida sem receber as verbas.');
-  await page.getByRole('checkbox', { name: /Concordo com o uso dos meus dados/ }).check();
-  await page.getByRole('button', { name: SUBMIT, exact: true }).click();
-  await expect.poll(openedUrls).toHaveLength(1);
+  await page.locator('label[for="tema-consumidor"]').click();
+  await expect(page.locator('[data-wa-cta] [data-wa-label]')).toHaveText('Fale sobre consumo');
+  await page.getByRole('button', { name: 'O atendimento pode ser totalmente online?' }).click();
   expect(
     await page.evaluate(() => ({ cookie: document.cookie, storage: localStorage.length })),
   ).toEqual({ cookie: '', storage: 0 });

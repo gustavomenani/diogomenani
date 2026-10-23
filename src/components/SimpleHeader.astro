@@ -4,20 +4,11 @@
  * Header da home depende das seções, do menu e do script da página, que aqui não existem.
  */
 import Logo from './Logo.astro';
-import { anchor, sectionIds } from '../data/navigation';
-
-/**
- * O data-back-to-site, nos dois links do cabeçalho (a marca e a volta ao site), é o gancho do
- * script do aviso de privacidade (privacidade.astro) e o destino dele quando o navegador não deixa
- * fechar a aba: o formulário de contato. Os dois levam ao site, e pelos dois a aba aberta pelo
- * formulário fecha e devolve o que foi digitado. Na 404, sem o script, valem os href.
- */
-const backToSite = `/${anchor(sectionIds.contact)}`;
 ---
 
 <header class="simple-header is-royal">
   <div class="wrap simple-header-inner">
-    <a class="brand" href="/" data-back-to-site={backToSite}>
+    <a class="brand" href="/">
       <Logo
         class="brand-logo"
         tone="white"
@@ -25,7 +16,7 @@ const backToSite = `/${anchor(sectionIds.contact)}`;
         compact
       />
     </a>
-    <a class="link-light" href="/" data-back-to-site={backToSite}>
+    <a class="link-light" href="/">
       Voltar ao site
     </a>
   </div>

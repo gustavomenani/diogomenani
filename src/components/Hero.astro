@@ -5,8 +5,8 @@ import WhatsAppButton from './WhatsAppButton.astro';
 import { contact } from '../data/contact';
 import { anchor, sectionIds } from '../data/navigation';
 
-/** Título em duas linhas; cada palavra sobe sozinha na animação de entrada. */
-const TITLE_LINES = ['Clareza para entender.', 'Firmeza para defender.'];
+/** Título em três linhas; cada palavra sobe sozinha na animação de entrada. */
+const TITLE_LINES = ['Defesa dos seus', 'direitos com ética', 'e responsabilidade'];
 /** Palavras de cada linha com o índice global, que escalona a animação (ver --word no CSS). */
 const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((lines, line) => {
   const start = lines.flat().length;
@@ -48,7 +48,7 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
       </p>
       <TopicPicker />
       <div class="hero-actions">
-        <WhatsAppButton label="Fale com um especialista" cta data-wa-cta />
+        <WhatsAppButton label="Fale com o Dr. Diogo Menani" cta data-wa-cta />
         <a class="link-light" href={anchor(sectionIds.process)}>
           Como trabalhamos
         </a>
@@ -156,10 +156,14 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
     max-width: 760px;
   }
 
+  /*
+   * Abaixo de ~405 px, a fonte acompanha a tela: "e responsabilidade", a linha mais larga, tem
+   * ~7,76em e cabe inteira na coluna (100vw - 40 px), sem deixar o "e" sozinho numa linha.
+   */
   .hero-title {
     font-family: var(--serif);
     font-weight: 500;
-    font-size: clamp(46px, 4.3vw + 6px, 72px);
+    font-size: clamp(34px, 12.6vw - 5px, clamp(46px, 4.3vw + 6px, 72px));
     line-height: 1.02;
     letter-spacing: -0.02em;
     color: #fff;
@@ -290,19 +294,39 @@ const titleWords = TITLE_LINES.reduce<{ word: string; index: number }[][]>((line
   }
 
   /*
-   * Nestas faixas, o link "Como trabalhamos" cabe ao lado do botão com uns rótulos de tema e com
-   * outros não (o botão vai de 269 a 334 px, e o rótulo padrão é o mais largo): trocar o tema fazia
-   * o link pular de linha e o hero mudar 60 px de altura ou, a partir de 960 px, com o texto
-   * centralizado, o título descer 30 px, num quadro só. Empilhadas sempre (como quase toda a faixa
-   * já ficava com o rótulo padrão), as ações têm a mesma altura com qualquer rótulo. As faixas vão
-   * até onde o botão padrão e o link cabem lado a lado também com a barra de rolagem à mostra (a
-   * fina do base.css tem ~10 px; a clássica, nos navegadores sem scrollbar-width, 17 px), com uns
-   * pixels de folga.
+   * Nestas faixas, o link "Como trabalhamos" cabe ao lado do botão com os rótulos de tema e não
+   * com o padrão ("Fale com o Dr. Diogo Menani", o mais largo): trocar o tema fazia o link pular de
+   * linha e o hero mudar 60 px de altura ou, a partir de 960 px, com o texto centralizado, o título
+   * descer 30 px, num quadro só. Empilhadas sempre, as ações têm a mesma altura com qualquer
+   * rótulo. As faixas vão até onde o botão padrão e o link cabem lado a lado (593 e 1059 px sem
+   * barra de rolagem) também com a barra à mostra (a fina do base.css tem ~10 px; a clássica, nos
+   * navegadores sem scrollbar-width, 17 px), com uns pixels de folga.
    */
-  @media (480px <= width <= 583px), (960px <= width <= 1023px) {
+  @media (480px <= width <= 612px), (960px <= width <= 1078px) {
     .hero-actions {
       flex-direction: column;
       align-items: flex-start;
+    }
+  }
+
+  /*
+   * "Fale com o Dr. Diogo Menani" é a chamada mais longa do site: abaixo de 390 px, nem com o
+   * respiro menor (buttons.css) ela cabe numa linha ao lado dos dois ícones, e a letra diminui. Os
+   * ícones ficam: a seta também guarda a folga que, enquanto o botão cresce numa troca de tema,
+   * mantém o rótulo novo dentro da pílula (topic-picker.ts).
+   */
+  @media (width <= 389px) {
+    .hero-actions :global(.btn-caps) {
+      font-size: var(--fs-xs);
+    }
+  }
+
+  @media (width <= 359px) {
+    .hero-actions :global(.btn-caps) {
+      gap: 8px;
+      padding-inline: 14px;
+      font-size: var(--fs-2xs);
+      letter-spacing: 0.02em;
     }
   }
 

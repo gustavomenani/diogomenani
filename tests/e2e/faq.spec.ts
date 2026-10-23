@@ -10,7 +10,7 @@ const QUESTIONS = [
   'O que eu contar fica em sigilo?',
 ] as const;
 const FIRST_ANSWER = 'É o momento de entender a sua situação';
-const SECOND_ANSWER = 'Sim. Reuniões podem ser feitas por videochamada';
+const SECOND_ANSWER = 'Sim, o atendimento é somente online.';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');

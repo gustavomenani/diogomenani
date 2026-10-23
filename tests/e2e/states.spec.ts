@@ -4,6 +4,7 @@ import {
   jumpTo,
   jumpToSection,
   OAB,
+  pageReady,
   TEXT_SPACING,
   type Locator,
   type Page,
@@ -124,16 +125,6 @@ test.describe('alto contraste (forced-colors)', () => {
       expect(await styleOf(page.getByRole('banner').locator('img'), 'filter')).toBe(filter);
     });
 
-    test(`a seta do Assunto acompanha o texto do campo (tema ${theme})`, async ({ page }) => {
-      // mata: o royal declarado no SVG do chevron, que o alto contraste não recolore (1,4:1 sobre o
-      // preto do tema escuro): sem a seta, o Assunto parecia uma caixa de texto
-      await page.emulateMedia({ forcedColors: 'active', colorScheme });
-      const select = page.locator('#f-assunto');
-      const stroke = await styleOf(page.locator('.select svg path').first(), 'stroke');
-      expect(stroke).toBe(await styleOf(select, 'color'));
-      expect(stroke).not.toBe(await styleOf(select, 'background-color'));
-    });
-
     test(`o chip escolhido e focado pelo teclado tem anel de foco (tema ${theme})`, async ({
       page,
     }) => {
@@ -142,10 +133,10 @@ test.describe('alto contraste (forced-colors)', () => {
       await page.emulateMedia({ forcedColors: 'active', colorScheme });
       await page.locator('.chip-input').first().focus();
       await page.keyboard.press('ArrowRight');
-      const radio = page.locator('#tema-vistos');
+      const radio = page.locator('#tema-familia-internacional');
       await expect(radio).toBeChecked();
       await expect(radio).toBeFocused();
-      const chip = page.locator('label[for="tema-vistos"]');
+      const chip = page.locator('label[for="tema-familia-internacional"]');
       const canvas = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
       expect(await styleOf(chip, 'outline-style')).toBe('solid');
       expect(await styleOf(chip, 'outline-color')).not.toBe(canvas);
@@ -185,15 +176,13 @@ test.describe('movimento reduzido', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await pageReady(page);
   });
 
-  test('barras do menu, ± do FAQ, ✓ do aceite e altura do header mudam sem animar', async ({
-    page,
-  }) => {
+  test('barras do menu, ± do FAQ e altura do header mudam sem animar', async ({ page }) => {
     const instant = [
       [page.locator('[data-menu-toggle] .menu-icon'), '::before'],
       [page.locator('.faq-icon').first(), '::after'],
-      [page.locator('[data-contact-form] .check-box svg'), undefined],
       [page.locator('[data-header] .header-inner'), undefined],
       [page.locator('[data-wa-cta]'), '::before'],
       [page.locator('#atuacao li a').first(), '::before'],
@@ -263,7 +252,6 @@ test.describe('toque', () => {
       [page.locator('[data-wa-cta]'), 'transform', '::before'],
       [page.locator('label[for="tema-familia-internacional"]'), 'box-shadow', undefined],
       [page.locator('#atuacao li a').first(), 'transform', '::before'],
-      [page.getByLabel('Nome', { exact: true }), 'border-top-color', undefined],
       [page.locator('[data-footer] li a').first(), 'opacity', undefined],
     ] as const;
     for (const [element, property, pseudo] of samples) {
@@ -430,10 +418,10 @@ const withOrphan = (elements: string[][][]) =>
   elements.filter((lines) => lines.length > 1 && lines.at(-1)?.length === 1).map(show);
 
 test.describe('telas estreitas', () => {
-  for (const width of [320, 360, 375]) {
+  for (const width of [320, 360, 375, 390, 414]) {
     test(`a ${width} px, o rótulo de cada botão fica numa linha só`, async ({ page }) => {
-      // mata: o respiro menor das pílulas abaixo de 390 px (buttons.css) ou o do formulário abaixo
-      // de 360 px (ContactForm.astro); a chamada em caixa alta quebrava em duas linhas a 360 px
+      // mata: o respiro menor das pílulas abaixo de 430 px (buttons.css) ou a letra menor da
+      // chamada do hero abaixo de 390 px (Hero.astro); "Fale com o Dr. Diogo Menani" quebrava
       await page.setViewportSize({ width, height: 740 });
       for (const path of ['/', '/nao-existe']) {
         await page.goto(path);
@@ -442,43 +430,6 @@ test.describe('telas estreitas', () => {
       }
     });
   }
-
-  test('a 320 px, o placeholder do Nome cabe inteiro no campo', async ({ page }) => {
-    // mata: o respiro menor do formulário e dos campos abaixo de 360 px (ContactForm.astro e
-    // forms.css); com 20 px no cartão e 16 px no campo, "Como podemos chamar você?" era cortado
-    await page.setViewportSize({ width: 320, height: 740 });
-    await page.goto('/');
-    await page.evaluate(() => document.fonts.ready.then(() => undefined));
-    const { text, room } = await page.locator('#f-nome').evaluate((input) => {
-      if (!(input instanceof HTMLInputElement)) throw new Error('o Nome não é um <input>');
-      const style = getComputedStyle(input);
-      // O placeholder medido num span com a mesma fonte do campo.
-      const probe = document.createElement('span');
-      probe.textContent = input.placeholder;
-      probe.style.position = 'absolute';
-      probe.style.whiteSpace = 'pre';
-      for (const property of [
-        'fontFamily',
-        'fontSize',
-        'fontWeight',
-        'fontStyle',
-        'letterSpacing',
-      ] as const) {
-        probe.style[property] = style[property];
-      }
-      document.body.append(probe);
-      const width = probe.getBoundingClientRect().width;
-      probe.remove();
-      // A largura útil sai da caixa, e não do clientWidth, que no Firefox já desconta o padding.
-      const sides = ['borderLeftWidth', 'borderRightWidth', 'paddingLeft', 'paddingRight'] as const;
-      const room = sides.reduce(
-        (rest, side) => rest - parseFloat(style[side]),
-        input.getBoundingClientRect().width,
-      );
-      return { text: width, room };
-    });
-    expect(text).toBeLessThanOrEqual(room);
-  });
 
   test('no Sobre, "Brasil" não fica sozinho numa linha, também sem o text-wrap: balance', async ({
     page,
@@ -544,15 +495,15 @@ test.describe('quebras de linha', () => {
     page,
   }) => {
     // mata: a inscrição e o modo de atendimento como dois blocos em linha (MobileMenu.astro): a
-    // 320 px, a frase quebrava em "presencial e / online"
+    // 320 px, a frase quebrava em "somente / online"
     await page.setViewportSize({ width: 320, height: 740 });
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     const meta = page.locator('.menu-foot p');
     const [lines = []] = await linesOf(meta);
-    expect(show(lines)).toBe(`${OAB} / · Atendimento presencial e online`);
+    expect(show(lines)).toBe(`${OAB} / · Atendimento somente online`);
     // O espaço entre os blocos continua no texto: o build tira o que é só quebra de linha no código.
-    await expect(meta).toHaveText(`${OAB} · Atendimento presencial e online`);
+    await expect(meta).toHaveText(`${OAB} · Atendimento somente online`);
   });
 
   test('no aviso legal do rodapé, "nº" fica na linha do número do provimento', async ({ page }) => {
@@ -614,21 +565,6 @@ test.describe('quebras de linha', () => {
       expect(line, `${width} px: ${show(lines)}`).toContain('retorno');
     }
   });
-
-  test('no subtítulo do formulário, "WhatsApp." não fica sozinho na última linha', async ({
-    page,
-  }) => {
-    // mata: o text-wrap: pretty do .form-sub (ContactForm.astro), a 1024 e a 1080 px
-    await page.goto('/');
-    const pretty = await page.evaluate(() => CSS.supports('text-wrap-style', 'pretty'));
-    test.skip(!pretty, 'sem text-wrap: pretty (o Firefox ainda não tem), a regra é ignorada');
-    for (const width of [1024, 1080]) {
-      await page.setViewportSize({ width, height: 740 });
-      await page.evaluate(() => document.fonts.ready.then(() => undefined));
-      const [lines = []] = await linesOf(page.locator('.form-sub'));
-      expect(lines.at(-1)?.length, `${width} px: ${show(lines)}`).toBeGreaterThan(1);
-    }
-  });
 });
 
 test.describe('impressão', () => {
@@ -671,7 +607,6 @@ test.describe('sem JavaScript', () => {
     await page.goto('/');
     await expect(page.locator('[data-header]')).not.toHaveCSS('position', 'fixed');
     await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeHidden();
-    await expect(page.locator('[data-contact-form]')).toBeHidden();
     // O contato continua pelos botões e links do WhatsApp.
     await expect(
       page
@@ -932,27 +867,4 @@ test('no hover, a seta da chamada anda para a frente', async ({ page, browserNam
     Promise.all(node.getAnimations().map((animation) => animation.finished)),
   );
   expect(await styleOf(arrow, 'transform')).toBe('matrix(1, 0, 0, 1, 3, 0)');
-});
-
-test('o contorno do foco dos campos fica colado na borda', async ({ page }) => {
-  // mata: o recuo de -1 px só na regra base do campo (a regra geral de :focus-visible, com 3 px de
-  // recuo, vence a base e descola o contorno)
-  await page.setViewportSize(DESKTOP);
-  await page.goto('/');
-  const flush = async (field: Locator) => {
-    await expect(field).toHaveCSS('outline-style', 'solid');
-    await expect(field).toHaveCSS('outline-offset', '-1px');
-    await expect(field).toHaveCSS('outline-color', 'rgb(36, 64, 230)');
-  };
-  // Clique no campo de texto e na área de texto; Tab até o select.
-  for (const label of ['Nome', 'Mensagem']) {
-    const field = page.getByLabel(label, { exact: true });
-    await field.click();
-    await flush(field);
-  }
-  await page.getByLabel('E-mail (opcional)', { exact: true }).click();
-  await page.keyboard.press('Tab');
-  const subject = page.getByLabel('Assunto (opcional)', { exact: true });
-  await expect(subject).toBeFocused();
-  await flush(subject);
 });

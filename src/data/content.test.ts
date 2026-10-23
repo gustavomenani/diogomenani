@@ -7,6 +7,11 @@ test('cada área tem um id único (os temas do seletor viram ids no HTML)', () =
   expect(new Set(ids).size).toBe(ids.length);
 });
 
+test('as áreas ficam em ordem alfabética (a lista e os temas do seletor seguem essa ordem)', () => {
+  const names = areas.map((area) => area.name);
+  expect(names).toEqual(names.toSorted((a, b) => a.localeCompare(b, 'pt-BR')));
+});
+
 test('o assunto de cada área continua a frase da mensagem (começa em minúscula)', () => {
   for (const area of areas) expect(area.subject).toMatch(/^[a-zà-ú]/);
 });

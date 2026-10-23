@@ -27,33 +27,33 @@ describe('organization', () => {
 
   test('knowsAbout lista as 4 áreas de atuação', () => {
     expect(organization(undefined)).toHaveProperty('knowsAbout', [
-      'Família Internacional',
-      'Vistos Americanos',
-      'Previdenciário',
       'Consumidor',
+      'Família Internacional',
+      'Previdenciário',
+      'Vistos Americanos',
     ]);
   });
 
-  test('o sameAs do escritório traz só o Instagram do escritório', () => {
-    // O sameAs diz que o endereço é a mesma entidade: o perfil pessoal do Diogo não é o escritório.
+  test('o sameAs do escritório traz o Instagram, o TikTok e o Facebook do escritório', () => {
     expect(organization(undefined)).toHaveProperty('sameAs', [
       'https://www.instagram.com/menani.advocacia/',
+      'https://www.tiktok.com/@menani.advocacia',
+      'https://www.facebook.com/menani.advocacia/',
     ]);
   });
 
-  test('a pessoa sai como member, com o Instagram dela e a inscrição na OAB', () => {
-    expect(organization(undefined)).toMatchObject({
-      member: {
-        '@type': 'Person',
-        name: 'Diogo Menani',
-        jobTitle: 'Advogado',
-        sameAs: ['https://www.instagram.com/diogomenani/'],
-        hasCredential: {
-          '@type': 'EducationalOccupationalCredential',
-          identifier: 'OAB/SP 546.508',
-        },
+  test('a pessoa sai como member, com a inscrição na OAB e sem perfil pessoal', () => {
+    const { member } = organization(undefined);
+    expect(member).toMatchObject({
+      '@type': 'Person',
+      name: 'Diogo Menani',
+      jobTitle: 'Advogado',
+      hasCredential: {
+        '@type': 'EducationalOccupationalCredential',
+        identifier: 'OAB/SP 546.508',
       },
     });
+    expect(member).not.toHaveProperty('sameAs');
   });
 
   test('sem endereço nem cidade no site, o JSON-LD também não traz nenhum dos dois', () => {
@@ -109,18 +109,8 @@ describe('confirmedProfiles', () => {
   test('o perfil com link provisório fica de fora, e o preenchido entra', () => {
     expect(
       confirmedProfiles([
-        {
-          label: 'Instagram [perfil]',
-          href: 'https://www.instagram.com/',
-          icon: 'instagram',
-          owner: 'office',
-        },
-        {
-          label: '@fulano',
-          href: 'https://www.instagram.com/fulano/',
-          icon: 'instagram',
-          owner: 'office',
-        },
+        { label: 'Instagram [perfil]', href: 'https://www.instagram.com/', icon: 'instagram' },
+        { label: '@fulano', href: 'https://www.instagram.com/fulano/', icon: 'instagram' },
       ]),
     ).toEqual(['https://www.instagram.com/fulano/']);
   });

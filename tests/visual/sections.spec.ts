@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { test, expect, jumpTo, SUBMIT, type Locator, type Page } from '../e2e/fixtures';
+import { test, expect, jumpTo, type Locator, type Page } from '../e2e/fixtures';
 
 // Regressão visual com movimento reduzido: tudo já aparece revelado. Da rolagem só dependem o
 // header e o botão flutuante (escondidos nas seções, com capturas próprias) e o título grudado
@@ -86,12 +86,6 @@ test.describe('estados em 390 px', { tag: '@visual' }, () => {
 
 test.describe('estados em 1440 px', { tag: '@visual' }, () => {
   test.use({ viewport: DESKTOP, reducedMotion: 'reduce' });
-
-  test('erros do formulário', async ({ page }) => {
-    await page.getByRole('button', { name: SUBMIT, exact: true }).click();
-    await expect(page.getByText('Revise os campos destacados para continuar.')).toBeVisible();
-    await expect(page.locator('#contato')).toHaveScreenshot('contato-erros-1440.png', HIDE_FIXED);
-  });
 
   test('dúvidas com a segunda pergunta aberta', async ({ page }) => {
     const second = page.getByRole('button', { name: 'O atendimento pode ser totalmente online?' });

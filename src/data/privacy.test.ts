@@ -8,7 +8,4 @@ test('o aviso não descreve um gesto de tela de toque, que no computador não ex
   // mata: "quando você tocar em enviar dentro do WhatsApp" (no computador, com o WhatsApp Web ou o
   // app de desktop, se clica)
   expect(fullText).not.toMatch(/\b(tocar|toque|toca)\b/i);
-  expect(fullText).toContain(
-    'ele só chega ao escritório quando você enviar a mensagem no WhatsApp.',
-  );
 });

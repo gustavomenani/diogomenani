@@ -15,11 +15,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
+  # A versão do Playwright no package-lock.json escolhe a imagem do job seguinte: quando o
+  # Dependabot sobe o Playwright, a imagem acompanha.
+  playwright:
     runs-on: ubuntu-latest
-    # A suíte tem uns 900 testes de navegador nos três motores, e num runner de 2 vCPU o Playwright
-    # usa 1 worker: só ela pode levar perto de 15 min. Depois do primeiro run, ajustar para cerca de
-    # 1,5 vez a duração real.
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: package-lock.json
+          sparse-checkout-cone-mode: false
+      - id: version
+        run: echo "version=$(jq -r '.packages["node_modules/@playwright/test"].version' package-lock.json)" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: playwright
+    runs-on: ubuntu-latest
+    # A imagem oficial do Playwright já traz os três navegadores e as bibliotecas do sistema. Antes,
+    # o --with-deps instalava essas bibliotecas pelo apt a cada run, e no primeiro run o espelho do
+    # Ubuntu levou mais de 25 min e estourou o tempo. O usuário 1001 é o do runner: o Firefox não
+    # roda como root numa pasta pessoal de outro usuário.
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright.outputs.version }}-noble
+      options: --user 1001
+    # A suíte tem uns 900 testes de navegador nos três motores: perto de 10 min só ela no runner.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
@@ -32,8 +53,6 @@ jobs:
       # Só as dependências que chegam ao site: a cadeia do Stylelint (braces) tem um alerta sem
       # versão corrigida publicada, e é ferramenta de desenvolvimento, fora do dist/.
       - run: npm audit --omit=dev --audit-level=high
-      # Os três motores dos testes de comportamento; do Chromium, só o modo headless.
-      - run: npx playwright install --with-deps --only-shell chromium firefox webkit
       # O GitHub Actions já define CI=true: o Playwright passa a proibir test.only, repete uma vez
       # o teste que falhar e deixa a suíte visual de fora (snapshots do Windows).
       - run: npm run verify

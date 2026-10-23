@@ -24,13 +24,13 @@ export const privacySections: readonly PrivacySection[] = [
   {
     title: 'O que o site coleta',
     paragraphs: [
-      'O site não usa cookies, não tem ferramentas de estatística ou de publicidade e não guarda o que você digita. O formulário de contato monta a mensagem no seu próprio navegador e abre o WhatsApp com ela pronta. O texto vai no endereço do link do WhatsApp (wa.me, um serviço da Meta) e pode ficar no histórico do navegador; ele só chega ao escritório quando você enviar a mensagem no WhatsApp. O provedor que hospeda o site pode registrar dados técnicos de cada acesso, como o endereço IP, por segurança e para o site funcionar.',
+      'O site não usa cookies, não tem ferramentas de estatística ou de publicidade nem formulário: o contato acontece pelo WhatsApp ou pelo e-mail. Os botões do WhatsApp abrem a conversa com uma mensagem curta já escrita, que só chega ao escritório quando você a enviar. O provedor que hospeda o site pode registrar dados técnicos de cada acesso, como o endereço IP, por segurança e para o site funcionar.',
     ],
   },
   {
     title: 'Para que os dados são usados',
     paragraphs: [
-      'O que você envia (nome, telefone, e-mail e o relato do caso) serve só para responder ao seu contato e, se você decidir contratar, para o seu atendimento. Os dados não são vendidos nem usados para outra finalidade e ficam protegidos pelo sigilo profissional do advogado.',
+      'O que você envia pelo WhatsApp ou pelo e-mail (seu nome, telefone, e-mail e o relato do caso) serve só para responder ao seu contato e, se você decidir contratar, para o seu atendimento. Os dados não são vendidos nem usados para outra finalidade e ficam protegidos pelo sigilo profissional do advogado.',
     ],
   },
   {

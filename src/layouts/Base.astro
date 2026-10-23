@@ -93,8 +93,8 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
     <Font cssVariable="--font-hanken" preload={[{ style: 'normal' }]} />
     {/*
       Sem script: o header rola com a página (fixo, ficaria branco sobre as seções brancas), e o
-      botão Menu e o formulário, que dependem de script, não aparecem. Com script, mas sem o
-      módulo da página, vale o mesmo pelo data-fallback (base.css).
+      botão Menu, que depende de script, não aparece. Com script, mas sem o módulo da página, vale
+      o mesmo pelo data-fallback (base.css).
     */}
     <noscript>
       <style>
@@ -102,8 +102,7 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
           position: absolute;
         }
 
-        .page .menu-toggle,
-        .page .contact-form {
+        .page .menu-toggle {
           display: none;
         }
       </style>
@@ -117,7 +116,7 @@ const { canonical, ogImage } = pageUrls(path, Astro.site, noindex);
       {/*
         Decide o modo de movimento antes da primeira pintura (motion-mode.ts). Se o módulo da
         página não rodar (rede, erro), devolve no load o modo sem script, em que tudo aparece, e
-        marca data-fallback: o header rola com a página e o Menu e o formulário somem (base.css).
+        marca data-fallback: o header rola com a página e o Menu some (base.css).
         Mexer neste script exige trocar o hash dele na CSP (vercel.json e public/_headers).
       */}
       {interactive && <script is:inline>

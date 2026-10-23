@@ -1,64 +1,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { areas } from '../../src/data/content';
-import {
-  test,
-  expect,
-  axeViolations,
-  jumpTo,
-  settle,
-  SUBMIT,
-  type Locator,
-  type Page,
-} from './fixtures';
+import { test, expect, axeViolations, jumpTo, settle, type Locator } from './fixtures';
 
 const MOBILE = { width: 390, height: 844 };
 const DESKTOP = { width: 1440, height: 900 };
-
-/**
- * Propriedade de acessibilidade que o Chromium expõe para o elemento com o papel e o nome dados
- * (via CDP): é o que o leitor de tela anuncia, inclusive estados que o axe não confere.
- */
-async function accessibilityProperty(
-  page: Page,
-  role: string,
-  name: string,
-  property: 'invalid' | 'required',
-): Promise<unknown> {
-  const cdp = await page.context().newCDPSession(page);
-  const { result } = await cdp.send('Runtime.evaluate', { expression: 'document' });
-  if (!result.objectId) throw new Error('documento sem objectId');
-  const { nodes } = await cdp.send('Accessibility.queryAXTree', {
-    objectId: result.objectId,
-    role,
-    accessibleName: name,
-  });
-  await cdp.detach();
-  const value: unknown = nodes[0]?.properties?.find((item) => item.name === property)?.value.value;
-  return value;
-}
-
-test('antes do envio, os campos obrigatórios não são anunciados como inválidos', async ({
-  page,
-  browserName,
-}) => {
-  test.skip(browserName !== 'chromium', 'lê a árvore de acessibilidade pelo CDP do Chromium');
-  await page.goto('/');
-  const controls = [
-    ['textbox', 'Nome'],
-    ['textbox', 'WhatsApp'],
-    ['textbox', 'Mensagem'],
-    [
-      'checkbox',
-      'Concordo com o uso dos meus dados apenas para o retorno deste contato, conforme a LGPD e o aviso de privacidade (abre em outra aba).',
-    ],
-  ] as const;
-  for (const [role, name] of controls) {
-    expect(await accessibilityProperty(page, role, name, 'invalid'), name).toBe('false');
-  }
-  for (const name of ['Nome', 'WhatsApp', 'Mensagem']) {
-    expect(await accessibilityProperty(page, 'textbox', name, 'required'), name).toBe(true);
-  }
-});
 
 test.describe('axe', () => {
   test.use({ reducedMotion: 'reduce' });
@@ -71,17 +16,12 @@ test.describe('axe', () => {
     });
   }
 
-  test('axe sem violações com o menu aberto e com erros no formulário', async ({ page }) => {
+  test('axe sem violações com o menu aberto', async ({ page }) => {
     await page.setViewportSize(MOBILE);
     await page.goto('/');
     await page.locator('[data-menu-toggle]').click();
     await expect(page.locator('[data-menu-toggle]')).toHaveAttribute('aria-expanded', 'true');
-    expect(await axeViolations(page), 'menu aberto').toEqual([]);
-
-    await page.setViewportSize(DESKTOP);
-    await page.getByRole('button', { name: SUBMIT, exact: true }).click();
-    await expect(page.getByText('Revise os campos destacados para continuar.')).toBeVisible();
-    expect(await axeViolations(page), 'erros no formulário').toEqual([]);
+    expect(await axeViolations(page)).toEqual([]);
   });
 
   /*
@@ -163,7 +103,7 @@ test.describe('menu mobile', () => {
 
     await page.locator('[data-menu-toggle]').click();
     const menu = page.getByRole('navigation', { name: 'Menu', exact: true });
-    await expect(menu.getByRole('link', { name: 'Fale com um especialista' })).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Fale conosco' })).toBeVisible();
     await expect(page.locator('[data-menu]')).not.toHaveAttribute('inert');
     await expect(main).toHaveAttribute('inert');
     await expect(footer).toHaveAttribute('inert');
@@ -214,7 +154,7 @@ test('o primeiro Tab mostra o link para pular ao conteúdo', async ({ page, brow
 
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  await expect(page.getByLabel('Família internacional', { exact: true })).toBeFocused();
+  await expect(page.getByLabel('Consumidor', { exact: true })).toBeFocused();
 });
 
 test('o skip link escondido não projeta sombra sobre a página', async ({ page }) => {
@@ -227,17 +167,6 @@ test('o skip link escondido não projeta sombra sobre a página', async ({ page 
   await expect(skip).not.toHaveCSS('box-shadow', 'none');
 });
 
-test('no alto contraste, só o campo focado tem contorno', async ({ page }) => {
-  await page.emulateMedia({ forcedColors: 'active' });
-  await page.goto('/');
-  const name = page.getByLabel('Nome', { exact: true });
-  // mata: o contorno transparente em todos os campos, que o alto contraste pinta com a cor do
-  // sistema
-  await expect(name).toHaveCSS('outline-style', 'none');
-  await name.focus();
-  await expect(name).toHaveCSS('outline-style', 'solid');
-});
-
 test('o texto selecionado aparece em qualquer fundo', async ({ page }) => {
   await page.goto('/');
   const selection = (locator: Locator) =>
@@ -248,11 +177,8 @@ test('o texto selecionado aparece em qualquer fundo', async ({ page }) => {
   const royal = 'rgb(0, 22, 123) / rgb(255, 255, 255)';
   const white = 'rgb(255, 255, 255) / rgb(0, 22, 123)';
 
-  // Fundo claro, inclusive o cartão branco do formulário na seção royal: seleção royal.
-  expect(await selection(page.getByLabel('Nome', { exact: true }))).toBe(royal);
-  expect(
-    await selection(page.getByText('Preencha os campos e a mensagem chega pronta no WhatsApp.')),
-  ).toBe(royal);
+  // Fundo claro (seções brancas): seleção royal.
+  expect(await selection(page.getByText(/^Diogo Menani - Advogado no/))).toBe(royal);
   // Fundo royal (seções royal, rodapé, menu e header sobre o hero): seleção branca.
   expect(
     await selection(page.getByText(/^Assessoria jurídica completa para Vistos Americanos/)),
@@ -277,7 +203,7 @@ test('o título principal tem nome acessível sem aria-label', async ({ page }) 
   await page.goto('/');
   const title = page.getByRole('heading', {
     level: 1,
-    name: 'Diogo Menani · Advogado Clareza para entender. Firmeza para defender.',
+    name: 'Diogo Menani · Advogado Defesa dos seus direitos com ética e responsabilidade',
     exact: true,
   });
   await expect(title).toBeVisible();
@@ -315,8 +241,8 @@ for (const path of ['/', '/privacidade/', '/nao-existe']) {
   test(`em ${path}, todo link que abre em outra aba avisa o leitor de tela`, async ({ page }) => {
     await page.goto(path);
     const NOTE = /\(abre em outra aba\)$/;
-    // Todos, inclusive os escondidos agora (menu fechado, link de reserva do formulário): o
-    // aria-label ou o texto, que inclui o sr-only.
+    // Todos, inclusive os escondidos agora (menu fechado): o aria-label ou o texto, que inclui o
+    // sr-only.
     const names = await page
       .locator('a[target="_blank"]')
       .evaluateAll((anchors) =>
@@ -330,12 +256,3 @@ for (const path of ['/', '/privacidade/', '/nao-existe']) {
     }
   });
 }
-
-test('o botão de envio do formulário, que abre o WhatsApp em outra aba, também avisa', async ({
-  page,
-}) => {
-  // mata: o aviso sr-only no botão de envio (ContactForm.astro): o window.open trocava de aba sem
-  // aviso, ao contrário de todos os links que abrem outra aba, que o teste acima confere
-  await page.goto('/');
-  await expect(page.locator('[data-contact-form] [type="submit"]')).toHaveAccessibleName(SUBMIT);
-});

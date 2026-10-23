@@ -4,7 +4,7 @@ import {
   countHiddenReveals,
   jumpTo,
   jumpToSection,
-  SUBMIT,
+  pageReady,
   type Page,
 } from './fixtures';
 
@@ -23,16 +23,10 @@ const balancePose = (page: Page) =>
 test.describe('com movimento reduzido', () => {
   test.use({ reducedMotion: 'reduce' });
 
-  test('o erro de um campo aparece sem deslocamento', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: SUBMIT, exact: true }).click();
-    const error = page.getByText('Informe seu nome.', { exact: true });
-    await expect(error).toBeVisible();
-    await expect(error).toHaveCSS('animation-name', 'fade');
-  });
-
   test('o indicador da navegação troca de link sem deslizar', async ({ page }) => {
     await page.goto('/');
+    // Com o data-instant ainda na raiz, transition: none passaria sem testar nada.
+    await pageReady(page);
     await expect(page.locator('[data-nav-ind]')).not.toHaveCSS('transition-property', /transform/);
   });
 
@@ -108,7 +102,7 @@ test.describe('com movimento reduzido', () => {
 test.describe('com movimento', () => {
   test('com movimento o conteúdo revela ao entrar na tela', async ({ page }) => {
     await page.goto('/');
-    const title = page.getByRole('heading', { name: 'Fale com um especialista' });
+    const title = page.getByRole('heading', { name: 'Fale conosco' });
     await expect(title).not.toHaveClass(/is-in/);
     await title.scrollIntoViewIfNeeded();
     await expect(title).toHaveClass(/is-in/);

@@ -39,8 +39,8 @@ describe('logoSvg', () => {
   });
 
   test('cada peça mantém a proporção do próprio viewBox', () => {
-    // 197 de largura no viewBox 768×78 dá 20 de altura.
-    expect(logoSvg('blue')).toContain('width="197" height="20.01"');
+    // 192 de largura no viewBox 768×78 dá 19,5 de altura.
+    expect(logoSvg('blue')).toContain('width="192" height="19.5"');
   });
 });
 

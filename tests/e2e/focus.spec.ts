@@ -1,12 +1,4 @@
-import {
-  test,
-  expect,
-  nextFrames,
-  SUBMIT,
-  TEXT_SPACING,
-  type Locator,
-  type Page,
-} from './fixtures';
+import { test, expect, nextFrames, TEXT_SPACING, type Locator, type Page } from './fixtures';
 
 // No Safari o Tab não passa por links (padrão da plataforma): o teclado aqui é o do Chromium e o
 // do Firefox, que rola menos ao focar.
@@ -166,34 +158,39 @@ test.describe('num desktop de 1280 × 720', () => {
 test.describe('com o espaçamento de texto ampliado (WCAG 1.4.12), no desktop compacto', () => {
   test.use({ viewport: { width: 1100, height: 800 } });
 
-  test('o Shift+Tab até o aceite do formulário o deixa abaixo do header, que quebrou de linha', async ({
+  test('o Shift+Tab até um link do contato o deixa abaixo do header, que quebrou de linha', async ({
     page,
   }) => {
     // mata: a folga das rolagens presa nos 84 px do token (--header-live, em scroll-effects.ts):
-    // com o espaçamento, o header quebra em duas linhas e o aceite parava inteiro embaixo dele
+    // com o espaçamento, o header quebra em duas linhas e o link parava inteiro embaixo dele
     await page.goto('/');
     await page.addStyleTag({ content: TEXT_SPACING });
+    // Com "Fale conosco", o espaçamento sozinho já não quebra o header: um rótulo longo na chamada
+    // (como "Fale com um especialista", o de antes) faz a linha quebrar.
+    await page
+      .locator('[data-header] .btn-header')
+      .evaluate((node) => node.firstChild?.replaceWith('Fale com um especialista'));
     const header = page.locator('[data-header]');
     expect(await header.evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThan(
       100,
     );
-    const consent = page.locator('#f-lgpd');
-    const submit = page.getByRole('button', { name: SUBMIT, exact: true });
-    // O botão de enviar no alto da tela, e o aceite acima dela; o header recolhe na descida. O
-    // foco vai para o botão sem a rolagem do focus(), que no Chromium o levaria ao meio da tela
-    // (com o aceite à vista, o Shift+Tab não rolaria). O Firefox centraliza também no Shift+Tab.
-    await placeAt(submit, 10);
+    const contact = page.locator('#contato');
+    const whatsapp = contact.locator('.contact-list a').first();
+    const email = contact.getByRole('link', { name: 'diogomenani@gmail.com', exact: true });
+    // O e-mail no alto da tela, e o WhatsApp acima dela; o header recolhe na descida. O foco vai
+    // para o e-mail sem a rolagem do focus(), que no Chromium o levaria ao meio da tela (com o
+    // WhatsApp à vista, o Shift+Tab não rolaria). O Firefox centraliza também no Shift+Tab.
+    await placeAt(email, 10);
     await expect(header).toHaveClass(/is-tucked/);
-    await submit.evaluate((node) => {
+    await email.evaluate((node) => {
       node.focus({ preventScroll: true });
     });
-    // Do botão, o link do aviso de privacidade e depois o aceite.
-    await pressUntilFocused(consent, 'Shift+Tab', 4);
+    await pressUntilFocused(whatsapp, 'Shift+Tab', 2);
 
     await expect(header).not.toHaveClass(/is-tucked/);
     await settle(header);
     const headerBox = await boxOf(header);
-    const box = await boxOf(page.locator('#f-lgpd + .check-box'));
+    const box = await boxOf(whatsapp);
     expect(box.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
   });
 });

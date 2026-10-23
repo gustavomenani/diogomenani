@@ -345,13 +345,14 @@ test.describe('a CSP não bloqueia nada do site', () => {
   test.describe('sem JavaScript', () => {
     test.use({ javaScriptEnabled: false });
 
-    test('o <style> do <noscript> vale: header que rola e formulário escondido', async ({
+    test('o <style> do <noscript> vale: header que rola e botão Menu escondido', async ({
       page,
     }) => {
       await applyCsp(page);
+      await page.setViewportSize({ width: 390, height: 844 });
       await page.goto('/');
       await expect(page.locator('.site-header')).toHaveCSS('position', 'absolute');
-      await expect(page.locator('.contact-form')).toBeHidden();
+      await expect(page.locator('[data-menu-toggle]')).toBeHidden();
     });
   });
 });
@@ -383,7 +384,8 @@ async function recordLcp(page: Page): Promise<void> {
       for (const entry of list.getEntries() as LargestContentfulPaint[]) {
         found.push({
           time: entry.startTime,
-          hero: entry.element?.matches('.hero-lead') ?? false,
+          // O texto de apoio ou, com movimento reduzido a 1440 px, a palavra mais longa do título.
+          hero: entry.element?.matches('.hero-lead, .hero-title *') ?? false,
           lazy: entry.element?.getAttribute('loading') === 'lazy',
         });
       }
@@ -400,7 +402,7 @@ test.describe('LCP', () => {
     { viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' },
     { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' },
   ] as const) {
-    test(`o texto de apoio do hero conta desde a primeira pintura (${viewport.width} px, movimento ${reducedMotion === 'reduce' ? 'reduzido' : 'ligado'})`, async ({
+    test(`o texto do hero conta desde a primeira pintura (${viewport.width} px, movimento ${reducedMotion === 'reduce' ? 'reduzido' : 'ligado'})`, async ({
       page,
     }) => {
       // mata: fade-up e fade começando em opacidade 0 (o Chromium não conta essa pintura, e o LCP
@@ -417,7 +419,7 @@ test.describe('LCP', () => {
         lcp: (window as unknown as PaintGlobals).__lcp.at(-1),
         fcp: performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? NaN,
       }));
-      expect(lcp?.hero, 'o maior elemento é o texto de apoio do hero').toBe(true);
+      expect(lcp?.hero, 'o maior elemento é texto do hero').toBe(true);
       // Folga para a CPU alta; a regressão é de ~1.700 ms.
       expect((lcp?.time ?? Infinity) - fcp).toBeLessThan(500);
     });

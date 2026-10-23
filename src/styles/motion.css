@@ -75,10 +75,16 @@
   }
 }
 
+/*
+ * drop, a entrada do header, anima o translate, e não o transform: o transform do header é o do
+ * recolher, com transição. Na mesma propriedade, o Firefox disparava essa transição quando o
+ * data-instant saía no meio da queda (num aparelho lento, o módulo chega depois do atraso da
+ * animação), e ela, que vence a animação na cascata, tomava o lugar da queda.
+ */
 @keyframes drop {
   from {
     opacity: 0;
-    transform: translate3d(0, -16px, 0);
+    translate: 0 -16px;
   }
 }
 

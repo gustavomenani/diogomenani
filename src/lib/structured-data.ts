@@ -14,17 +14,16 @@ export function confirmedProfiles(links: readonly SocialLink[]): string[] {
   return links.filter(({ label }) => !label.includes('[')).map(({ href }) => href);
 }
 
-/** Os perfis confirmados de quem é o dono (o escritório ou a pessoa). */
-const profilesOf = (owner: SocialLink['owner']) =>
-  confirmedProfiles(social.filter((link) => link.owner === owner));
+/** Os perfis do escritório. */
+const officeProfiles = confirmedProfiles(social);
 
 /**
  * O escritório como `Organization` do schema.org. Sem endereço no site (I72), um `LegalService`
  * (subtipo de LocalBusiness) fica inválido para o Google, que exige `address`; o `Organization`
  * não tem campo obrigatório. Se o endereço voltar, volta o LegalService com address. O Diogo
- * entra como `member` (o site não diz que ele fundou o escritório), com o Instagram dele e a
- * inscrição na OAB. `url`, `image` e `logo` exigem endereço absoluto e só saem com o `site` do
- * astro.config.mjs (`Astro.site`).
+ * entra como `member` (o site não diz que ele fundou o escritório), com a inscrição na OAB; o site
+ * não publica perfil pessoal dele. `url`, `image` e `logo` exigem endereço absoluto e só saem com o
+ * `site` do astro.config.mjs (`Astro.site`).
  */
 export function organization(siteUrl: URL | undefined): Record<string, unknown> {
   return {
@@ -35,12 +34,11 @@ export function organization(siteUrl: URL | undefined): Record<string, unknown> 
     telephone,
     email: contact.email.label,
     knowsAbout: areas.map(({ name }) => name),
-    sameAs: profilesOf('office'),
+    sameAs: officeProfiles,
     member: {
       '@type': 'Person',
       name: site.shortName,
       jobTitle: 'Advogado',
-      sameAs: profilesOf('person'),
       hasCredential: {
         '@type': 'EducationalOccupationalCredential',
         credentialCategory: 'Inscrição na OAB',

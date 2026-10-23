@@ -47,20 +47,20 @@ export const wordmark = {
  */
 export const logoLayouts = {
   full: {
-    width: 286,
+    width: 278,
     height: 81,
     mark: { x: 0, y: 17, width: 66 },
-    rule: { x: 74, width: 1 },
-    name: { x: 89, y: 23, width: 197 },
-    sub: { x: 100, y: 51, width: 175 },
+    rule: { x: 75, width: 1 },
+    name: { x: 85.5, y: 22.5, width: 192 },
+    sub: { x: 96, y: 49.5, width: 170 },
   },
   compact: {
-    width: 286,
+    width: 283,
     height: 50,
     mark: { x: 0, y: 3, width: 66 },
-    rule: { x: 74, width: 1 },
-    name: { x: 89, y: 5, width: 197 },
-    sub: { x: 89, y: 33, width: 197 },
+    rule: { x: 75, width: 1 },
+    name: { x: 85.5, y: 5, width: 197 },
+    sub: { x: 85.5, y: 33, width: 197 },
   },
 } as const;
 

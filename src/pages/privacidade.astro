@@ -72,30 +72,6 @@ function pieces(text: string) {
   interactive={false}
 >
   <SimpleHeader />
-  {/*
-    O formulário abre o aviso em outra aba, para não perder o que foi digitado, e o "Voltar ao
-    site" e o logo dessa aba levavam a uma home nova, com os campos vazios (no celular, sem as abas
-    à vista, parecia que o relato tinha sumido). Quando a aba nasceu de um link do site (uma entrada só no
-    histórico, o caso em que o navegador deixa o script fechá-la, e o referrer do próprio site), o
-    clique fecha a aba e devolve a pessoa à que ficou aberta, com o formulário preenchido. Se o
-    navegador recusar, leva ao formulário nesta mesma aba. Fora desse caso, ou com uma tecla que
-    abre o link noutra aba, vale o href. É inline, e não um módulo, porque o Astro embutiria um
-    módulo tão pequeno de qualquer jeito: mexer neste script exige trocar o hash dele na CSP
-    (vercel.json e public/_headers).
-  */}
-  <script is:inline>
-    (() => {
-      document.querySelectorAll('[data-back-to-site]').forEach((link) => {
-        link.addEventListener('click', (event) => {
-          if (history.length !== 1 || !document.referrer.startsWith(`${location.origin}/`)) return;
-          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-          event.preventDefault();
-          window.close();
-          if (!window.closed) location.assign(link.getAttribute('data-back-to-site') || '/');
-        });
-      });
-    })();
-  </script>
   <main id={sectionIds.main} class="privacy">
     <div class="wrap privacy-inner">
       <h1 class="h2">Aviso de privacidade</h1>

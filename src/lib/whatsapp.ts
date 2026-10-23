@@ -18,36 +18,3 @@ export function waLink(text?: string): string {
   const base = `https://wa.me/${whatsapp.number}`;
   return text ? `${base}?text=${encodeURIComponent(text.toWellFormed())}` : base;
 }
-
-/** Fecha a frase com ponto, sem repetir a pontuação que já veio digitada. */
-const asSentence = (text: string) => (/[.!?…]$/.test(text) ? text : `${text}.`);
-
-/** O que o formulário de contato envia. */
-export interface ContactRequest {
-  name: string;
-  phone: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-/**
- * Mensagem que o formulário monta; assunto e e-mail ficam de fora quando não foram informados.
- * Nome e relato fecham com ponto: quase ninguém pontua um relato curto, e ele emendaria nos dados
- * de contato ("…visto negado (WhatsApp: …)").
- */
-export function buildContactMessage({
-  name,
-  phone,
-  email,
-  subject,
-  message,
-}: ContactRequest): string {
-  const trimmedEmail = email.trim();
-  return (
-    `${GREETING} Meu nome é ${asSentence(name.trim())}` +
-    (subject ? ` Assunto: ${subject}.` : '') +
-    ` ${asSentence(message.trim())}` +
-    ` (WhatsApp: ${phone}${trimmedEmail ? `, e-mail: ${trimmedEmail}` : ''})`
-  );
-}

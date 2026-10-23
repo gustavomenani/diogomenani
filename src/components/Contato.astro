@@ -1,5 +1,4 @@
 ---
-import ContactForm from './ContactForm.astro';
 import ExternalLink from './ExternalLink.astro';
 import Icon from './Icon.astro';
 import WhatsAppButton from './WhatsAppButton.astro';
@@ -29,7 +28,7 @@ const items: readonly ContactItem[] = [
   <div class="wrap contact-grid">
     <div class="contact-copy">
       <h2 class="h2" id="contact-title" data-reveal="rise">
-        Fale com um especialista
+        Fale conosco
       </h2>
       {/* Espaço inseparável depois do "O": sem ele, o artigo ficava sozinho no fim da linha a 390, 414 e 1024 px. */}
       <p class="lede" data-reveal>
@@ -39,32 +38,31 @@ const items: readonly ContactItem[] = [
       <div class="contact-cta" data-reveal>
         <WhatsAppButton label="Conversar pelo WhatsApp" data-contact-cta />
       </div>
-      {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
-      <ul class="contact-list" role="list" data-reveal-list>
-        {items.map((item) => (
-          <li>
-            <span class="cl-icon" aria-hidden="true">
-              <Icon name={item.icon} />
-            </span>
-            <span>
-              <span class="cl-label">{item.label}</span>
-              {item.href && item.external ? (
-                <ExternalLink class="cl-value" href={item.href}>
-                  {item.value}
-                </ExternalLink>
-              ) : item.href ? (
-                <a class="cl-value" href={item.href}>
-                  {item.value}
-                </a>
-              ) : (
-                <span class="cl-value">{item.value}</span>
-              )}
-            </span>
-          </li>
-        ))}
-      </ul>
     </div>
-    <ContactForm />
+    {/* role="list": sem ele, o VoiceOver ignora listas com list-style: none. */}
+    <ul class="contact-list" role="list" data-reveal-list>
+      {items.map((item) => (
+        <li>
+          <span class="cl-icon" aria-hidden="true">
+            <Icon name={item.icon} />
+          </span>
+          <span>
+            <span class="cl-label">{item.label}</span>
+            {item.href && item.external ? (
+              <ExternalLink class="cl-value" href={item.href}>
+                {item.value}
+              </ExternalLink>
+            ) : item.href ? (
+              <a class="cl-value" href={item.href}>
+                {item.value}
+              </a>
+            ) : (
+              <span class="cl-value">{item.value}</span>
+            )}
+          </span>
+        </li>
+      ))}
+    </ul>
   </div>
 </section>
 
@@ -82,10 +80,11 @@ const items: readonly ContactItem[] = [
     top: -40%;
   }
 
+  /* No celular, a lista vem abaixo da chamada; a partir de 1024 px, ao lado dela. */
   .contact-grid {
     position: relative;
     display: grid;
-    gap: 64px;
+    gap: 48px;
     align-items: start;
   }
 
@@ -101,7 +100,6 @@ const items: readonly ContactItem[] = [
   .contact-list {
     display: grid;
     gap: 22px;
-    margin-top: 48px;
     padding-top: 36px;
     border-top: 1px solid var(--line-on-royal);
   }
@@ -174,6 +172,14 @@ const items: readonly ContactItem[] = [
     .contact-grid {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: clamp(56px, 6vw, 112px);
+      align-items: center;
+    }
+
+    .contact-list {
+      padding-top: 0;
+      padding-left: clamp(40px, 4vw, 64px);
+      border-top: 0;
+      border-left: 1px solid var(--line-on-royal);
     }
   }
 </style>

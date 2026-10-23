@@ -109,6 +109,8 @@ export function initScrollEffects(
   let travel = 0;
   /** Seção ativa já aplicada; `undefined` força reaplicar no próximo quadro. */
   let activeId: string | null | undefined = null;
+  /** Link sob o indicador: reaplicado no mesmo link, com a medida nova, ele não desliza. */
+  let indicatedLink: Element | null = null;
   let litWords = -1;
   let ticking = false;
   /** A rolagem em curso veio de um link interno (nextTuck): o header não recolhe. */
@@ -180,13 +182,18 @@ export function initScrollEffects(
         if (navRect && linkRect) {
           // Escondido, o indicador aparece já no link novo, sem deslizar desde onde sumiu (ou
           // desde a borda da navegação, na primeira vez): o traço cruzava a navegação inteira
-          // enquanto acendia. Entre dois links visíveis, ele continua deslizando.
+          // enquanto acendia. No mesmo link, com a medida nova (fontes que chegam, janela que
+          // muda: o refresh), ele vai direto ao lugar; deslizando, um ajuste logo depois do load
+          // parecia uma animação de entrada. Entre dois links visíveis, ele continua deslizando.
           const appearing = indicator.style.opacity !== '1';
+          const remeasured = !appearing && activeLink === indicatedLink;
           if (appearing) indicator.style.transition = 'opacity 0.4s';
+          else if (remeasured) indicator.style.transition = 'none';
           indicator.style.opacity = '1';
           indicator.style.transform = `translateX(${(linkRect.left - navRect.left).toFixed(1)}px) scaleX(${linkRect.width.toFixed(1)})`;
-          if (appearing) {
-            // Exceção à leitura antes da escrita, só quando ele reaparece: ler o layout aplica a
+          indicatedLink = activeLink ?? null;
+          if (appearing || remeasured) {
+            // Exceção à leitura antes da escrita, só nesses dois casos: ler o layout aplica a
             // posição nova ainda sem a transição do transform, que volta no quadro seguinte (o
             // mesmo do showNow de reveal.ts).
             indicator.getBoundingClientRect();

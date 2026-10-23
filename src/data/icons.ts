@@ -16,8 +16,10 @@ export const iconPaths = {
     'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0',
     'M16.5 7.5v.01',
   ],
-  'chevron-down': ['M6 9l6 6l6 -6'],
-  check: ['M5 12l5 5l10 -10'],
+  tiktok: [
+    'M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917',
+  ],
+  facebook: ['M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3'],
   'arrow-up': ['M12 5l0 14', 'M18 11l-6 -6', 'M6 11l6 -6'],
 } as const satisfies Record<string, readonly string[]>;
 

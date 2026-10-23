@@ -22,11 +22,6 @@
   --line: #dde2f2;
   --line-on-royal: rgb(255 255 255 / 16%);
   --line-on-mist: #d2d8ec;
-  --danger: rgb(180 35 24);
-  --field-border: #8690b6;
-  --field-border-hover: #5f6a96;
-  --field-placeholder: #646d92;
-  --field-bg: #fbfcff;
   --scrollbar-track: #eceff9;
 
   /* Tons de apoio: preenchimento do botão claro, anel do ± do FAQ e etapas ainda não acesas. */
@@ -46,11 +41,7 @@
   --shadow-ink: rgb(0 6 48 / 70%);
   --radius-pill: 999px;
 
-  /*
-   * Sombra do cartão do formulário e da lista do Assunto (o ::picker, em forms.css), e traços
-   * brancos sobre o royal.
-   */
-  --shadow-card: rgb(0 4 36 / 85%);
+  /* Traços brancos sobre o royal. */
   --ring-on-royal: rgb(255 255 255 / 28%);
   --underline-on-royal: rgb(255 255 255 / 35%);
 
@@ -58,6 +49,7 @@
    * Escala tipográfica do texto corrido e dos rótulos. Os títulos usam clamp() no próprio
    * componente; o Stylelint só aceita font-size com um destes, clamp(), inherit ou 1em.
    */
+  --fs-2xs: 12px;
   --fs-xs: 13px;
   --fs-sm: 14px;
   --fs-md: 15px;
