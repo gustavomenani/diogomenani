@@ -18,6 +18,8 @@ const sizeOf = (viewBox: string) => {
 };
 const NAME_SIZE = sizeOf(wordmark.name.viewBox);
 const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
+/** O endereço do site (o `site` do astro.config.mjs), mostrado sem o https:// nem a barra. */
+const siteHome = Astro.site && new URL('/', Astro.site);
 ---
 
 <footer class="footer" data-footer>
@@ -72,6 +74,11 @@ const SUB_SIZE = sizeOf(wordmark.sub.viewBox);
           <li>
             <a href={contact.email.href}>{contact.email.label}</a>
           </li>
+          {siteHome && (
+            <li>
+              <a href={siteHome.href}>{siteHome.host}</a>
+            </li>
+          )}
         </ul>
       </div>
       <div class="footer-col">

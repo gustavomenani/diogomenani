@@ -91,6 +91,15 @@ test.describe('página inicial', () => {
     ]);
     await expect(page.locator('a[href*="diogomenani" i]:not([href^="mailto:"])')).toHaveCount(0);
   });
+
+  test('o contato do rodapé traz o endereço do site, sem www, abaixo do e-mail', async ({
+    page,
+  }) => {
+    const links = page.getByRole('contentinfo').locator('.footer-col').nth(1).getByRole('link');
+    await expect(links.nth(1)).toHaveText(EMAIL);
+    await expect(links.nth(2)).toHaveText('menaniadvocacia.com.br');
+    await expect(links.nth(2)).toHaveAttribute('href', 'https://menaniadvocacia.com.br/');
+  });
 });
 
 /** Proibido no texto do site: nada de "agende/agendar consulta" (pedido do cliente). */
