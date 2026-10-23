@@ -158,11 +158,7 @@ Os testes conferem o conteúdo atual (textos, mensagens e número do WhatsApp, p
 
 ## O que ainda falta preencher
 
-Tudo o que está entre `[colchetes]` na página:
-
-- `src/data/contact.ts`: horário de atendimento.
-
-Quando o site tiver domínio, informe-o em `site` no `astro.config.mjs`: sem ele, não saem o canonical, a imagem de prévia dos links (`og:image`), o `url` e o `WebSite` do JSON-LD nem as páginas do sitemap.
+Nenhum texto da página está mais entre `[colchetes]` (o `npm run check:launch` reprova se algum voltar). Falta o domínio: quando o site tiver um, informe-o em `site` no `astro.config.mjs`: sem ele, não saem o canonical, a imagem de prévia dos links (`og:image`), o `url` e o `WebSite` do JSON-LD nem as páginas do sitemap.
 
 ## Qualidade e testes
 

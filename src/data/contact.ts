@@ -19,7 +19,7 @@ export const contact = {
   oabNumber,
   oab: `OAB/${oabState} ${oabNumber}`,
   email: { label: 'diogomenani@gmail.com', href: 'mailto:diogomenani@gmail.com' },
-  hours: '[Segunda a sexta, das 9h às 18h]',
+  hours: 'Segunda a sexta, das 7h às 18h',
   serviceMode: 'Atendimento somente online',
 } as const;
 
