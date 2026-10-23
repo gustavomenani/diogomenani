@@ -128,7 +128,7 @@ Fora da camada global:
 
 ### Configuração (raiz)
 
-- `astro.config.mjs`: escopo dos estilos (`:where`), CSS embutido no HTML (`inlineStylesheets`), navegadores-alvo do CSS (`vite.build.cssTarget`: Chrome e Edge 111+, Firefox 114+ e Safari/iOS 16.4+), fontes e o domínio do site (`site`: `https://www.menaniadvocacia.com.br`).
+- `astro.config.mjs`: escopo dos estilos (`:where`), CSS embutido no HTML (`inlineStylesheets`), navegadores-alvo do CSS (`vite.build.cssTarget`: Chrome e Edge 111+, Firefox 114+ e Safari/iOS 16.4+), fontes e o domínio do site (`site`: `https://menaniadvocacia.com.br`, sem www).
 - `tsconfig.json`: TypeScript `strictest`.
 - `.node-version`: a linha do Node.js (24) do CI e do build na Netlify e na Cloudflare Pages.
 - `eslint.config.js`, `stylelint.config.mjs`, `.prettierrc.json` e `.prettierignore`, `.htmlvalidate.mjs`, `.editorconfig` e `.gitattributes`: regras de código, CSS, formatação, HTML e editor.
@@ -158,7 +158,7 @@ Os testes conferem o conteúdo atual (textos, mensagens e número do WhatsApp, p
 
 ## Domínio e e-mail
 
-O domínio é `www.menaniadvocacia.com.br`, já em `site` no `astro.config.mjs`: o canonical, a imagem de prévia dos links, o JSON-LD, o `sitemap.xml` e o `robots.txt` saem com ele. Na Vercel (Settings → Domains), adicione `www.menaniadvocacia.com.br` e `menaniadvocacia.com.br`, com o endereço sem www redirecionando para o www, e cadastre no DNS do Registro.br os registros que a Vercel mostrar.
+O domínio é `menaniadvocacia.com.br`, sem www, já em `site` no `astro.config.mjs`: o canonical, a imagem de prévia dos links, o JSON-LD, o `sitemap.xml` e o `robots.txt` saem com ele. Na Vercel (Settings → Domains), adicione `menaniadvocacia.com.br` e `www.menaniadvocacia.com.br`, com o www redirecionando para o endereço sem www, e cadastre no DNS do Registro.br os registros que a Vercel mostrar.
 
 Quando a caixa de e-mail do domínio existir, troque o `diogomenani@gmail.com` em `src/data/contact.ts` (contato, rodapé e aviso de privacidade saem dali), o `EMAIL` de `tests/e2e/fixtures.ts` e a data em `src/data/privacy.ts`.
 
