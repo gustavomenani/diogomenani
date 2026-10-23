@@ -80,6 +80,6 @@ export default defineConfig({
   // O domínio do site. Ele liga o que exige endereço absoluto: o canonical, o og:url, a imagem de
   // prévia dos links (og:image), o url e o image do JSON-LD e o sitemap (as páginas no
   // sitemap.xml e a linha Sitemap: do robots.txt). Sem ele, essas partes simplesmente não saem. O
-  // endereço sem www é o principal: na Vercel, o www redireciona para ele.
-  site: 'https://menaniadvocacia.com.br',
+  // endereço com www é o principal: na Vercel, o sem www redireciona para ele.
+  site: 'https://www.menaniadvocacia.com.br',
 });
