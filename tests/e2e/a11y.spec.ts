@@ -180,9 +180,9 @@ test('o texto selecionado aparece em qualquer fundo', async ({ page }) => {
   // Fundo claro (seções brancas): seleção royal.
   expect(await selection(page.getByText(/^Diogo Menani - Advogado no/))).toBe(royal);
   // Fundo royal (seções royal, rodapé, menu e header sobre o hero): seleção branca.
-  expect(
-    await selection(page.getByText(/^Assessoria jurídica completa para Vistos Americanos/)),
-  ).toBe(white);
+  expect(await selection(page.getByText(/^Assessoria jurídica completa para consumidor/))).toBe(
+    white,
+  );
   expect(
     await selection(page.getByRole('contentinfo').getByText(/^Conteúdo de caráter informativo/)),
   ).toBe(white);

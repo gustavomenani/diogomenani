@@ -15,7 +15,7 @@ test.describe('página inicial', () => {
       'Defesa dos seus direitos com ética e responsabilidade',
     );
     await expect(page.locator('#inicio .hero-lead')).toHaveText(
-      'Assessoria jurídica completa para Vistos Americanos, família internacional, previdenciário e consumidor.',
+      'Assessoria jurídica completa para consumidor, família internacional, previdenciário e Vistos Americanos.',
     );
   });
 

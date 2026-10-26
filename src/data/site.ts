@@ -16,7 +16,7 @@ export const site = {
    */
   shortName: 'Diogo Menani',
   description:
-    'Assessoria jurídica completa para vistos americanos, família internacional, previdenciário e consumidor. Fale com um especialista pelo WhatsApp.',
+    'Assessoria jurídica completa para consumidor, família internacional, previdenciário e vistos americanos. Fale com um especialista pelo WhatsApp.',
   locale: 'pt_BR',
   /** <title> da página inicial. */
   title: 'Diogo Menani — Advocacia & Assessoria Jurídica',
